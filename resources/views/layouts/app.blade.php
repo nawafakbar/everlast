@@ -44,8 +44,8 @@
         </div>
 
         <div class="hidden md:flex items-center space-x-4 text-sm">
-            <a href="#" class="hover:opacity-70 transition-opacity"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="hover:opacity-70 transition-opacity"><i class="fab fa-youtube"></i></a>
+            <a href="https://www.instagram.com/everlast.project/" class="hover:opacity-70 transition-opacity" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://api.whatsapp.com/send?phone=6285161340842&utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnGvTWCNgoWTXWmtOEcNcyrFa-bOVcs8XeWWQfMvyr-QCW0ju-cKavlSEgDbs_aem_2uQnHGVXZBH1N0BiQ6A-Sw" class="hover:opacity-70 transition-opacity" target="_blank"><i class="fab fa-whatsapp"></i></a>
             
             @guest
                 <a href="{{ route('login') }}" class="hover:opacity-70 transition-opacity" title="Login / Register">
