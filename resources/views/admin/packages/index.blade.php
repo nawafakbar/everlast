@@ -34,7 +34,8 @@
         </div>
 
         <div class="bg-white border border-gray-200 rounded-sm overflow-hidden mb-4">
-            <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
                         <th class="px-6 py-4 w-10"><input type="checkbox" id="selectAll" form="bulkDeleteForm" class="w-3.5 h-3.5 text-black bg-gray-100 border-gray-300 rounded-sm cursor-pointer"></th>
@@ -68,6 +69,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
         </div>
 

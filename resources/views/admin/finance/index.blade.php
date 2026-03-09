@@ -52,7 +52,7 @@
     </div>
     
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse whitespace-nowrap">
             <thead>
                 <tr class="bg-white border-b border-gray-100 text-[10px] uppercase tracking-wider text-gray-500">
                     <th class="p-4 font-bold">Date & Time</th>
