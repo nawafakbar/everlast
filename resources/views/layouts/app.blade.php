@@ -31,16 +31,16 @@
 
     <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 py-4 md:py-6 px-6 md:px-8 flex justify-between items-center text-white bg-transparent">
         <div class="flex items-center z-50">
-            <a href="/" id="logo-text" class="text-xl md:text-2xl font-medium tracking-widest uppercase transition-colors">
-                Everlast
+            <a href="/" id="logo-text" class="transition-colors">
+                <img id="navbar-logo" src="/assets/images/everlastlogo.png" alt="Everlast Logo" class="h-6 md:h-8 transition-opacity duration-300">
             </a>
         </div>
 
         <div class="hidden md:flex space-x-8 text-[10px] font-medium tracking-[0.2em] uppercase">
-            <a href="/" class="hover:opacity-70 transition-opacity">Home</a>
-            <a href="#about" class="hover:opacity-70 transition-opacity">About</a>
-            <a href="#gallery" class="hover:opacity-70 transition-opacity">Gallery</a>
-            <a href="#schedule" class="hover:opacity-70 transition-opacity">Schedule</a>
+            <a href="/#home" class="hover:opacity-70 transition-opacity">Home</a>
+            <a href="/#about" class="hover:opacity-70 transition-opacity">About</a>
+            <a href="/#gallery" class="hover:opacity-70 transition-opacity">Gallery</a>
+            <a href="/#schedule" class="hover:opacity-70 transition-opacity">Schedule</a>
         </div>
 
         <div class="hidden md:flex items-center space-x-4 text-sm">
@@ -145,30 +145,41 @@
     </footer>
 
     <script>
+        // Set path logo lo di sini
+        const logoLight = '/assets/images/everlastlogo.png';       // Logo putih buat background transparan/gelap
+        const logoDark = '/assets/images/everlastlogolight.png'; // Logo hitam/gelap buat background putih
+        
         const navbar = document.getElementById('navbar');
-        const logoText = document.getElementById('logo-text');
+        const navbarLogo = document.getElementById('navbar-logo');
         const mobileBtn = document.getElementById('mobile-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const mobileLinks = document.querySelectorAll('.mobile-link');
         const icon = mobileBtn.querySelector('i');
         
         let isMenuOpen = false;
-        const heroSectionHeight = window.innerHeight - 100;
+        // Penyesuaian trigger scroll, biar gak perlu nunggu lewat hero section banget
+        const triggerHeight = 50; 
 
-        // Fungsi Ganti Warna Navbar saat di-scroll
+        // Fungsi Ganti Warna Navbar & Tukar Logo saat di-scroll
         function updateNavbarStyle() {
             if (isMenuOpen) return; // Jangan ubah warna kalau menu lagi kebuka
             
-            if (window.scrollY > heroSectionHeight) {
+            if (window.scrollY > triggerHeight) {
+                // Posisi scroll ke bawah: background putih, teks hitam, LOGO GELAP
                 navbar.classList.remove('bg-transparent', 'text-white', 'py-6');
                 navbar.classList.add('bg-white', 'text-black', 'py-4', 'shadow-sm');
+                navbarLogo.src = logoDark;
             } else {
+                // Posisi paling atas: background transparan, teks putih, LOGO TERANG
                 navbar.classList.add('bg-transparent', 'text-white', 'py-6');
                 navbar.classList.remove('bg-white', 'text-black', 'py-4', 'shadow-sm');
+                navbarLogo.src = logoLight;
             }
         }
 
         window.addEventListener('scroll', updateNavbarStyle);
+        // Jalankan sekali saat halaman diload biar ngecek posisi scroll awal
+        updateNavbarStyle(); 
 
         // Fungsi Toggle Mobile Menu
         mobileBtn.addEventListener('click', () => {
@@ -179,19 +190,18 @@
                 mobileMenu.classList.remove('translate-x-full', 'opacity-0', 'pointer-events-none');
                 icon.classList.remove('fa-bars');
                 icon.classList.add('fa-times');
-                // Paksa logo & tombol jadi hitam biar kelihatan di background cream
-                logoText.classList.remove('text-white');
-                logoText.classList.add('text-black');
+                // Paksa tombol & logo jadi hitam (karena background menu mobile itu terang)
                 mobileBtn.classList.remove('text-white');
                 mobileBtn.classList.add('text-black');
+                navbarLogo.src = logoDark; 
             } else {
                 // Tutup Menu
                 mobileMenu.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
-                // Kembalikan warna sesuai posisi scroll
-                logoText.classList.remove('text-black');
                 mobileBtn.classList.remove('text-black');
+                
+                // Kembalikan style navbar dan logo sesuai posisi scroll saat menu ditutup
                 updateNavbarStyle();
             }
         });
