@@ -9,9 +9,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\FinancialReportController;
+use App\Http\Controllers\Freelancer\MomentController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Models\Booking;
+use App\Models\Portfolio;
 
 // ==========================================
 // 1. PUBLIC ROUTES (Bisa diakses siapa saja)
@@ -22,8 +24,15 @@ Route::get('/', function () {
     ->orderBy('booking_date', 'asc') // Urutkan dari tanggal yang paling dekat (ter-awal)
     ->take(4)
     ->get();
-    return view('welcome', compact('schedules'));
+    $moments = Portfolio::latest()->take(10)->get();
+    return view('welcome', compact('schedules','moments'));
 })->name('home');
+
+// TAMBAHAN: Route Halaman Detail Publik (Gallery Feel)
+Route::get('/moment/{id}', function ($id) {
+    $moment = \App\Models\Portfolio::findOrFail($id);
+    return view('front.moment-detail', compact('moment'));
+})->name('front.moment.show');
 
 // Google Socialite
 Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
@@ -75,14 +84,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ==========================================
 // 3. FREELANCER AREA (Bisa diakses Admin & Freelancer)
 // ==========================================
-Route::prefix('freelancer')
+Route::prefix('freelance')
     ->name('freelancer.')
-    ->middleware(['auth', 'role:admin,freelancer']) // Admin ditambahkan agar bisa akses
+    ->middleware(['auth', 'role:freelancer']) // Admin ditambahkan agar bisa akses
     ->group(function () {
         
-        Route::get('/dashboard', function () {
-            return view('freelancer.dashboard');
-        })->name('dashboard');
+        Route::get('/moments', [MomentController::class, 'index'])->name('moments.index');
+        Route::get('/moments/create', [MomentController::class, 'create'])->name('moments.create');
+        Route::post('/moments', [MomentController::class, 'store'])->name('moments.store');
+        Route::delete('/moments/{portfolio}', [MomentController::class, 'destroy'])->name('moments.destroy');
+        Route::get('/moments/{portfolio}/edit', [MomentController::class, 'edit'])->name('moments.edit');
+        Route::put('/moments/{portfolio}', [MomentController::class, 'update'])->name('moments.update');
         
 });
 

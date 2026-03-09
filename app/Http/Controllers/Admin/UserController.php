@@ -32,7 +32,7 @@ class UserController extends Controller
     {
         // Cuma boleh validasi dan update ROLE
         $request->validate([
-            'role' => 'required|in:admin,customer',
+            'role' => 'required|in:admin,customer,freelancer',
         ]);
 
         $user = User::findOrFail($id);

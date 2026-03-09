@@ -128,4 +128,71 @@
     </div>
 </section>
 
+<!-- portfolio -->
+<section id="moments" class="pb-24 pt-5 bg-cream border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-6">
+        
+        <div class="text-center mb-20">
+            <h2 class="text-3xl md:text-4xl font-serif-custom text-gray-900 mb-4">Everlast Moments</h2>
+            <p class="text-xs font-sans-custom uppercase tracking-[0.3em] text-gray-400">Captured by our finest talents</p>
+        </div>
+
+        <div class="flex flex-col gap-32">
+            
+            @foreach($moments->take(4) as $moment)
+            <div class="flex flex-col items-center">
+                
+                <div class="w-full max-w-3xl h-[350px] md:h-[400px] lg:h-[450px] overflow-hidden mb-12 shadow-sm relative group">
+                    <a href="{{ route('front.moment.show', $moment->id) }}" class="block w-full max-w-5xl h-[350px] md:h-[500px] lg:h-[650px] overflow-hidden mb-12 shadow-sm relative group cursor-pointer">
+                    <img src="{{ $moment->cover_image }}" alt="Cover" class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" referrerpolicy="no-referrer">
+                    @auth
+                        @if(Auth::id() == $moment->user_id || Auth::user()->role == 'admin')
+                            <div class="absolute top-4 right-4 z-20">
+                                <span class="bg-black/70 text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-black transition-colors" onclick="event.preventDefault(); window.location.href='{{ route('freelancer.moments.edit', $moment->id) }}'">
+                                    Edit Moment
+                                </span>
+                            </div>
+                        @endif
+                    @endauth
+                </a>
+                </div>
+
+                <div class="w-full max-w-3xl relative">
+                    
+                    <div class="text-center mb-2">
+                        <span class="text-[10px] font-bold tracking-[0.2em] text-[#C9A66B] uppercase">{{ $moment->category }}</span>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row relative">
+                        <div class="md:absolute left-0 top-0 flex flex-col items-center md:items-start text-center md:text-left w-full md:w-auto mb-8 md:mb-0">
+                            <div class="w-6 h-[1px] bg-gray-300 mb-1 mx-auto md:mx-0"></div>
+                            <span class="text-3xl md:text-2xl font-serif-custom text-gray-800 leading-none">{{ \Carbon\Carbon::parse($moment->event_date)->format('d') }}</span>
+                            <span class="text-[9px] md:text-[8px] font-bold tracking-[0.2em] text-gray-400 uppercase mt-2">{{ \Carbon\Carbon::parse($moment->event_date)->format('M Y') }}</span>
+                        </div>
+
+                        <div class="w-full text-center px-4 md:px-24">
+                            <h3 class="text-sm md:text-lg font-medium tracking-widest uppercase text-gray-900 mb-1 leading-relaxed">{{ $moment->title }}</h3>
+                            <p class="text-[9px] md:text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">{{ $moment->client_name }}</p>
+                            <p class="text-[10px] md:text-xs tracking-[0.15em] uppercase text-gray-500 italic font-serif-custom">{{ $moment->quote }}</p>
+                            
+                            <div class="w-12 h-[1px] bg-gray-200 mt-12 mx-auto"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            @endforeach
+
+        </div>
+
+        <div class="text-center mt-24">
+            <a href="#" class="inline-block border border-gray-900 text-gray-900 px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+                View All Portfolio
+            </a>
+        </div>
+
+    </div>
+</section>
+
 @endsection

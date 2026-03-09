@@ -6,24 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('portfolios', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relasi ke ID Freelancer
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('image_path');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relasi ke Freelancer
+            $table->string('cover_image'); // Link GDrive untuk gambar depan
+            $table->string('category'); // Cth: PHOTOGRAPHY : TYING THE KNOT
+            $table->date('event_date'); 
+            $table->string('title'); // Cth: A HOLY DAY, A ROYAL TOUCH...
+            $table->string('client_name'); // Cth: DAVIN & VANESSA WEDDING BY TONNY
+            $table->string('quote')->nullable(); // Cth: GUIDED BY GRACE...
+            $table->json('gallery_links')->nullable(); // Array Link GDrive untuk detail galeri
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('portfolios');
