@@ -187,7 +187,7 @@
         </div>
 
         <div class="text-center mt-24">
-            <a href="#" class="inline-block border border-gray-900 text-gray-900 px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <a href="{{ route('front.portfolio.index') }}" class="inline-block border border-gray-900 text-gray-900 px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                 View All Portfolio
             </a>
         </div>

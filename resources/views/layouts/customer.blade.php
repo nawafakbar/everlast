@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Klien - Everlast</title>
+    <title>Dashboard Client - Everlast</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,11 +49,11 @@
 
             <nav class="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
                 <a href="{{ route('profile.edit') }}" class="flex items-center space-x-3 px-4 py-3 rounded-md text-xs font-medium transition-colors {{ request()->routeIs('profile.edit') ? 'bg-gray-100 text-black font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-black' }}">
-                    <i class="far fa-user w-5 text-center"></i> <span>Profil Saya</span>
+                    <i class="far fa-user w-5 text-center"></i> <span>My Profil</span>
                 </a>
                 
                 <a href="{{ route('customer.pesanan') }}" class="flex items-center space-x-3 px-4 py-3 rounded-md text-xs font-medium transition-colors {{ request()->routeIs('customer.pesanan') ? 'bg-gray-100 text-black font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-black' }}">
-                    <i class="fas fa-receipt w-5 text-center"></i> <span>Pesanan</span>
+                    <i class="fas fa-receipt w-5 text-center"></i> <span>My Booking</span>
                 </a>
                 
                 <a href="/" class="flex items-center space-x-3 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-black rounded-md font-medium text-xs transition-colors">
@@ -63,7 +63,7 @@
                 <form method="POST" action="{{ route('logout') }}" class="m-0 p-0 w-full mt-2 border-t border-gray-100 pt-2">
                     @csrf
                     <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-md font-medium text-xs transition-colors">
-                        <i class="fas fa-sign-out-alt w-5 text-center"></i> <span>Keluar</span>
+                        <i class="fas fa-sign-out-alt w-5 text-center"></i> <span>Log Out</span>
                     </button>
                 </form>
             </nav>

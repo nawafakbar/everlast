@@ -31,6 +31,16 @@
             <ul class="space-y-1 px-4">
                 
                 <li>
+                    <a href="{{ route('profile.edit') }}" 
+                       class="flex items-center px-4 py-2.5 rounded-sm transition-all duration-300 group {{ request()->routeIs('profile.edit') ? 'bg-gray-100 text-gray-500' : 'text-gray-500 hover:text-black hover:bg-gray-50' }}"
+                       title="Overview">
+                        <div class="w-6 flex items-center justify-center">
+                            <i class="fas fa-user text-xs transition-colors {{ request()->routeIs('profile.edit') ? 'text-gray-500' : 'text-gray-400 group-hover:text-black' }}"></i>
+                        </div>
+                        <span class="sidebar-text ml-3 font-medium text-xs tracking-wide uppercase whitespace-nowrap">My Profil</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('freelancer.moments.index') }}" 
                        class="flex items-center px-4 py-2.5 rounded-sm transition-all duration-300 group {{ request()->routeIs('freelancer.moments.index') ? 'bg-gray-100 text-gray-500' : 'text-gray-500 hover:text-black hover:bg-gray-50' }}"
                        title="Overview">

@@ -1,11 +1,12 @@
-@extends('layouts.customer')
+@extends(Auth::user()->role === 'freelancer' ? 'layouts.freelancer' : 'layouts.customer')
 
 @section('content')
 <div class="max-w-4xl">
     
     <div class="mb-8 border-b border-gray-200 pb-4">
-        <h2 class="text-2xl font-bold text-gray-900 mb-1">Profil Saya</h2>
-        <p class="text-xs text-gray-500">Kelola informasi profil Anda untuk mengontrol, melindungi, dan mengamankan akun.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mb-1">My Profil</h2>
+        <p class="text-xs text-gray-500">Manage your profile information to control, protect, and secure your account.
+</p>
     </div>
 
     @if (session('error_profile'))
@@ -16,7 +17,7 @@
     @endif
     @if (session('status') === 'profile-updated')
         <div class="mb-6 p-4 bg-green-50 text-green-700 text-xs font-medium border border-green-200 rounded-md">
-            <i class="fas fa-check-circle mr-2"></i> Profil berhasil diperbarui.
+            <i class="fas fa-check-circle mr-2"></i> Profil has been updated.
         </div>
     @endif
 
@@ -27,7 +28,7 @@
 
             <div class="flex-1 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center">
-                    <label class="sm:w-1/3 text-xs text-gray-700 font-semibold mb-2 sm:mb-0">Nama Lengkap</label>
+                    <label class="sm:w-1/3 text-xs text-gray-700 font-semibold mb-2 sm:mb-0">Full Name</label>
                     <input type="text" name="name" value="{{ old('name', Auth::user()->name) }}" class="flex-1 border border-gray-300 rounded-sm px-4 py-2 text-sm focus:ring-1 focus:ring-black outline-none transition-shadow">
                 </div>
                 @error('name') <p class="text-red-500 text-[10px] sm:pl-[33%]">{{ $message }}</p> @enderror
@@ -39,14 +40,14 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row sm:items-center">
-                    <label class="sm:w-1/3 text-xs text-gray-700 font-semibold mb-2 sm:mb-0">Nomor Telepon</label>
+                    <label class="sm:w-1/3 text-xs text-gray-700 font-semibold mb-2 sm:mb-0">No.Tlp</label>
                     <input type="text" name="phone" value="{{ old('phone', Auth::user()->phone) }}" placeholder="Contoh: 081234567890" class="flex-1 border border-gray-300 rounded-sm px-4 py-2 text-sm focus:ring-1 focus:ring-black outline-none transition-shadow">
                 </div>
                 @error('phone') <p class="text-red-500 text-[10px] sm:pl-[33%]">{{ $message }}</p> @enderror
 
                 <div class="pt-6 sm:pl-[33%]">
                     <button type="submit" class="bg-black text-white px-8 py-3 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md">
-                        Simpan
+                        Save
                     </button>
                 </div>
             </div>
@@ -59,10 +60,10 @@
                 <input type="file" id="avatarInput" name="avatar" class="hidden" accept="image/jpeg, image/png, image/jpg" onchange="previewImage(event)">
                 
                 <button type="button" onclick="document.getElementById('avatarInput').click()" class="border border-gray-300 text-gray-800 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors">
-                    Pilih Gambar
+                    Choose Image
                 </button>
                 
-                <p class="text-[10px] text-gray-400 mt-4 text-center leading-relaxed">Maks. 2 MB<br>Format: JPEG, PNG</p>
+                <p class="text-[10px] text-gray-400 mt-4 text-center leading-relaxed">Max. 2 MB<br>Format: JPEG, PNG</p>
                 @error('avatar') <p class="text-red-500 text-[10px] mt-2 text-center">{{ $message }}</p> @enderror
             </div>
         </form>

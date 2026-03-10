@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Payment;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
 use Spatie\GoogleCalendar\Event;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
 
 class CheckoutController extends Controller
@@ -171,6 +175,34 @@ class CheckoutController extends Controller
         }
 
         return response()->json(['message' => 'Callback sukses.']);
+    }
+
+    public function downloadInvoice($id)
+    {
+        // Tarik data Booking, sekaligus narik relasi Payment yang berstatus 'success'
+        $booking = \App\Models\Booking::with(['user', 'package', 'payments' => function($query) {
+            $query->where('status', 'success')->orderBy('created_at', 'asc');
+        }])->findOrFail($id);
+
+        // Validasi Keamanan
+        if ($booking->user_id !== \Illuminate\Support\Facades\Auth::id() && \Illuminate\Support\Facades\Auth::user()->role !== 'admin') {
+            abort(403, 'Anda tidak memiliki akses ke nota ini.');
+        }
+
+        // Hitung total uang yang udah masuk
+        $totalPaid = $booking->payments->sum('amount');
+
+        if ($totalPaid == 0) {
+            abort(400, 'Belum ada pembayaran yang berhasil untuk booking ini.');
+        }
+
+        // Load view PDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.invoice', compact('booking', 'totalPaid'));
+
+        // Nama file: INV-EVL-BookingID.pdf
+        $fileName = 'INV-EVL-' . $booking->id . '.pdf';
+        
+        return $pdf->download($fileName);
     }
 }
 // namespace App\Http\Controllers;

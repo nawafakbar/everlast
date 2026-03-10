@@ -55,6 +55,8 @@
                         <th class="px-6 py-4 w-10"><input type="checkbox" id="selectAll" form="bulkDeleteForm" class="w-3.5 h-3.5 text-black bg-gray-100 border-gray-300 rounded-sm cursor-pointer"></th>
                         <th class="px-6 py-4 font-medium">Event Date</th>
                         <th class="px-6 py-4 font-medium">Client</th>
+                        <th class="px-6 py-4 font-medium">Category</th>
+                        <th class="px-6 py-4 font-medium">Packages</th>
                         <th class="px-6 py-4 font-medium">Status</th>
                         <th class="px-6 py-4 font-medium text-right">Actions</th>
                     </tr>
@@ -66,7 +68,9 @@
                                 <input type="checkbox" name="ids[]" value="{{ $booking->id }}" form="bulkDeleteForm" class="row-checkbox w-3.5 h-3.5 text-black bg-gray-100 border-gray-300 rounded-sm cursor-pointer">
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M Y') }}</td>
-                            <td class="px-6 py-4 text-gray-700">{{ $booking->user->name }}</td>
+                            <td class="px-6 py-4 text-gray-700">{{ $booking->user->name }} & {{ $booking->partner_name }}</td>
+                            <td class="px-6 py-4 text-gray-700">{{ $booking->package->category }}</td>
+                            <td class="px-6 py-4 text-gray-700">{{ $booking->package->name }}</td>
                             <td class="px-6 py-4">
                                 @php
                                     $statusColor = match($booking->status) {

@@ -11,7 +11,7 @@
     <script>
         tailwind.config = {
             theme: {
-                extend: { colors: { cream: '#FDFBF7' }, fontFamily: { 'sans-custom': ['Montserrat', 'sans-serif'], 'serif-custom': ['"Playfair Display"', 'serif'] } }
+                extend: { colors: { cream: '#FFFFFF' }, fontFamily: { 'sans-custom': ['Montserrat', 'sans-serif'], 'serif-custom': ['"Playfair Display"', 'serif'] } }
             }
         }
     </script>
@@ -19,8 +19,8 @@
 <body class="font-sans-custom bg-cream text-gray-900 antialiased overflow-x-hidden">
 
     <div class="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 bg-gradient-to-b from-cream/80 to-transparent backdrop-blur-sm">
-        <a href="/" class="text-xs font-bold tracking-[0.2em] uppercase text-gray-600 hover:text-black transition-colors">
-            <i class="fas fa-arrow-left mr-2"></i> Back
+        <a href="/#moments" class="text-xs font-bold tracking-[0.2em] uppercase text-gray-600 hover:text-black transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Home
         </a>
         
         @auth
@@ -59,7 +59,7 @@
             @if(is_array($moment->gallery_links) && count($moment->gallery_links) > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start mb-20">
                     @foreach($moment->gallery_links as $link)
-                        <div class="w-full shadow-lg rounded-sm overflow-hidden transform hover:scale-[1.02] transition-transform duration-500">
+                        <div class="w-full rounded-sm overflow-hidden transform hover:scale-[1.02] transition-transform duration-500">
                             <img src="{{ $link }}" alt="Gallery Image" class="w-full h-auto object-cover aspect-[4/5]" referrerpolicy="no-referrer">
                         </div>
                     @endforeach

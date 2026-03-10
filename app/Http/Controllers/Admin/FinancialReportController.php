@@ -4,20 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\FinanceExport;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class FinancialReportController extends Controller
 {
-    public function index(Request $request)
+    // ==========================================
+    // FUNGSI HELPER: Biar logika tanggal nggak diulang-ulang
+    // ==========================================
+    private function resolveDates(Request $request)
     {
-        $query = Payment::with(['booking.user', 'booking.package'])->where('status', 'success');
-
         $preset = $request->input('preset');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // Logika Tombol Shortcut (Preset)
         if ($preset) {
             switch ($preset) {
                 case 'today':
@@ -39,11 +42,20 @@ class FinancialReportController extends Controller
             }
         }
 
-        // Kalau nggak ada filter sama sekali, default ke bulan ini
         if (!$startDate || !$endDate) {
             $startDate = Carbon::now()->startOfMonth()->toDateString();
             $endDate = Carbon::now()->endOfMonth()->toDateString();
         }
+
+        return [$startDate, $endDate, $preset];
+    }
+
+    public function index(Request $request)
+    {
+        // Ambil tanggal dari fungsi helper
+        [$startDate, $endDate, $preset] = $this->resolveDates($request);
+
+        $query = Payment::with(['booking.user', 'booking.package'])->where('status', 'success');
 
         // Terapkan Filter Tanggal
         $query->whereDate('created_at', '>=', $startDate)
@@ -66,6 +78,88 @@ class FinancialReportController extends Controller
             'preset' => $preset
         ]);
 
-        return view('admin.finance.index', compact('payments', 'totalRevenue', 'totalDP', 'totalFullPayment', 'startDate', 'endDate', 'preset'));
+        // ==========================================
+        // LOGIKA UNTUK GRAFIK CHART.JS (REAL DATA)
+        // ==========================================
+        $chartQuery = Payment::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->where('status', 'success')
+            ->orderBy('created_at')
+            ->get();
+
+        $diffInDays = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
+
+        $chartLabels = [];
+        $chartData = [];
+
+        if ($diffInDays > 62) {
+            $grouped = $chartQuery->groupBy(function($item) { 
+                return $item->created_at->format('M Y'); 
+            });
+            
+            $period = \Carbon\CarbonPeriod::create(Carbon::parse($startDate)->startOfMonth(), '1 month', Carbon::parse($endDate)->startOfMonth());
+            
+            foreach ($period as $date) {
+                $fmt = $date->format('M Y');
+                $chartLabels[] = $fmt;
+                $chartData[] = $grouped->has($fmt) ? $grouped[$fmt]->sum('amount') : 0;
+            }
+        } else {
+            $grouped = $chartQuery->groupBy(function($item) { 
+                return $item->created_at->format('d M'); 
+            });
+            
+            $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+            
+            foreach ($period as $date) {
+                $fmt = $date->format('d M');
+                $chartLabels[] = $fmt;
+                $chartData[] = $grouped->has($fmt) ? $grouped[$fmt]->sum('amount') : 0;
+            }
+        }
+
+        return view('admin.finance.index', compact(
+            'payments', 
+            'totalRevenue', 
+            'totalDP', 
+            'totalFullPayment', 
+            'startDate', 
+            'endDate',
+            'chartLabels',
+            'chartData'
+        ));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // Ambil tanggal yang akurat dari fungsi helper
+        [$startDate, $endDate] = $this->resolveDates($request);
+
+        $payments = Payment::with('booking.user')
+            ->where('status', 'success')
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->orderBy('created_at')
+            ->get();
+
+        $totalRevenue = $payments->sum('amount');
+        $totalDP = $payments->where('payment_type', 'dp')->sum('amount');
+        $totalFullPayment = $totalRevenue - $totalDP;
+
+        $pdf = Pdf::loadView('admin.finance.export-template', compact(
+            'payments', 'totalRevenue', 'totalDP', 'totalFullPayment', 'startDate', 'endDate'
+        ));
+
+        $fileName = 'Everlast_Finance_' . Carbon::parse($startDate)->format('M_Y') . '.pdf';
+        
+        return $pdf->download($fileName);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        // Ambil tanggal yang akurat dari fungsi helper
+        [$startDate, $endDate] = $this->resolveDates($request);
+
+        $fileName = 'Everlast_Finance_' . Carbon::parse($startDate)->format('M_Y') . '.xlsx';
+        
+        return Excel::download(new FinanceExport($startDate, $endDate), $fileName);
     }
 }

@@ -35,6 +35,11 @@ Route::get('/moment/{id}', function ($id) {
     return view('front.moment-detail', compact('moment'));
 })->name('front.moment.show');
 
+Route::get('/portfolio', function () {
+    $moments = \App\Models\Portfolio::latest()->paginate(16);
+    return view('front.portfolio', compact('moments'));
+})->name('front.portfolio.index');
+
 // Google Socialite
 Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
@@ -76,6 +81,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute Checkout
     Route::get('/checkout/{id}', [CheckoutController::class, 'show'])->name('customer.checkout');
     Route::post('/checkout/{id}', [CheckoutController::class, 'process'])->name('customer.checkout.process'); // <--- TAMBAHIN INI
+
+    // Route Cetak Nota Pembayaran (Customer / Admin)
+    Route::get('/payment/{booking}/invoice', [CheckoutController::class, 'downloadInvoice'])->name('booking.invoice');
 
     // ROUTE KHUSUS CUSTOMER (Bisa diakses Admin & Freelancer juga)
     // Jika ada route seperti 'Pesanan Saya', bungkus di sini pakai:
@@ -136,6 +144,8 @@ Route::prefix('admin')
 
         // Financial Report
         Route::get('/finance', [FinancialReportController::class, 'index'])->name('finance');
+        Route::get('/admin/finance/pdf', [FinancialReportController::class, 'exportPdf'])->name('finance.pdf');
+        Route::get('/admin/finance/excel', [FinancialReportController::class, 'exportExcel'])->name('finance.excel');
 });
 
 require __DIR__.'/auth.php';
