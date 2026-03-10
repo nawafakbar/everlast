@@ -37,11 +37,12 @@
             </a>
         </div>
 
-        <div class="hidden md:flex space-x-8 text-[10px] font-medium tracking-[0.2em] uppercase">
+        <div class="hidden md:flex space-x-8 text-[9px] font-medium tracking-[0.2em] uppercase">
             <a href="/#home" class="hover:opacity-70 transition-opacity">Home</a>
             <a href="/#about" class="hover:opacity-70 transition-opacity">About</a>
             <a href="/#gallery" class="hover:opacity-70 transition-opacity">Gallery</a>
             <a href="/#schedule" class="hover:opacity-70 transition-opacity">Schedule</a>
+            <a href="/#moments" class="hover:opacity-70 transition-opacity">Portfolio</a>
         </div>
 
         <div class="hidden md:flex items-center space-x-4 text-sm">
@@ -89,6 +90,7 @@
             <a href="#about" class="mobile-link text-sm font-bold tracking-[0.3em] uppercase hover:text-[#C9A66B] transition-colors">About Us</a>
             <a href="#gallery" class="mobile-link text-sm font-bold tracking-[0.3em] uppercase hover:text-[#C9A66B] transition-colors">Gallery</a>
             <a href="#schedule" class="mobile-link text-sm font-bold tracking-[0.3em] uppercase hover:text-[#C9A66B] transition-colors">Schedule</a>
+            <a href="#moments" class="mobile-link text-sm font-bold tracking-[0.3em] uppercase hover:text-[#C9A66B] transition-colors">Portfolio</a>
             
             <div class="pt-8 flex justify-center items-center space-x-6 text-xl text-gray-400 border-t border-gray-200 w-48 mx-auto mt-4">
                 <a href="#" class="hover:text-black transition-colors"><i class="fab fa-instagram"></i></a>
