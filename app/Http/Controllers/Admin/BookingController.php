@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use Illuminate\Http\Request;
 use Spatie\GoogleCalendar\Event;
 use Carbon\Carbon;
@@ -121,7 +122,12 @@ class BookingController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $booking = \App\Models\Booking::with('assignments.user')->findOrFail($id);
+        
+        // Ambil semua user yang rolenya freelancer
+        $freelancers = \App\Models\User::where('role', 'freelancer')->get();
+        
+        return view('admin.bookings.show', compact('booking', 'freelancers'));
     }
 
     /**
@@ -361,68 +367,88 @@ class BookingController extends Controller
         return view('admin.bookings.payment_success', compact('booking', 'payment'));
     }
 
-    // public function callback(\Illuminate\Http\Request $request)
-    // {
-    //     $serverKey = env('MIDTRANS_SERVER_KEY');
+    public function assignFreelancer(Request $request, $bookingId)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'task' => 'required|string|max:255',
+            'fee' => 'required|numeric|min:0',
+        ]);
+
+        $currentBooking = \App\Models\Booking::findOrFail($bookingId);
+
+        // CEK BENTROK JADWAL MENGGUNAKAN 'booking_date'
+        $isConflict = \App\Models\Assignment::where('user_id', $validated['user_id'])
+            ->where('status', '!=', 'rejected')
+            ->whereHas('booking', function ($query) use ($currentBooking) {
+                $query->whereDate('booking_date', $currentBooking->booking_date); 
+            })
+            ->exists();
+
+        if ($isConflict) {
+            return back()->with('error', 'Penugasan gagal! Freelancer ini sudah memiliki jadwal di tanggal tersebut.');
+        }
+
+        \App\Models\Assignment::create([
+            'booking_id' => $currentBooking->id,
+            'user_id' => $validated['user_id'],
+            'task' => $validated['task'],
+            'fee' => $validated['fee'],
+            'status' => 'pending', // Status awal nunggu di-acc freelancer
+        ]);
+
+        return back()->with('success', 'Freelancer berhasil ditugaskan! Menunggu konfirmasi.');
+    }
+
+    // Nampilin form edit penugasan
+    public function editAssignment(\App\Models\Assignment $assignment)
+    {
+        // Ambil semua freelancer untuk opsi dropdown
+        $freelancers = \App\Models\User::where('role', 'freelancer')->get();
+        return view('admin.bookings.edit-assignment', compact('assignment', 'freelancers'));
+    }
+
+    // Proses simpan hasil edit
+    public function updateAssignment(Request $request, \App\Models\Assignment $assignment)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'task' => 'required|string|max:255',
+            'fee' => 'required|numeric|min:0',
+        ]);
+
+        // Cek bentrok jadwal HANYA JIKA admin mengganti orangnya (user_id berubah)
+        if ($assignment->user_id != $validated['user_id']) {
+            $isConflict = \App\Models\Assignment::where('user_id', $validated['user_id'])
+                ->where('id', '!=', $assignment->id) // Abaikan tugas yang sedang di-edit ini
+                ->where('status', '!=', 'rejected')
+                ->whereHas('booking', function ($query) use ($assignment) {
+                    $query->whereDate('booking_date', $assignment->booking->booking_date); 
+                })
+                ->exists();
+
+            if ($isConflict) {
+                return back()->with('error', 'Update gagal! Freelancer pengganti sudah memiliki jadwal di tanggal tersebut.');
+            }
+        }
+
+        // Update data
+        $assignment->update([
+            'user_id' => $validated['user_id'],
+            'task' => $validated['task'],
+            'fee' => $validated['fee'],
+            // Note: Status TIDAK kita ubah ke pending lagi agar tidak merepotkan freelancer kalau cuma ganti Fee/Task
+        ]);
+
+        return redirect()->route('admin.bookings.show', $assignment->booking_id)->with('success', 'Detail penugasan tim berhasil diupdate!');
+    }
+
+    // Proses hapus penugasan
+    public function deleteAssignment(\App\Models\Assignment $assignment)
+    {
+        $bookingId = $assignment->booking_id; // Simpan ID booking untuk keperluan redirect
+        $assignment->delete();
         
-    //     // 1. Validasi Keamanan (Signature Key)
-    //     // Midtrans mengirimkan order_id, status_code, dan gross_amount. Kita hash pakai Server Key kita.
-    //     $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
-
-    //     if ($hashed !== $request->signature_key) {
-    //         return response()->json(['message' => 'Invalid signature! Akses ditolak.'], 403);
-    //     }
-
-    //     // 2. Cari data pembayaran berdasarkan ID Transaksi
-    //     $payment = \App\Models\Payment::where('midtrans_transaction_id', $request->order_id)->first();
-    //     if (!$payment) {
-    //         return response()->json(['message' => 'Payment not found'], 404);
-    //     }
-
-    //     // Ambil data booking yang berelasi
-    //     $booking = \App\Models\Booking::with(['user', 'package'])->find($payment->booking_id);
-    //     $transactionStatus = $request->transaction_status;
-        
-    //     // 3. Logika Perubahan Status
-    //     if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-    //         // PEMBAYARAN SUKSES
-    //         $payment->update(['status' => 'success']);
-            
-    //         // Update status booking jadi DP atau Lunas
-    //         $newStatus = $payment->payment_type === 'dp' ? 'dp_paid' : 'paid_in_full';
-    //         $booking->update(['status' => $newStatus]);
-
-    //         // ==========================================
-    //         // LOGIKA OTOMATISASI GOOGLE CALENDAR
-    //         // ==========================================
-    //         if (!$booking->google_calendar_id) {
-    //             try {
-    //                 $event = new \Spatie\GoogleCalendar\Event;
-    //                 $event->name = "Everlast: " . $booking->user->name . " & " . $booking->partner_name;
-    //                 $event->description = "Paket: " . $booking->package->name . "\nLokasi 1: " . $booking->couple_address;
-    //                 $event->startDateTime = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time, 'Asia/Jakarta');
-    //                 $event->endDateTime = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time, 'Asia/Jakarta');
-
-    //                 $savedEvent = $event->save();
-                    
-    //                 // Simpan ID Kalender ke database lokal
-    //                 $booking->update(['google_calendar_id' => $savedEvent->id]);
-    //             } catch (\Exception $e) {
-    //                 // Biarkan lewat jika Google bermasalah, uang sudah masuk
-    //             }
-    //         }
-
-    //     } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
-    //         // PEMBAYARAN GAGAL / EXPIRED
-    //         $payment->update(['status' => 'failed']);
-    //         // Status booking tetap pending agar klien bisa mengulang pembayaran
-            
-    //     } else if ($transactionStatus == 'pending') {
-    //         // MASIH MENUNGGU (Misal bayar via Indomaret tapi belum ke kasir)
-    //         $payment->update(['status' => 'pending']);
-    //     }
-
-    //     // Beri tahu Midtrans kalau kita sudah menerima pesannya dengan baik
-    //     return response()->json(['message' => 'Callback diterima dengan sukses.']);
-    // }
+        return redirect()->route('admin.bookings.show', $bookingId)->with('success', 'Freelancer berhasil dihapus dari tim acara ini!');
+    }
 }

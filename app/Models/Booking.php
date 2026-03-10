@@ -31,4 +31,10 @@ class Booking extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    //Relasi ke Assigment
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class);
+    }
 }

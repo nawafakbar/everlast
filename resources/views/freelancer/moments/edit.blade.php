@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.freelancer')
 
 @section('content')
 <div class="mb-8 border-b border-gray-200 pb-4 mt-2 flex justify-between items-center">

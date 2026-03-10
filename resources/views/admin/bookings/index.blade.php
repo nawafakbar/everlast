@@ -81,10 +81,19 @@
                             </td>
                             <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
                                 <div class="flex justify-end space-x-3">
+                                    
+                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" class="text-gray-400 hover:text-blue-500 transition-colors" title="Manage Team / Assign Freelancer">
+                                        <i class="fas fa-users-cog"></i>
+                                    </a>
+                                    
                                     <a href="{{ route('admin.bookings.checkout', $booking->id) }}" class="text-gray-400 hover:text-green-500 transition-colors" title="Test Payment">
                                         <i class="fas fa-credit-card"></i>
                                     </a>
-                                    <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit"><i class="fas fa-edit"></i></a>
+                                    
+                                    <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
                                     <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Hapus booking ini?');">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete"><i class="fas fa-trash"></i></button>

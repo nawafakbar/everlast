@@ -36,8 +36,21 @@ class SocialiteController extends Controller
                 $user->update(['google_id' => $googleUser->getId()]);
             }
             
+            // Login user-nya
             Auth::login($user);
-            return redirect()->intended('/'); 
+
+            // ==========================================
+            // LOGIKA REDIRECT BERDASARKAN ROLE
+            // ==========================================
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->role === 'freelancer') {
+                return redirect()->route('freelancer.moments.index');
+            } else {
+                // Default ke Landing Page (buat customer)
+                return redirect()->intended('/'); 
+            }
+            
         } catch (\Exception $e) {
             return redirect('/login')->withErrors(['Terjadi kesalahan saat login dengan Google.']);
             //dd($e->getMessage());

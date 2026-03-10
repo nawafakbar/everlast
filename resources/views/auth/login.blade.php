@@ -23,9 +23,13 @@
                        class="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-sm text-gray-900 focus:ring-0 focus:border-black transition-colors placeholder-gray-400 font-serif-custom italic outline-none">
             </div>
 
-            <div>
+            <div class="relative">
                 <input type="password" name="password" required placeholder="Password" 
-                       class="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-sm text-gray-900 focus:ring-0 focus:border-black transition-colors placeholder-gray-400 font-serif-custom italic outline-none">
+                    class="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 pr-10 text-sm text-gray-900 focus:ring-0 focus:border-black transition-colors placeholder-gray-400 font-serif-custom italic outline-none">
+                
+                <button type="button" onclick="togglePassword(this)" class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none">
+                    <i class="far fa-eye"></i>
+                </button>
             </div>
 
             <div class="flex items-center justify-between mt-6">

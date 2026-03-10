@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.freelancer')
 
 @section('content')
 <div class="mb-8 border-b border-gray-200 pb-4 mt-2 flex justify-between items-end">
@@ -6,8 +6,17 @@
         <h2 class="text-xl font-semibold text-gray-900 tracking-tight">My Moments</h2>
         <p class="text-gray-500 text-xs mt-1">Manage and showcase your best photography or videography moments.</p>
     </div>
-    <a href="{{ route('freelancer.moments.create') }}" class="bg-black text-white px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-gray-800 transition-colors shadow-sm">
-        <i class="fas fa-plus mr-2"></i> Add New Moment
+    <a href="{{ route('freelancer.moments.create') }}"
+    class="bg-black text-white 
+    px-3 py-3 ms-3 text-[10px] 
+    sm:px-4 sm:text-xs
+    md:px-4 md:py-2 md:text-xs
+    tracking-widest 
+    rounded-sm hover:bg-gray-800 
+    transition-colors shadow-sm">
+
+        <span class="hidden sm:inline"><i class="fas fa-plus mr-2"></i>Add New Moment</span>
+        <span class="sm:hidden"><i class="fas fa-plus"></i></span>
     </a>
 </div>
 

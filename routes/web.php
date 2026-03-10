@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\FinancialReportController;
 use App\Http\Controllers\Freelancer\MomentController;
+use App\Http\Controllers\Freelancer\AssignmentController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Models\Booking;
@@ -95,6 +96,8 @@ Route::prefix('freelance')
         Route::delete('/moments/{portfolio}', [MomentController::class, 'destroy'])->name('moments.destroy');
         Route::get('/moments/{portfolio}/edit', [MomentController::class, 'edit'])->name('moments.edit');
         Route::put('/moments/{portfolio}', [MomentController::class, 'update'])->name('moments.update');
+        Route::get('/schedules', [AssignmentController::class, 'index'])->name('schedules.index');
+        Route::patch('/schedules/{assignment}/status', [AssignmentController::class, 'updateStatus'])->name('schedules.status');
         
 });
 
@@ -112,6 +115,10 @@ Route::prefix('admin')
         Route::resource('packages', PackageController::class);
         Route::resource('bookings', BookingController::class);
         Route::resource('users', UserController::class);
+        Route::post('/admin/bookings/{booking}/assign', [BookingController::class, 'assignFreelancer'])->name('bookings.assign');
+        Route::get('/admin/assignments/{assignment}/edit', [BookingController::class, 'editAssignment'])->name('assignments.edit');
+        Route::put('/admin/assignments/{assignment}', [BookingController::class, 'updateAssignment'])->name('assignments.update');
+        Route::delete('/admin/assignments/{assignment}', [BookingController::class, 'deleteAssignment'])->name('assignments.destroy');
         
         // Bulk Delete
         Route::post('users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulkDelete');

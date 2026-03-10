@@ -55,9 +55,20 @@
             @endguest
 
             @auth
-                <a href="{{ route('profile.edit') }}" class="hover:opacity-70 transition-opacity" title="{{ Auth::user()->name }}">
-                    <i class="far fa-user-circle"></i>
-                </a>
+                @if(Auth::user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="hover:opacity-70 transition-opacity" title="{{ Auth::user()->name }} (Admin)">
+                        <i class="far fa-user-circle"></i>
+                    </a>
+                @elseif(Auth::user()->role === 'freelancer')
+                    <a href="{{ route('freelancer.moments.index') }}" class="hover:opacity-70 transition-opacity" title="{{ Auth::user()->name }} (Freelancer)">
+                        <i class="far fa-user-circle"></i>
+                    </a>
+                @else
+                    <a href="{{ route('profile.edit') }}" class="hover:opacity-70 transition-opacity" title="{{ Auth::user()->name }}">
+                        <i class="far fa-user-circle"></i>
+                    </a>
+                @endif
+
                 <form method="POST" action="{{ route('logout') }}" class="inline m-0 p-0">
                     @csrf
                     <button type="submit" class="hover:opacity-70 transition-opacity focus:outline-none" title="Log Out">
@@ -214,5 +225,23 @@
             });
         });
     </script>
+    <script>
+    // Fungsi pintar yang mencari input berdasarkan lokasi tombol, bukan ID
+    function togglePassword(buttonElement) {
+        // Cari inputan yang ada di dalam div (bungkusan) yang sama dengan tombol yang diklik
+        const input = buttonElement.parentElement.querySelector('input');
+        const icon = buttonElement.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text'; // Munculkan teks
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash'); // Ganti icon dicoret
+        } else {
+            input.type = 'password'; // Sembunyikan teks
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye'); // Balikin icon mata biasa
+        }
+    }
+</script>
 </body>
 </html>
