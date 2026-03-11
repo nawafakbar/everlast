@@ -45,7 +45,7 @@ class SocialiteController extends Controller
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->role === 'freelancer') {
-                return redirect()->route('freelancer.moments.index');
+                return redirect()->route('freelancer.schedules.index');
             } else {
                 // Default ke Landing Page (buat customer)
                 return redirect()->intended('/'); 

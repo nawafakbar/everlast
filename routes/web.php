@@ -85,6 +85,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route Cetak Nota Pembayaran (Customer / Admin)
     Route::get('/payment/{booking}/invoice', [CheckoutController::class, 'downloadInvoice'])->name('booking.invoice');
 
+    // Calender Everlast
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('admin.calendar');
+    Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('admin.calendar.events');
+    Route::get('/customer/calendar-events', [CalendarController::class, 'getAvailableDates'])->name('customer.calendar.events');
+
     // ROUTE KHUSUS CUSTOMER (Bisa diakses Admin & Freelancer juga)
     // Jika ada route seperti 'Pesanan Saya', bungkus di sini pakai:
     // Route::middleware(['role:admin,freelancer,customer'])->group(function() { ... });
@@ -137,10 +142,6 @@ Route::prefix('admin')
         Route::get('bookings/{id}/checkout', [BookingController::class, 'checkout'])->name('bookings.checkout');
         Route::post('bookings/{id}/checkout', [BookingController::class, 'processCheckout'])->name('bookings.processCheckout');
         Route::get('bookings/{id}/payment-success', [BookingController::class, 'paymentSuccess'])->name('bookings.paymentSuccess');
-
-        // Calender Everlast
-        Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
-        Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('calendar.events');
 
         // Financial Report
         Route::get('/finance', [FinancialReportController::class, 'index'])->name('finance');

@@ -11,6 +11,11 @@ use Spatie\GoogleCalendar\Event;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Mail\PaymentSuccessMail;
+use App\Mail\AdminManualPaymentMail;
+use App\Mail\AdminPaymentNotificationMail;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -108,7 +113,7 @@ class CheckoutController extends Controller
             // Simpan gambar bukti transfer
             $imagePath = $request->file('proof_image')->store('payment_proofs', 'public');
 
-            Payment::create([
+            $payment = Payment::create([
                 'booking_id' => $booking->id,
                 'payment_method' => $request->payment_method,
                 'payment_type' => $request->payment_type,
@@ -117,6 +122,14 @@ class CheckoutController extends Controller
                 'proof_image' => $imagePath,
                 'notes' => $request->notes,
             ]);
+
+            // === TAMBAHAN: KIRIM EMAIL KE ADMIN ===
+            // Cari user admin pertama buat dikirimin notif
+            $admin = User::where('role', 'admin')->first();
+            if ($admin) {
+                Mail::to($admin->email)->send(new AdminManualPaymentMail($booking, $payment));
+            }
+            // =======================================
 
             return redirect()->route('customer.pesanan')->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu konfirmasi admin.');
         }
@@ -151,6 +164,18 @@ class CheckoutController extends Controller
             // Update status booking jadi DP atau Lunas (sesuai data enum di database)
             $newStatus = $payment->payment_type === 'dp' ? 'dp_paid' : 'paid_in_full';
             $booking->update(['status' => $newStatus]);
+
+            // === TAMBAHAN: KIRIM EMAIL KE KLIEN ===
+            $typeString = $payment->payment_type === 'dp' ? 'Down Payment (DP)' : 'Pelunasan';
+            Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, $typeString, $payment->amount));
+
+            // === TAMBAHAN: KIRIM EMAIL KE ADMIN ===
+            // Cari user yang rolenya admin (ambil admin pertama)
+            $admin = User::where('role', 'admin')->first();
+            if ($admin) {
+                Mail::to($admin->email)->send(new AdminPaymentNotificationMail($booking, $payment));
+            }
+            // =======================================
 
             // ==========================================
             // LOGIKA OTOMATISASI GOOGLE CALENDAR

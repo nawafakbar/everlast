@@ -7,6 +7,9 @@ use App\Models\Assignment;
 use Illuminate\Http\Request;
 use Spatie\GoogleCalendar\Event;
 use Carbon\Carbon;
+use App\Mail\PaymentSuccessMail;
+use App\Mail\NewAssignmentMail;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -208,23 +211,31 @@ class BookingController extends Controller
         }
 
         // ==========================================
-        // 4. LOGIKA SINKRONISASI STATUS PEMBAYARAN
+        // 4. LOGIKA SINKRONISASI STATUS PEMBAYARAN & EMAIL
         // ==========================================
         if ($request->status === 'dp_paid') {
-            // Ubah pembayaran DP yang masih pending menjadi success
-            \App\Models\Payment::where('booking_id', $booking->id)
-                ->where('payment_type', 'dp')
-                ->where('status', 'pending')
-                ->update(['status' => 'success']);
+            // Cari pembayaran manual DP yang masih pending
+            $pendingPayment = \App\Models\Payment::where('booking_id', $booking->id)
+                ->where('payment_type', 'dp')->where('status', 'pending')->first();
+                
+            if ($pendingPayment) {
+                $pendingPayment->update(['status' => 'success']);
+                // Kirim Email
+                Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, 'Down Payment (DP)', $pendingPayment->amount));
+            }
         } 
         elseif (in_array($request->status, ['paid_in_full', 'completed'])) {
-            // Jika lunas atau selesai, ubah SEMUA pembayaran pending menjadi success
-            \App\Models\Payment::where('booking_id', $booking->id)
-                ->where('status', 'pending')
-                ->update(['status' => 'success']);
+            // Cari pembayaran pelunasan yang masih pending
+            $pendingPayment = \App\Models\Payment::where('booking_id', $booking->id)
+                ->where('status', 'pending')->first();
+
+            if ($pendingPayment) {
+                $pendingPayment->update(['status' => 'success']);
+                // Kirim Email
+                Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, 'Pelunasan', $pendingPayment->amount));
+            }
         } 
         elseif ($request->status === 'cancelled') {
-            // Jika pesanan batal, batalkan juga tagihan yang masih gantung
             \App\Models\Payment::where('booking_id', $booking->id)
                 ->where('status', 'pending')
                 ->update(['status' => 'failed']);
@@ -389,7 +400,7 @@ class BookingController extends Controller
             return back()->with('error', 'Penugasan gagal! Freelancer ini sudah memiliki jadwal di tanggal tersebut.');
         }
 
-        \App\Models\Assignment::create([
+        $assignment = \App\Models\Assignment::create([
             'booking_id' => $currentBooking->id,
             'user_id' => $validated['user_id'],
             'task' => $validated['task'],
@@ -397,7 +408,12 @@ class BookingController extends Controller
             'status' => 'pending', // Status awal nunggu di-acc freelancer
         ]);
 
-        return back()->with('success', 'Freelancer berhasil ditugaskan! Menunggu konfirmasi.');
+        // === TAMBAHAN: KIRIM EMAIL KE FREELANCER ===
+        // Load relasi dulu biar di template email gampang manggil nama dll
+        $assignment->load(['user', 'booking.user']);
+        Mail::to($assignment->user->email)->send(new NewAssignmentMail($assignment));
+
+        return back()->with('success', 'Freelancer berhasil ditugaskan! Email notifikasi telah dikirim.');
     }
 
     // Nampilin form edit penugasan
@@ -417,6 +433,8 @@ class BookingController extends Controller
             'fee' => 'required|numeric|min:0',
         ]);
 
+        $isNewFreelancer = false; // Penanda apakah orangnya diganti
+
         // Cek bentrok jadwal HANYA JIKA admin mengganti orangnya (user_id berubah)
         if ($assignment->user_id != $validated['user_id']) {
             $isConflict = \App\Models\Assignment::where('user_id', $validated['user_id'])
@@ -430,6 +448,8 @@ class BookingController extends Controller
             if ($isConflict) {
                 return back()->with('error', 'Update gagal! Freelancer pengganti sudah memiliki jadwal di tanggal tersebut.');
             }
+            
+            $isNewFreelancer = true; // Set true kalau orangnya ternyata ganti
         }
 
         // Update data
@@ -439,6 +459,14 @@ class BookingController extends Controller
             'fee' => $validated['fee'],
             // Note: Status TIDAK kita ubah ke pending lagi agar tidak merepotkan freelancer kalau cuma ganti Fee/Task
         ]);
+
+        // === TAMBAHAN: KIRIM EMAIL KE FREELANCER PENGGANTI ===
+        if ($isNewFreelancer) {
+            // Kalau orangnya diganti, kasih tau orang yang baru
+            $assignment->load(['user', 'booking.user']);
+            Mail::to($assignment->user->email)->send(new NewAssignmentMail($assignment));
+        }
+        // ============================================
 
         return redirect()->route('admin.bookings.show', $assignment->booking_id)->with('success', 'Detail penugasan tim berhasil diupdate!');
     }

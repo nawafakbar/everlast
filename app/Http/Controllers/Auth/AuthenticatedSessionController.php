@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
         // Cek role user dan arahkan ke jalurnya masing-masing
         $url = match ($request->user()->role) {
             'admin' => route('admin.dashboard', absolute: false),
-            'freelancer' => route('freelancer.moments.index', absolute: false),
+            'freelancer' => route('freelancer.schedules.index', absolute: false),
             // FIX: Customer langsung diarahkan ke root URL (Halaman Welcome)
             'customer' => '/', 
             default => '/',

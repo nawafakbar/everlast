@@ -85,8 +85,10 @@
                             </td>
                             <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
                                 <div class="flex justify-end space-x-3">
-                                    
-                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" class="text-gray-400 hover:text-blue-500 transition-colors" title="Manage Team / Assign Freelancer">
+
+                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" 
+                                    class="{{ $booking->assignments->isNotEmpty() ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
+                                    title="{{ $booking->assignments->isNotEmpty() ? 'Team Assigned - Edit Team' : 'Assign Team' }}">
                                         <i class="fas fa-users-cog"></i>
                                     </a>
                                     
