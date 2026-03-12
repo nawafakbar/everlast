@@ -13,8 +13,22 @@
     </div>
 @endif
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6">
     @forelse($assignments as $assign)
+        
+        @php
+            $isPrewed = $assign->event_type === 'all_in_prewedding';
+            
+            $eventDate = $isPrewed ? $assign->booking->prewed_date : $assign->booking->booking_date;
+            $eventStart = $isPrewed ? $assign->booking->prewed_start_time : $assign->booking->start_time;
+            $eventEnd = $isPrewed ? $assign->booking->prewed_end_time : $assign->booking->end_time;
+            
+            $eventLoc = $assign->booking->event_location;
+            if ($isPrewed) {
+                $eventLoc = $assign->booking->event_location_3 ?? ($assign->booking->event_location_2 ?? 'Lokasi belum ditentukan');
+            }
+        @endphp
+
         <div class="bg-white border {{ $assign->status == 'pending' ? 'border-yellow-300 shadow-md' : 'border-gray-200 shadow-sm' }} rounded-sm overflow-hidden flex flex-col relative group transition-all">
 
             @if($assign->status == 'pending')
@@ -24,16 +38,21 @@
             @endif
 
             <div class="p-6 flex-1">
-                <p class="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-2">
-                    {{ \Carbon\Carbon::parse($assign->booking->booking_date)->format('d F Y') }}
-                </p>
-                <h3 class="text-lg font-serif-custom text-gray-900 leading-tight mb-2">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                        {{ \Carbon\Carbon::parse($eventDate)->format('d F Y') }}
+                    </p>
+                </div>
+                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-sm text-[8px] font-bold uppercase tracking-widest">
+                        {{ $assign->event_type }}
+                    </span>
+                <h3 class="mt-3 text-lg font-serif-custom text-gray-900 leading-tight mb-2">
                     {{ $assign->booking->user->name }} & {{ $assign->booking->partner_name }}
                 </h3>
                 
                 <div class="text-xs text-gray-500 mb-6 space-y-1">
-                    <p><i class="fas fa-map-marker-alt w-4 text-center text-gray-400"></i> {{ $assign->booking->event_location ?? 'Lokasi belum ditentukan' }}</p>
-                    <p><i class="far fa-clock w-4 text-center text-gray-400"></i> {{ \Carbon\Carbon::parse($assign->booking->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($assign->booking->end_time)->format('H:i') }}</p>
+                    <p><i class="fas fa-map-marker-alt w-4 text-center text-gray-400"></i> {{ $eventLoc }}</p>
+                    <p><i class="far fa-clock w-4 text-center text-gray-400"></i> {{ \Carbon\Carbon::parse($eventStart)->format('H:i') }} - {{ \Carbon\Carbon::parse($eventEnd)->format('H:i') }}</p>
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-sm border border-gray-100 mb-2">

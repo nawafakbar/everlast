@@ -15,6 +15,7 @@ class Assignment extends Model
         'task',
         'fee',
         'status',
+        'event_type',
     ];
 
     // Relasi balik ke Booking

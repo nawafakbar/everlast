@@ -70,7 +70,8 @@
             <thead>
                 <tr class="bg-white border-b border-gray-100 text-[10px] uppercase tracking-wider text-gray-500">
                     <th class="p-4 font-bold">Date & Time</th>
-                    <th class="p-4 font-bold">Order ID / Client</th>
+                    <th class="p-4 font-bold">Order ID / Package</th>
+                    <th class="p-4 font-bold">Email / Client</th>
                     <th class="p-4 font-bold">Method</th>
                     <th class="p-4 font-bold">Type</th>
                     <th class="p-4 font-bold text-right">Amount</th>
@@ -85,6 +86,10 @@
                         </td>
                         <td class="p-4">
                             <span class="block font-bold text-gray-900">#EVL-{{ $payment->booking_id }}</span>
+                            <span class="text-[10px] text-gray-500">{{ $payment->booking->package->name ?? 'Deleted Package' }}</span>
+                        </td>
+                        <td class="p-4">
+                            <span class="block font-bold text-gray-900">{{ $payment->booking->user->email ?? 'Deleted Email' }}</span>
                             <span class="text-[10px] text-gray-500">{{ $payment->booking->user->name ?? 'Deleted User' }}</span>
                         </td>
                         <td class="p-4 uppercase tracking-wider text-[9px] font-bold text-gray-600">

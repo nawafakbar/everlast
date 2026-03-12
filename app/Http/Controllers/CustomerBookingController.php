@@ -27,7 +27,7 @@ class CustomerBookingController extends Controller
     // 2. Proses Validasi & Simpan Data
     public function store(Request $request)
     {
-        // Validasi pindah ke sini (Tambahan rule buat jam biar valid)
+        // Validasi pindah ke sini (Tambahan rule buat jam dan prewed)
         $validated = $request->validate([
             'package_id' => 'required|exists:packages,id',
             'partner_name' => 'required|string|max:255',
@@ -43,28 +43,66 @@ class CustomerBookingController extends Controller
             'event_location_2' => 'nullable|string',
             'event_lat_2' => 'nullable',
             'event_lng_2' => 'nullable',
+            'event_location_3' => 'nullable|string',
+            'event_lat_3' => 'nullable',
+            'event_lng_3' => 'nullable',
+            // ==========================================
+            // TAMBAHAN VALIDASI DOUBLE DATE (PREWEDDING)
+            // ==========================================
+            'prewed_date' => 'nullable|date|after_or_equal:today',
+            'prewed_start_time' => 'nullable|date_format:H:i|required_with:prewed_date',
+            'prewed_end_time' => 'nullable|date_format:H:i|after:prewed_start_time|required_with:prewed_date',
         ]);
 
         // ==========================================
-        // CEK BENTROK JADWAL (OVERLAPPING TIME LOGIC)
+        // CEK BENTROK JADWAL 1: TANGGAL UTAMA (WEDDING/SINGLE EVENT)
         // ==========================================
-        $isConflict = Booking::where('booking_date', $request->booking_date)
-            ->whereNotIn('status', ['cancelled']) // Abaikan pesanan klien lain yang udah dibatalkan
-            ->where(function ($query) use ($request) {
-                // Rumus sakti bentrok waktu: 
-                // Jam Mulai baru < Jam Selesai lama DAN Jam Selesai baru > Jam Mulai lama
-                $query->where('start_time', '<', $request->end_time)
-                      ->where('end_time', '>', $request->start_time);
-            })
-            ->exists();
+        $mainConflict = Booking::whereNotIn('status', ['cancelled'])
+            ->where(function ($q) use ($request) {
+                // Cek bentrok dengan Acara Utama klien lain
+                $q->where(function ($q2) use ($request) {
+                    $q2->where('booking_date', $request->booking_date)
+                       ->where('start_time', '<', $request->end_time)
+                       ->where('end_time', '>', $request->start_time);
+                })
+                // Cek bentrok dengan Acara Prewed klien lain (karena fotografernya sama)
+                ->orWhere(function ($q3) use ($request) {
+                    $q3->whereNotNull('prewed_date')
+                       ->where('prewed_date', $request->booking_date)
+                       ->where('prewed_start_time', '<', $request->end_time)
+                       ->where('prewed_end_time', '>', $request->start_time);
+                });
+            })->exists();
 
-        // Kalau ternyata ada irisan waktu, lempar balik ke form bawa pesan error
-        if ($isConflict) {
-            return back()
-                ->withErrors(['start_time' => 'Maaf, jadwal pada tanggal dan jam tersebut sudah terisi. Silakan geser jam acara atau pilih hari lain.'])
-                ->withInput(); // withInput() biar klien nggak cape ngetik ulang formnya
+        if ($mainConflict) {
+            return back()->withErrors(['start_time' => 'Maaf, jadwal pada tanggal acara utama tersebut sudah terisi. Silakan geser jam atau pilih hari lain.'])->withInput();
         }
+
         // ==========================================
+        // CEK BENTROK JADWAL 2: TANGGAL PREWEDDING (JIKA ADA)
+        // ==========================================
+        if ($request->filled('prewed_date')) {
+            $prewedConflict = Booking::whereNotIn('status', ['cancelled'])
+                ->where(function ($q) use ($request) {
+                    // Cek bentrok dengan Acara Utama klien lain
+                    $q->where(function ($q2) use ($request) {
+                        $q2->where('booking_date', $request->prewed_date)
+                           ->where('start_time', '<', $request->prewed_end_time)
+                           ->where('end_time', '>', $request->prewed_start_time);
+                    })
+                    // Cek bentrok dengan Acara Prewed klien lain
+                    ->orWhere(function ($q3) use ($request) {
+                        $q3->whereNotNull('prewed_date')
+                           ->where('prewed_date', $request->prewed_date)
+                           ->where('prewed_start_time', '<', $request->prewed_end_time)
+                           ->where('prewed_end_time', '>', $request->prewed_start_time);
+                    });
+                })->exists();
+
+            if ($prewedConflict) {
+                return back()->withErrors(['prewed_start_time' => 'Maaf, jadwal pada tanggal Prewedding tersebut sudah terisi. Silakan geser jam atau pilih hari lain.'])->withInput();
+            }
+        }
 
         // Tambahkan data otomatis
         $validated['user_id'] = auth()->id();

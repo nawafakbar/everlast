@@ -182,15 +182,36 @@ class CheckoutController extends Controller
             // ==========================================
             if (!$booking->google_calendar_id) {
                 try {
+                    // 1. EVENT ACARA UTAMA (WEDDING / SINGLE)
                     $event = new Event;
                     $event->name = "Everlast Booking: " . $booking->user->name . " & " . $booking->partner_name;
-                    $event->description = "Paket: " . $booking->package->name . "\nLokasi 1: " . $booking->couple_address;
+                    $event->description = "Paket: " . $booking->package->name . "\nLokasi 1: " . $booking->event_location;
                     $event->startDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->start_time, 'Asia/Jakarta');
                     $event->endDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->end_time, 'Asia/Jakarta');
 
                     $savedEvent = $event->save();
                     $booking->update(['google_calendar_id' => $savedEvent->id]);
-                } catch (\Exception $e) {}
+
+                    // 2. EVENT PREWEDDING (KHUSUS ALL IN)
+                    // Cek apakah kolom prewed terisi
+                    if ($booking->prewed_date && $booking->prewed_start_time && $booking->prewed_end_time) {
+                        $prewedEvent = new Event;
+                        $prewedEvent->name = "[PREWED] Everlast: " . $booking->user->name . " & " . $booking->partner_name;
+                        
+                        // Cek lokasi Prewed (Prioritaskan lokasi 3, kalau kosong pakai lokasi 2)
+                        $lokasiPrewed = $booking->event_location_3 ?? $booking->event_location_2 ?? 'Lokasi belum ditentukan';
+                        $prewedEvent->description = "Paket: " . $booking->package->name . "\nLokasi Prewed: " . $lokasiPrewed;
+                        
+                        $prewedEvent->startDateTime = Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_start_time, 'Asia/Jakarta');
+                        $prewedEvent->endDateTime = Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_end_time, 'Asia/Jakarta');
+                        
+                        // Simpan ke kalender tanpa perlu nyimpen ID-nya ke database
+                        $prewedEvent->save();
+                    }
+
+                } catch (\Exception $e) {
+                    // Log error jika diperlukan
+                }
             }
 
         } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {

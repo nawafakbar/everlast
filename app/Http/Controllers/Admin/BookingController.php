@@ -169,24 +169,18 @@ class BookingController extends Controller
             'event_lng_2' => 'nullable|numeric',
         ]);
 
-        // 2. CEK DOUBLE BOOKING (Kecuali booking ini sendiri)
-        $existingBooking = \App\Models\Booking::where('booking_date', $request->booking_date)
-            ->where('id', '!=', $id) // Abaikan ID yang sedang di-edit
-            ->whereNotIn('status', ['cancelled'])
-            ->first();
-
-        if ($existingBooking) {
-            return back()->withErrors(['booking_date' => 'Tanggal ini sudah di-booking oleh klien lain!'])->withInput();
-        }
-
         // 3. LOGIKA GOOGLE CALENDAR
         if ($request->status === 'cancelled') {
-            // Jika status dibatalkan, hapus event dari Google Calendar (jika ada)
+            // Jika status dibatalkan, hapus event utama dari Google Calendar (jika ada)
             if ($booking->google_calendar_id) {
                 try {
                     $event = \Spatie\GoogleCalendar\Event::find($booking->google_calendar_id);
                     $event->delete();
                     $validated['google_calendar_id'] = null; // Kosongkan ID di database lokal
+                    
+                    // ⚠️ CATATAN BRO: Karena kemarin kita sepakat gak bikin kolom 'prewed_google_calendar_id' 
+                    // buat hemat database, kalau pesanan All In dibatalkan, jadwal Prewed-nya 
+                    // harus dihapus manual oleh Admin langsung di Google Calendar ya!
                 } catch (\Exception $e) {
                     // Abaikan jika event di Google Calendar sudah terhapus manual atau tidak ditemukan
                 }
@@ -195,18 +189,38 @@ class BookingController extends Controller
             // BONUS: Jika dari pending berubah jadi DP/Lunas, dan belum ada kalender, kita buatkan
             if (!$booking->google_calendar_id) {
                 try {
-                    $customer = \App\Models\User::find($request->user_id);
-                    $package = \App\Models\Package::find($request->package_id);
+                    $customer = \App\Models\User::find($booking->user_id);
+                    $package = \App\Models\Package::find($booking->package_id);
 
+                    // 1. EVENT ACARA UTAMA (WEDDING / SINGLE)
                     $event = new \Spatie\GoogleCalendar\Event;
-                    $event->name = "Everlast: " . $customer->name . " & " . $request->partner_name;
-                    $event->description = "Paket: " . $package->name . "\nLokasi 1: " . $request->couple_address;
-                    $event->startDateTime = \Carbon\Carbon::parse($request->booking_date . ' ' . $request->start_time, 'Asia/Jakarta');
-                    $event->endDateTime = \Carbon\Carbon::parse($request->booking_date . ' ' . $request->end_time, 'Asia/Jakarta');
+                    $event->name = "Everlast Booking: " . $customer->name . " & " . $booking->partner_name;
+                    $event->description = "Paket: " . $package->name . "\nLokasi 1: " . $booking->event_location;
+                    $event->startDateTime = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time, 'Asia/Jakarta');
+                    $event->endDateTime = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time, 'Asia/Jakarta');
 
                     $savedEvent = $event->save();
-                    $validated['google_calendar_id'] = $savedEvent->id;
-                } catch (\Exception $e) {}
+                    $validated['google_calendar_id'] = $savedEvent->id; // Simpan ID event utama
+
+                    // 2. EVENT PREWEDDING (KHUSUS ALL IN)
+                    if ($booking->prewed_date && $booking->prewed_start_time && $booking->prewed_end_time) {
+                        $prewedEvent = new \Spatie\GoogleCalendar\Event;
+                        $prewedEvent->name = "[PREWED] Everlast: " . $customer->name . " & " . $booking->partner_name;
+                        
+                        // Prioritaskan lokasi 3, kalau kosong pakai lokasi 2
+                        $lokasiPrewed = $booking->event_location_3 ?? $booking->event_location_2 ?? 'Lokasi belum ditentukan';
+                        
+                        $prewedEvent->description = "Paket: " . $package->name . "\nLokasi Prewed: " . $lokasiPrewed;
+                        $prewedEvent->startDateTime = \Carbon\Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_start_time, 'Asia/Jakarta');
+                        $prewedEvent->endDateTime = \Carbon\Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_end_time, 'Asia/Jakarta');
+                        
+                        // Simpan ke kalender tanpa nyimpen ID-nya ke database
+                        $prewedEvent->save();
+                    }
+
+                } catch (\Exception $e) {
+                    // Log error jika diperlukan
+                }
             }
         }
 
@@ -384,20 +398,52 @@ class BookingController extends Controller
             'user_id' => 'required|exists:users,id',
             'task' => 'required|string|max:255',
             'fee' => 'required|numeric|min:0',
+            'event_type' => 'required|string|max:50', 
         ]);
 
         $currentBooking = \App\Models\Booking::findOrFail($bookingId);
 
-        // CEK BENTROK JADWAL MENGGUNAKAN 'booking_date'
-        $isConflict = \App\Models\Assignment::where('user_id', $validated['user_id'])
+        // Tentukan TANGGAL dan JAM mana yang mau dicek
+        if ($validated['event_type'] === 'all_in_prewedding') {
+            $targetDate = $currentBooking->prewed_date;
+            $targetStart = $currentBooking->prewed_start_time;
+            $targetEnd = $currentBooking->prewed_end_time;
+        } else {
+            $targetDate = $currentBooking->booking_date;
+            $targetStart = $currentBooking->start_time;
+            $targetEnd = $currentBooking->end_time;
+        }
+
+        if (!$targetDate || !$targetStart || !$targetEnd) {
+            return back()->with('error', 'Penugasan gagal! Tanggal dan jam untuk sesi ini belum lengkap diisi oleh klien.');
+        }
+
+        // CEK BENTROK JADWAL BERDASARKAN JAM (Lebih ringan pakai Collection PHP)
+        $existingAssignments = \App\Models\Assignment::with('booking')
+            ->where('user_id', $validated['user_id'])
             ->where('status', '!=', 'rejected')
-            ->whereHas('booking', function ($query) use ($currentBooking) {
-                $query->whereDate('booking_date', $currentBooking->booking_date); 
-            })
-            ->exists();
+            ->get();
+
+        $isConflict = false;
+
+        foreach ($existingAssignments as $existing) {
+            // Tentukan waktu tugas si freelancer yang udah ada di database
+            $exDate = $existing->event_type === 'all_in_prewedding' ? $existing->booking->prewed_date : $existing->booking->booking_date;
+            $exStart = $existing->event_type === 'all_in_prewedding' ? $existing->booking->prewed_start_time : $existing->booking->start_time;
+            $exEnd = $existing->event_type === 'all_in_prewedding' ? $existing->booking->prewed_end_time : $existing->booking->end_time;
+
+            // Jika di hari yang sama, cek apakah jamnya tabrakan (overlap)
+            if ($exDate === $targetDate) {
+                // Rumus Overlap: (MulaiA < SelesaiB) DAN (SelesaiA > MulaiB)
+                if ($exStart < $targetEnd && $exEnd > $targetStart) {
+                    $isConflict = true;
+                    break; // Langsung stop pencarian kalau udah ketemu 1 bentrok
+                }
+            }
+        }
 
         if ($isConflict) {
-            return back()->with('error', 'Penugasan gagal! Freelancer ini sudah memiliki jadwal di tanggal tersebut.');
+            return back()->with('error', 'Penugasan gagal! Freelancer ini sudah memiliki jadwal pada rentang jam tersebut di hari yang sama.');
         }
 
         $assignment = \App\Models\Assignment::create([
@@ -405,21 +451,19 @@ class BookingController extends Controller
             'user_id' => $validated['user_id'],
             'task' => $validated['task'],
             'fee' => $validated['fee'],
-            'status' => 'pending', // Status awal nunggu di-acc freelancer
+            'event_type' => $validated['event_type'], 
+            'status' => 'pending', 
         ]);
 
-        // === TAMBAHAN: KIRIM EMAIL KE FREELANCER ===
-        // Load relasi dulu biar di template email gampang manggil nama dll
         $assignment->load(['user', 'booking.user']);
-        Mail::to($assignment->user->email)->send(new NewAssignmentMail($assignment));
+        \Illuminate\Support\Facades\Mail::to($assignment->user->email)->send(new \App\Mail\NewAssignmentMail($assignment));
 
-        return back()->with('success', 'Freelancer berhasil ditugaskan! Email notifikasi telah dikirim.');
+        return back()->with('success', 'Freelancer berhasil ditugaskan untuk sesi ' . ucfirst($validated['event_type']) . '! Email notifikasi telah dikirim.');
     }
 
     // Nampilin form edit penugasan
     public function editAssignment(\App\Models\Assignment $assignment)
     {
-        // Ambil semua freelancer untuk opsi dropdown
         $freelancers = \App\Models\User::where('role', 'freelancer')->get();
         return view('admin.bookings.edit-assignment', compact('assignment', 'freelancers'));
     }
@@ -431,42 +475,65 @@ class BookingController extends Controller
             'user_id' => 'required|exists:users,id',
             'task' => 'required|string|max:255',
             'fee' => 'required|numeric|min:0',
+            'event_type' => 'required|string|max:50', 
         ]);
 
-        $isNewFreelancer = false; // Penanda apakah orangnya diganti
+        $isNewFreelancer = false; 
 
-        // Cek bentrok jadwal HANYA JIKA admin mengganti orangnya (user_id berubah)
-        if ($assignment->user_id != $validated['user_id']) {
-            $isConflict = \App\Models\Assignment::where('user_id', $validated['user_id'])
-                ->where('id', '!=', $assignment->id) // Abaikan tugas yang sedang di-edit ini
-                ->where('status', '!=', 'rejected')
-                ->whereHas('booking', function ($query) use ($assignment) {
-                    $query->whereDate('booking_date', $assignment->booking->booking_date); 
-                })
-                ->exists();
-
-            if ($isConflict) {
-                return back()->with('error', 'Update gagal! Freelancer pengganti sudah memiliki jadwal di tanggal tersebut.');
-            }
-            
-            $isNewFreelancer = true; // Set true kalau orangnya ternyata ganti
+        // Tentukan TANGGAL dan JAM untuk update
+        if ($validated['event_type'] === 'all_in_prewedding') {
+            $targetDate = $assignment->booking->prewed_date;
+            $targetStart = $assignment->booking->prewed_start_time;
+            $targetEnd = $assignment->booking->prewed_end_time;
+        } else {
+            $targetDate = $assignment->booking->booking_date;
+            $targetStart = $assignment->booking->start_time;
+            $targetEnd = $assignment->booking->end_time;
         }
 
-        // Update data
+        if ($assignment->user_id != $validated['user_id'] || $assignment->event_type != $validated['event_type']) {
+            
+            $existingAssignments = \App\Models\Assignment::with('booking')
+                ->where('user_id', $validated['user_id'])
+                ->where('id', '!=', $assignment->id) // Abaikan id ini sendiri
+                ->where('status', '!=', 'rejected')
+                ->get();
+
+            $isConflict = false;
+
+            foreach ($existingAssignments as $existing) {
+                $exDate = $existing->event_type === 'all_in_prewedding' ? $existing->booking->prewed_date : $existing->booking->booking_date;
+                $exStart = $existing->event_type === 'all_in_prewedding' ? $existing->booking->prewed_start_time : $existing->booking->start_time;
+                $exEnd = $existing->event_type === 'all_in_prewedding' ? $existing->booking->prewed_end_time : $existing->booking->end_time;
+
+                if ($exDate === $targetDate) {
+                    if ($exStart < $targetEnd && $exEnd > $targetStart) {
+                        $isConflict = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($isConflict) {
+                return back()->with('error', 'Update gagal! Freelancer tersebut sudah memiliki jadwal pada rentang jam tersebut.');
+            }
+            
+            if ($assignment->user_id != $validated['user_id']) {
+                $isNewFreelancer = true; 
+            }
+        }
+
         $assignment->update([
             'user_id' => $validated['user_id'],
             'task' => $validated['task'],
             'fee' => $validated['fee'],
-            // Note: Status TIDAK kita ubah ke pending lagi agar tidak merepotkan freelancer kalau cuma ganti Fee/Task
+            'event_type' => $validated['event_type'], 
         ]);
 
-        // === TAMBAHAN: KIRIM EMAIL KE FREELANCER PENGGANTI ===
         if ($isNewFreelancer) {
-            // Kalau orangnya diganti, kasih tau orang yang baru
             $assignment->load(['user', 'booking.user']);
-            Mail::to($assignment->user->email)->send(new NewAssignmentMail($assignment));
+            \Illuminate\Support\Facades\Mail::to($assignment->user->email)->send(new \App\Mail\NewAssignmentMail($assignment));
         }
-        // ============================================
 
         return redirect()->route('admin.bookings.show', $assignment->booking_id)->with('success', 'Detail penugasan tim berhasil diupdate!');
     }

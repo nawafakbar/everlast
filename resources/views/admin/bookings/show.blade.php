@@ -36,7 +36,7 @@
                         <tr class="bg-gray-50 text-[10px] text-gray-500 uppercase tracking-widest border-b border-gray-200">
                             <th class="px-4 py-3 font-bold">Freelancer</th>
                             <th class="px-4 py-3 font-bold">Task</th>
-                            <th class="px-4 py-3 font-bold">Fee</th>
+                            <th class="px-4 py-3 font-bold">Type</th> <th class="px-4 py-3 font-bold">Fee</th>
                             <th class="px-4 py-3 font-bold text-center">Status</th>
                             <th class="px-4 py-3 font-bold text-right">Actions</th> 
                         </tr>
@@ -46,6 +46,13 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-3 font-medium text-gray-900">{{ $assign->user->name }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ $assign->task }}</td>
+                            
+                            <td class="px-4 py-3">
+                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-sm text-[9px] font-bold uppercase tracking-wider">
+                                    {{ $assign->event_type }}
+                                </span>
+                            </td>
+
                             <td class="px-4 py-3 text-gray-600 font-medium">Rp {{ number_format($assign->fee, 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-center">
                                 @if($assign->status == 'pending')
@@ -74,7 +81,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-10 text-center text-gray-400 text-xs italic">
+                            <td colspan="6" class="px-4 py-10 text-center text-gray-400 text-xs italic">
                                 Belum ada tim yang ditugaskan untuk acara ini.
                             </td>
                         </tr>
@@ -97,6 +104,22 @@
                         @foreach($freelancers as $freelancer)
                             <option value="{{ $freelancer->id }}">{{ $freelancer->name }}</option>
                         @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-2">Event Type <span class="text-red-500">*</span></label>
+                    <select name="event_type" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs transition-colors cursor-pointer">
+                        @php
+                            // Ambil nama kategori dan jadikan huruf kecil (misal: 'akad', 'engagement')
+                            $mainCategory = strtolower($booking->package->category ?? 'wedding');
+                        @endphp
+                        
+                        <option value="{{ $mainCategory }}">Acara Utama ({{ ucfirst($mainCategory) }})</option>
+                        
+                        @if($booking->prewed_date)
+                            <option value="all_in_prewedding">Prewedding (Eksklusif)</option>
+                        @endif
                     </select>
                 </div>
 

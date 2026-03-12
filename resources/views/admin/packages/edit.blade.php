@@ -43,7 +43,7 @@
                 </div>
 
                 <div>
-                    <label for="total_locations" class="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-2">Duration Hours</label>
+                    <label for="total_locations" class="block text-xs font-medium text-gray-700 uppercase tracking-wider mb-2">Total Locations</label>
                     <input type="text" name="total_locations" id="total_locations" value="{{ old('total_locations', $package->total_locations) }}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm">
                 </div>
 

@@ -89,7 +89,7 @@
                                 </button>
                             </div>
 
-                            <div class="px-6 py-6 space-y-6">
+                            <div class="px-6 py-6 space-y-6 overflow-y-auto max-h-[70vh]">
                                 
                                 <div class="flex justify-between items-center bg-[#FDFBF7] p-4 rounded-sm border border-[#EBE6DD]">
                                     <div>
@@ -114,17 +114,38 @@
                                     </div>
 
                                     <div>
-                                        <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 mb-3 border-b border-gray-100 pb-2">Date & Location</h4>
+                                        <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 mb-3 border-b border-gray-100 pb-2">Date & Location (Utama)</h4>
                                         <div class="space-y-3 text-sm text-gray-600">
                                             <p><strong class="font-semibold text-gray-800">Date:</strong> {{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d F Y') }}</p>
                                             <p><strong class="font-semibold text-gray-800">Date Time:</strong> {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }} WIB</p>
                                             <p><strong class="font-semibold text-gray-800">Main location:</strong> {{ $booking->event_location ?? '-' }}</p>
-                                            @if($booking->event_location_2)
-                                                <p><strong class="font-semibold text-gray-800">Seccond Location:</strong> {{ $booking->event_location_2 }}</p>
+                                            
+                                            @if(!$booking->prewed_date && $booking->event_location_2)
+                                                <p><strong class="font-semibold text-gray-800">Second Location:</strong> {{ $booking->event_location_2 }}</p>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
+
+                                @if($booking->prewed_date)
+                                <div class="pt-2 border-t border-gray-50">
+                                    <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-[#C9A66B] mb-3 border-b border-gray-100 pb-2">Prewedding Schedule</h4>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="space-y-3 text-sm text-gray-600">
+                                            <p><strong class="font-semibold text-gray-800">Date:</strong> {{ \Carbon\Carbon::parse($booking->prewed_date)->translatedFormat('d F Y') }}</p>
+                                            <p><strong class="font-semibold text-gray-800">Date Time:</strong> {{ \Carbon\Carbon::parse($booking->prewed_start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->prewed_end_time)->format('H:i') }} WIB</p>
+                                        </div>
+                                        <div class="space-y-3 text-sm text-gray-600">
+                                            <p><strong class="font-semibold text-gray-800">Location 1:</strong> {{ $booking->event_location_2 ?? 'Belum ditentukan' }}</p>
+                                            @if($booking->event_location_3)
+                                                <p><strong class="font-semibold text-gray-800">Location 2:</strong> {{ $booking->event_location_3 }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                                
                             </div>
 
                             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row justify-end gap-3">
@@ -152,13 +173,13 @@
     function openModal(modalID) {
         const modal = document.getElementById(modalID);
         modal.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden'); // Cegah background scroll
+        document.body.classList.add('overflow-hidden'); 
     }
 
     function closeModal(modalID) {
         const modal = document.getElementById(modalID);
         modal.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden'); // Kembalikan scroll
+        document.body.classList.remove('overflow-hidden'); 
     }
 </script>
 @endsection

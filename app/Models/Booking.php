@@ -11,7 +11,11 @@ class Booking extends Model
     protected $fillable = [
         'user_id', 'package_id', 'partner_name', 'couple_address',
         'couple_lat', 'couple_lng', 'event_location', 'event_lat', 'event_lng',
-        'booking_date', 'start_time', 'end_time', 'status', 'event_location_2', 'event_lat_2', 'event_lng_2', 'google_calendar_id'
+        'booking_date', 'start_time', 'end_time', 
+        'prewed_date', 'prewed_start_time', 'prewed_end_time',
+        'status', 'event_location_2', 'event_lat_2', 'event_lng_2', 
+        'event_location_3', 'event_lat_3', 'event_lng_3',
+        'google_calendar_id'
     ];
 
     // Relasi ke User (Pemesan)

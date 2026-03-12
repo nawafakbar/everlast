@@ -75,37 +75,40 @@
 
     <div class="mt-4">{{ $packages->links() }}</div>
 
-    <div id="packageModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-sm shadow-2xl w-full max-w-lg p-8 relative transform transition-all">
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-black transition-colors">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
+    <div id="packageModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-sm shadow-2xl w-full max-w-lg relative transform transition-all flex flex-col max-h-[90vh]">
             
-            <div class="mb-4 border-b border-gray-100 pb-4">
+            <div class="p-8 pb-4 border-b border-gray-100 flex-shrink-0">
+                <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-black transition-colors">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
                 <span id="modalCategory" class="px-2 py-1 bg-gray-100 text-gray-500 text-[10px] uppercase tracking-wider rounded-sm mb-3 inline-block"></span>
                 <h3 id="modalName" class="text-2xl font-semibold text-gray-900 tracking-tight leading-none mb-2"></h3>
                 <p id="modalPrice" class="text-lg font-light text-black"></p>
             </div>
 
-            <div class="flex space-x-8 mb-6 bg-gray-50 p-3 rounded-sm border border-gray-100">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Duration</p>
-                    <p class="text-sm font-medium text-gray-800"><i class="far fa-clock mr-1 text-gray-400"></i> <span id="modalDuration"></span> Hours</p>
+            <div class="p-8 pt-4 overflow-y-auto flex-1">
+                <div class="flex space-x-8 mb-6 bg-gray-50 p-3 rounded-sm border border-gray-100">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Duration</p>
+                        <p class="text-sm font-medium text-gray-800"><i class="far fa-clock mr-1 text-gray-400"></i> <span id="modalDuration"></span> Hours</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Locations</p>
+                        <p class="text-sm font-medium text-gray-800"><i class="fas fa-map-marker-alt mr-1 text-gray-400"></i> <span id="modalLocations"></span> Spot(s)</p>
+                    </div>
                 </div>
+
+                <div id="modalImageContainer" class="mb-6 hidden">
+                    <img id="modalImage" src="" alt="Package Thumbnail" class="w-full h-48 object-cover rounded-sm border border-gray-200">
+                </div>
+
                 <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Locations</p>
-                    <p class="text-sm font-medium text-gray-800"><i class="fas fa-map-marker-alt mr-1 text-gray-400"></i> <span id="modalLocations"></span> Spot(s)</p>
+                    <p class="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2">Description / Inclusions</p>
+                    <p id="modalDescription" class="text-sm text-gray-700 leading-relaxed whitespace-pre-line"></p>
                 </div>
             </div>
 
-            <div id="modalImageContainer" class="mb-6 hidden">
-                <img id="modalImage" src="" alt="Package Thumbnail" class="w-full h-48 object-cover rounded-sm border border-gray-200">
-            </div>
-
-            <div>
-                <p class="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2">Description / Inclusions</p>
-                <p id="modalDescription" class="text-sm text-gray-700 leading-relaxed whitespace-pre-line"></p>
-            </div>
         </div>
     </div>
     

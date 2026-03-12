@@ -36,6 +36,25 @@
             </div>
 
             <div class="mb-6">
+                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-2">Event Type <span class="text-red-500">*</span></label>
+                <select name="event_type" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs transition-colors cursor-pointer">
+                    @php
+                        $mainCategory = strtolower($assignment->booking->package->category ?? 'wedding');
+                    @endphp
+                    
+                    <option value="{{ $mainCategory }}" {{ $assignment->event_type == $mainCategory ? 'selected' : '' }}>
+                        Acara Utama ({{ ucfirst($mainCategory) }})
+                    </option>
+                    
+                    @if($assignment->booking->prewed_date)
+                        <option value="prewedding" {{ $assignment->event_type == 'prewedding' ? 'selected' : '' }}>
+                            Prewedding (Eksklusif)
+                        </option>
+                    @endif
+                </select>
+            </div>
+
+            <div class="mb-6">
                 <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-2">Task / Role <span class="text-red-500">*</span></label>
                 <input type="text" name="task" value="{{ old('task', $assignment->task) }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black text-xs transition-colors">
             </div>

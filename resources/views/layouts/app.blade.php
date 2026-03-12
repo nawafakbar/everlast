@@ -133,7 +133,9 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-center md:text-left text-sm text-gray-600 font-serif-custom">
                 <div class="order-2 md:order-1">
                     <h4 class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-900 mb-4 md:mb-6 font-sans-custom">Get In Touch</h4>
-                    <p class="mb-2 italic">Phone / WA (+62) 812 3456 7890</p>
+                    <p class="mb-2 italic">Phone / WA (+62) 851 6134 0842</p>
+                    <p class="mb-2 italic">Email everlastprojectfile@gmail.com</p>
+                    <p class="mb-3 italic">Instagram @evrelast.project</p>
                     <p class="mb-2 text-xs text-gray-400 font-sans-custom uppercase tracking-wider">(by appointment only)</p>
                 </div>
 
@@ -144,9 +146,9 @@
                 </div>
 
                 <div class="order-3 md:order-3 pt-4 md:pt-0">
-                    <h4 class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-900 mb-4 md:mb-6 font-sans-custom">About</h4>
+                    <h4 class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-900 mb-4 md:mb-6 font-sans-custom">Address</h4>
                     <p class="leading-relaxed mb-6 italic">
-                        We're a group of passionate young talents working together to create beautiful masterpieces.
+                        JatiMekar Regency Blok C Nomor 09 Desa JatiMekar kec.Situraja Kab.Sumedang Jawa Barat
                         <br><br><span class="font-sans-custom font-bold uppercase tracking-widest text-[10px] text-gray-900">EVERLAST PROJECT</span>
                     </p>
                 </div>

@@ -97,8 +97,8 @@
 
                         <div>
                             <label for="package_id" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Pilih Paket <span class="text-red-500">*</span></label>
-                            <div class="flex gap-2">
-                                <select name="package_id" id="package_id" required disabled class="flex-1 px-2 py-3 bg-gray-50 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-400 cursor-not-allowed transition-colors">
+                            <div class="flex gap-2 w-full">
+                                <select name="package_id" id="package_id" required disabled class="flex-1 min-w-0 truncate px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-400 cursor-not-allowed transition-colors">
                                     <option value="" disabled selected>Pilih kategori</option>
                                 </select>
                                 
@@ -136,7 +136,7 @@
                             <label for="booking_date" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Tanggal Acara <span class="text-red-500">*</span></label>
                             <div class="flex gap-2">
                                 <input type="date" name="booking_date" min="{{ \Carbon\Carbon::today()->toDateString() }}" id="booking_date" required class="flex-1 px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
-                                <button type="button" onclick="openCalendarModal()" class="px-6 py-3 bg-gray-100 border border-gray-300 text-gray-900 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors whitespace-nowrap shadow-sm">
+                                <button type="button" onclick="openCalendarModal('booking_date')" class="px-6 py-3 bg-gray-100 border border-gray-300 text-gray-900 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors whitespace-nowrap shadow-sm">
                                     <i class="far fa-calendar-alt mr-1"></i> Cek Jadwal
                                 </button>
                             </div>
@@ -170,6 +170,43 @@
                             
                             <input type="hidden" name="event_lat_2" id="event_lat_2" value="-6.200000">
                             <input type="hidden" name="event_lng_2" id="event_lng_2" value="106.816666">
+                        </div>
+
+                        <div id="location3_container" class="hidden pt-4 border-t border-gray-100 mt-4">
+                            <label for="event_location_3" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Lokasi Acara Ke-3 (Prewedding Eksklusif)</label>
+                            <textarea name="event_location_3" id="event_location_3" rows="2" class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lokasi ketiga..."></textarea>
+
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Ke-3</p>
+                            <div id="eventMap3" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
+                            
+                            <input type="hidden" name="event_lat_3" id="event_lat_3" value="-6.200000">
+                            <input type="hidden" name="event_lng_3" id="event_lng_3" value="106.816666">
+                        </div>
+
+                        <div id="prewed_container" class="hidden pt-6 border-t border-gray-100 mt-6 bg-[#fcfaf5] -mx-4 px-4 py-4 rounded-sm border border-[#EBE6DD]">
+                            <h3 class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-[0.2em] mb-4"><i class="fas fa-camera-retro mr-2"></i>Jadwal Prewedding</h3>
+
+                            <div class="mb-4">
+                                <label for="prewed_date" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Tanggal Prewed <span class="text-red-500">*</span></label>
+                                <div class="flex gap-2">
+                                    <input type="date" name="prewed_date" min="{{ \Carbon\Carbon::today()->toDateString() }}" id="prewed_date" class="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
+                                    <button type="button" onclick="openCalendarModal('prewed_date')" class="px-6 py-3 bg-black text-white rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors whitespace-nowrap shadow-sm">
+                                        <i class="far fa-calendar-alt mr-1"></i> Jadwal
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="prewed_start_time" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Jam Mulai <span class="text-red-500">*</span></label>
+                                    <input type="time" name="prewed_start_time" id="prewed_start_time" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label for="prewed_end_time" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Jam Selesai <span class="text-red-500">*</span></label>
+                                    <input type="time" name="prewed_end_time" id="prewed_end_time" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-500 cursor-not-allowed" title="Jam selesai otomatis dihitung">
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-gray-400 italic mt-3">*Sesuai rules, sesi prewedding berlangsung maksimal 6 jam.</p>
                         </div>
                         
                         <input type="hidden" name="couple_lat" id="couple_lat" value="-6.200000">
@@ -221,6 +258,8 @@
     let currentDuration = 0;
     let map2Initialized = false;
     let eventMap2, eventMarker2;
+    let map3Initialized = false;
+    let eventMap3, eventMarker3;
 
     document.addEventListener('DOMContentLoaded', function() {
         const defaultLat = -6.858333; // Sumedang default
@@ -250,21 +289,45 @@
             filteredPackages.forEach(pkg => {
                 const option = document.createElement('option');
                 option.value = pkg.id;
-                // Format angka Rupiah
                 const formattedPrice = new Intl.NumberFormat('id-ID').format(pkg.price);
                 option.textContent = `${pkg.name} - Rp ${formattedPrice}`;
                 packageSelect.appendChild(option);
             });
 
-            // 5. Sembunyikan ulang Rules & reset jam karena paketnya berubah
+            // 5. Sembunyikan ulang Rules & reset jam
             document.getElementById('rules_container').classList.add('hidden');
             loc2Container.classList.add('hidden');
             currentDuration = 0;
             endTimeInput.value = '';
+
+            // 6. LOGIKA MUNCULIN FORM PREWED KHUSUS "ALL IN"
+            const prewedContainer = document.getElementById('prewed_container');
+            const pDate = document.getElementById('prewed_date');
+            const pStart = document.getElementById('prewed_start_time');
+            const pEnd = document.getElementById('prewed_end_time');
+
+            if (selectedCategory.toLowerCase().includes('all in')) {
+                prewedContainer.classList.remove('hidden');
+                // Set wajib isi
+                pDate.required = true;
+                pStart.required = true;
+                pEnd.required = true;
+            } else {
+                prewedContainer.classList.add('hidden');
+                // Hapus wajib isi biar bisa disubmit
+                pDate.required = false;
+                pStart.required = false;
+                pEnd.required = false;
+                // Kosongkan valuenya
+                pDate.value = '';
+                pStart.value = '';
+                pEnd.value = '';
+            }
         });
         const startTimeInput = document.getElementById('start_time');
         const endTimeInput = document.getElementById('end_time');
         const loc2Container = document.getElementById('location2_container');
+        const loc3Container = document.getElementById('location3_container');
 
         // LOGIKA AUTO KALKULASI JAM & DYNAMIC RULES
         packageSelect.addEventListener('change', function() {
@@ -275,11 +338,19 @@
                 currentDuration = selectedPkg.duration_hours;
                 calculateEndTime();
 
-                if(selectedPkg.total_locations > 1) {
+                // LOGIKA MUNCULIN MAP BERDASARKAN TOTAL LOKASI
+                if(selectedPkg.total_locations >= 2) {
                     loc2Container.classList.remove('hidden');
                     initMap2();
                 } else {
                     loc2Container.classList.add('hidden');
+                }
+
+                if(selectedPkg.total_locations >= 3) {
+                    loc3Container.classList.remove('hidden');
+                    initMap3();
+                } else {
+                    loc3Container.classList.add('hidden');
                 }
 
                 // ==========================================
@@ -324,6 +395,31 @@
                         </ul>
                     `;
                 } 
+                // Cek apakah paket All In
+                else if (pkgName.includes('all in') || pkgCategory.includes('all in')) {
+                    rulesTitle.innerText = "RULES : WEDDING & PREWEDDING";
+                    htmlRules = `
+                        <ul class="list-none space-y-1.5">
+                            <li>Wedding:</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Booking Minimal 30% dari harga paket.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Pelunasan maksimal di H-1 atau di Hari H.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Client wajib mengisi data secara lengkap di form booking.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Crew 8 Jam kerja.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Paket belum termasuk transport.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Pengerjaan file edit maksimal 2 minggu, video 30 hari, dan album 2 bulan dari hari H.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Cetak album dan pembesaran bisa dipilih client.</li>
+                        </ul>
+                        <ul class="list-none space-y-1.5">
+                            <li>Prewedding:</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Booking Minimal 30% dari harga paket.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Pelunasan maksimal di H-1 atau di Hari H.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Direkomendasikan meeting untuk pembahasan waktu, lokasi, konsep, dll.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Paket belum termasuk transport dan charge Lokasi.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Pengerjaan file edit maksimal 1 minggu, video 20 hari.</li>
+                            <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Cetak foto pilihan client.</li>
+                        </ul>
+                    `;
+                } 
                 // Jika selain Wedding & Prewedding (Engagement & Other)
                 else {
                     rulesTitle.innerText = "RULES : ENGAGEMENT & OTHER PACKAGE";
@@ -335,6 +431,15 @@
                             <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Crew 3 jam kerja dari waktu booking dan tiba 30 menit sebelumnya. Apabila melebihi waktu kerja akan dikenakan charge.</li>
                             <li><i class="fas fa-check text-[#C9A66B] mr-2"></i> Pengerjaan file edit maksimal foto 4 hari, video 20 hari.</li>
                         </ul>
+                    `;
+                }
+
+                if (selectedPkg.description) {
+                    htmlRules += `
+                        <div class="mt-5 pt-4 border-t border-[#EBE6DD]">
+                            <h4 class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-wider mb-2">Detail Benefit Paket Anda:</h4>
+                            <p class="whitespace-pre-line">${selectedPkg.description}</p>
+                        </div>
                     `;
                 }
 
@@ -354,6 +459,27 @@
                 endTimeInput.value = endHours.toString().padStart(2, '0') + ':' + minutes;
             }
         }
+
+        // ==========================================
+        // AUTO KALKULASI JAM PREWEDDING (ALL IN)
+        // ==========================================
+        const pStartInput = document.getElementById('prewed_start_time');
+        const pEndInput = document.getElementById('prewed_end_time');
+
+        pStartInput.addEventListener('input', function() {
+            if(this.value) {
+                let [hours, minutes] = this.value.split(':');
+                
+                // Tambahkan 8 jam sesuai instruksi
+                let endHours = parseInt(hours) + 8; 
+                
+                // Format jika lewat dari jam 24:00 / tengah malam
+                if(endHours >= 24) endHours -= 24;
+                
+                // Masukkan hasil ke input jam selesai
+                pEndInput.value = endHours.toString().padStart(2, '0') + ':' + minutes;
+            }
+        });
 
         // SETUP MAPS
         const coupleMap = L.map('coupleMap').setView([defaultLat, defaultLng], 12);
@@ -383,19 +509,36 @@
             }
         }
 
+        function initMap3() {
+            if(!map3Initialized) {
+                setTimeout(() => {
+                    eventMap3 = L.map('eventMap3').setView([defaultLat, defaultLng], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(eventMap3);
+                    eventMarker3 = L.marker([defaultLat, defaultLng], {draggable: true}).addTo(eventMap3);
+                    
+                    eventMap3.on('click', e => { eventMarker3.setLatLng(e.latlng); document.getElementById('event_lat_3').value = e.latlng.lat; document.getElementById('event_lng_3').value = e.latlng.lng; });
+                    eventMarker3.on('dragend', () => { const ll = eventMarker3.getLatLng(); document.getElementById('event_lat_3').value = ll.lat; document.getElementById('event_lng_3').value = ll.lng; });
+                    
+                    map3Initialized = true;
+                }, 100);
+            }
+        }
+
         setTimeout(function(){ coupleMap.invalidateSize(); eventMap.invalidateSize(); }, 500);
     });
 
     // SCRIPT CALENDAR
     let customerCalendar;
     let calendarInitialized = false;
+    let currentTargetInput = ''; // Variabel buat nyimpen ID input yang mau diisi
 
-    function openCalendarModal() {
+    // Tambahin parameter targetId
+    function openCalendarModal(targetId) {
+        currentTargetInput = targetId; 
         const modal = document.getElementById('calendarModal');
         modal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
 
-        // Render kalender hanya saat modal dibuka agar ukurannya pas
         if (!calendarInitialized) {
             setTimeout(() => {
                 const calendarEl = document.getElementById('customerCalendar');
@@ -408,7 +551,6 @@
                     },
                     events: '{{ route("customer.calendar.events") }}', 
                     
-                    // 1. TAMBAHAN TOOLTIP (Sama kayak di Admin)
                     eventDidMount: function(info) {
                         if (info.event.extendedProps.description) {
                             info.el.setAttribute('title', info.event.extendedProps.description);
@@ -428,23 +570,20 @@
                         
                         const allEvents = customerCalendar.getEvents();
                         
-                        // Cek Full Booked (Blokir)
                         const isFullBooked = allEvents.some(event => event.startStr === info.dateStr && event.title === 'Full Booked');
                         if (isFullBooked) {
                             alert('Maaf, tim kami sudah Full Booked di tanggal ini. Silakan pilih tanggal lain.');
                             return;
                         }
 
-                        // 2. TAMBAHAN INFO AVAILABLE (Setengah Booked)
                         const availableEvent = allEvents.find(event => event.startStr === info.dateStr && event.title === 'Available');
                         
                         if (availableEvent) {
-                            // Munculkan notifikasi jam berapa yang udah keisi biar klien tau
                             alert('TIPS: Tanggal ini sudah terisi sebagian (' + availableEvent.extendedProps.description + ').\n\nPastikan Anda mengatur Jam Mulai acara yang tidak bentrok dengan sesi tersebut ya!');
                         }
 
-                        // Isi otomatis ke form input
-                        document.getElementById('booking_date').value = info.dateStr;
+                        // INJEK TANGGAL KE INPUT YANG BENAR (Bisa booking_date, bisa prewed_date)
+                        document.getElementById(currentTargetInput).value = info.dateStr;
                         closeCalendarModal();
                     }
                 });
