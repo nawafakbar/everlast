@@ -15,18 +15,59 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Models\Booking;
 use App\Models\Portfolio;
+use Carbon\Carbon;
 
 // ==========================================
 // 1. PUBLIC ROUTES (Bisa diakses siapa saja)
 // ==========================================
 Route::get('/', function () {
-    $schedules = Booking::with('package')
-    ->where('booking_date', '>=', \Carbon\Carbon::today()->toDateString()) // Cuma ambil jadwal hari ini dan ke depannya
-    ->orderBy('booking_date', 'asc') // Urutkan dari tanggal yang paling dekat (ter-awal)
-    ->take(4)
-    ->get();
+    $today = Carbon::today()->toDateString();
+
+    // 1. Ambil semua pesanan yang tanggal utama ATAU tanggal prewed-nya belum lewat
+    $bookings = Booking::with('package', 'user')
+        ->where(function($query) use ($today) {
+            $query->whereDate('booking_date', '>=', $today)
+                  ->orWhereDate('prewed_date', '>=', $today);
+        })
+        ->whereIn('status', ['dp_paid', 'paid_in_full', 'completed']) // Opsional: Biar cuma jadwal fix yang tampil
+        ->get();
+
+    $scheduleList = collect();
+
+    // 2. Pecah dan kloning datanya biar jadwal Prewed & Utama jadi kotak terpisah
+    foreach ($bookings as $b) {
+        
+        // Cek dan masukkan Acara Utama (Main Event)
+        if ($b->booking_date >= $today) {
+            $mainEvent = clone $b;
+            $mainEvent->display_date = $b->booking_date;
+            $mainEvent->display_start = $b->start_time;
+            $mainEvent->display_end = $b->end_time;
+            $mainEvent->display_location = $b->event_location ?? 'TBA';
+            $mainEvent->event_label = 'MAIN EVENT'; // Label untuk UI
+            
+            $scheduleList->push($mainEvent);
+        }
+
+        // Cek dan masukkan Acara Prewedding (Jika ada)
+        if ($b->prewed_date && $b->prewed_date >= $today) {
+            $prewedEvent = clone $b;
+            $prewedEvent->display_date = $b->prewed_date;
+            $prewedEvent->display_start = $b->prewed_start_time;
+            $prewedEvent->display_end = $b->prewed_end_time;
+            $prewedEvent->display_location = $b->event_location_2 ?? ($b->event_location_3 ?? 'TBA');
+            $prewedEvent->event_label = 'PREWEDDING SESSION'; // Label untuk UI
+            
+            $scheduleList->push($prewedEvent);
+        }
+    }
+
+    // 3. Urutkan gabungan jadwal tersebut dari yang terdekat, lalu ambil 4 saja
+    $schedules = $scheduleList->sortBy('display_date')->take(4)->values();
+
     $moments = Portfolio::latest()->take(10)->get();
-    return view('welcome', compact('schedules','moments'));
+    
+    return view('welcome', compact('schedules', 'moments'));
 })->name('home');
 
 // TAMBAHAN: Route Halaman Detail Publik (Gallery Feel)

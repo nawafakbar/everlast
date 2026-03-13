@@ -60,7 +60,7 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validasi inputan form
+        // 1. Validasi inputan form (UPDATE: Tambah kolom Prewed & Lokasi 3)
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'package_id' => 'required|exists:packages,id',
@@ -68,9 +68,13 @@ class BookingController extends Controller
             'couple_address' => 'required|string',
             'event_location' => 'required|string',
             'event_location_2' => 'nullable|string', 
+            'event_location_3' => 'nullable|string', // Untuk All In
             'booking_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
+            'prewed_date' => 'nullable|date',
+            'prewed_start_time' => 'nullable|date_format:H:i',
+            'prewed_end_time' => 'nullable|date_format:H:i|after:prewed_start_time',
             'status' => 'required|in:pending,dp_paid,paid_in_full,completed,cancelled',
             'couple_lat' => 'nullable|numeric',
             'couple_lng' => 'nullable|numeric',
@@ -78,17 +82,47 @@ class BookingController extends Controller
             'event_lng' => 'nullable|numeric',
             'event_lat_2' => 'nullable|numeric',
             'event_lng_2' => 'nullable|numeric',
+            'event_lat_3' => 'nullable|numeric',
+            'event_lng_3' => 'nullable|numeric',
         ]);
 
-        // 2. CEK DOUBLE BOOKING
-        // Cari apakah ada booking di tanggal yang sama, selain yang statusnya dibatalkan
-        $existingBooking = \App\Models\Booking::where('booking_date', $request->booking_date)
-            ->whereNotIn('status', ['cancelled'])
-            ->first();
+        // 2. CEK DOUBLE BOOKING (BERDASARKAN JAM / OVERLAP WAKTU)
+        // A. Cek Bentrok Acara Utama
+        $conflictMain = \App\Models\Booking::whereNotIn('status', ['cancelled'])
+            ->where(function($q) use ($request) {
+                $q->where(function($q2) use ($request) {
+                    $q2->whereDate('booking_date', $request->booking_date)
+                       ->where('start_time', '<', $request->end_time)
+                       ->where('end_time', '>', $request->start_time);
+                })->orWhere(function($q2) use ($request) {
+                    $q2->whereDate('prewed_date', $request->booking_date)
+                       ->where('prewed_start_time', '<', $request->end_time)
+                       ->where('prewed_end_time', '>', $request->start_time);
+                });
+            })->first();
 
-        if ($existingBooking) {
-            // Kalau ketemu, lempar kembali ke form bawa pesan error
-            return back()->withErrors(['booking_date' => 'Tanggal ini sudah di-booking! Silakan pilih tanggal lain.'])->withInput();
+        if ($conflictMain) {
+            return back()->withErrors(['booking_date' => 'Jadwal Acara Utama bentrok dengan pesanan klien lain di rentang jam tersebut!'])->withInput();
+        }
+
+        // B. Cek Bentrok Acara Prewedding (Jika ada)
+        if ($request->prewed_date) {
+            $conflictPrewed = \App\Models\Booking::whereNotIn('status', ['cancelled'])
+                ->where(function($q) use ($request) {
+                    $q->where(function($q2) use ($request) {
+                        $q2->whereDate('booking_date', $request->prewed_date)
+                           ->where('start_time', '<', $request->prewed_end_time)
+                           ->where('end_time', '>', $request->prewed_start_time);
+                    })->orWhere(function($q2) use ($request) {
+                        $q2->whereDate('prewed_date', $request->prewed_date)
+                           ->where('prewed_start_time', '<', $request->prewed_end_time)
+                           ->where('prewed_end_time', '>', $request->prewed_start_time);
+                    });
+                })->first();
+
+            if ($conflictPrewed) {
+                return back()->withErrors(['prewed_date' => 'Jadwal Prewedding bentrok dengan pesanan klien lain di rentang jam tersebut!'])->withInput();
+            }
         }
 
         // 3. LOGIKA GOOGLE CALENDAR (Hanya jalan jika status DP atau Lunas)
@@ -97,16 +131,25 @@ class BookingController extends Controller
                 $customer = \App\Models\User::find($request->user_id);
                 $package = \App\Models\Package::find($request->package_id);
 
+                // A. Simpan Event Acara Utama ke Google Calendar
                 $event = new \Spatie\GoogleCalendar\Event;
-                $event->name = "Everlast: " . $customer->name . " & " . $request->partner_name;
-                $event->description = "Paket: " . $package->name . "\nLokasi 1: " . $request->couple_address . "\nLokasi 2: " . $request->event_location;
-
-                // Set waktu pakai zona waktu Jakarta biar akurat
+                $event->name = "Everlast (Utama): " . $customer->name . " & " . $request->partner_name;
+                $event->description = "Paket: " . $package->name . "\nLokasi: " . $request->event_location;
                 $event->startDateTime = \Carbon\Carbon::parse($request->booking_date . ' ' . $request->start_time, 'Asia/Jakarta');
                 $event->endDateTime = \Carbon\Carbon::parse($request->booking_date . ' ' . $request->end_time, 'Asia/Jakarta');
-
                 $savedEvent = $event->save();
+                
                 $validated['google_calendar_id'] = $savedEvent->id;
+
+                // B. Simpan Event Prewedding ke Google Calendar (Jika Ada)
+                if ($request->prewed_date) {
+                    $prewedEvent = new \Spatie\GoogleCalendar\Event;
+                    $prewedEvent->name = "Everlast (Prewed): " . $customer->name . " & " . $request->partner_name;
+                    $prewedEvent->description = "Sesi Prewedding Paket All In\nLokasi: " . ($request->event_location_2 ?? 'Belum ditentukan');
+                    $prewedEvent->startDateTime = \Carbon\Carbon::parse($request->prewed_date . ' ' . $request->prewed_start_time, 'Asia/Jakarta');
+                    $prewedEvent->endDateTime = \Carbon\Carbon::parse($request->prewed_date . ' ' . $request->prewed_end_time, 'Asia/Jakarta');
+                    $prewedEvent->save();
+                }
 
             } catch (\Exception $e) {
                 // NYALAKAN RADAR ERROR SEMENTARA!
@@ -115,9 +158,12 @@ class BookingController extends Controller
         }
 
         // 4. Simpan ke database MySQL
-        \App\Models\Booking::create($validated);
+        $booking = \App\Models\Booking::create($validated);
 
-        return redirect()->route('admin.bookings.index');
+        // 5. NANTI KITA TARUH KODE KIRIM EMAIL PESANAN BARU DI SINI
+        // \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\NewBookingMail($booking));
+
+        return redirect()->route('admin.bookings.index')->with('success', 'Pesanan manual berhasil dibuat!');
     }
 
     /**
@@ -148,6 +194,7 @@ class BookingController extends Controller
     public function update(Request $request, string $id)
     {
         $booking = \App\Models\Booking::findOrFail($id);
+        $oldStatus = $booking->status; // Simpan status lama buat perbandingan nanti
 
         // 1. Validasi inputan form
         $validated = $request->validate([
@@ -157,9 +204,13 @@ class BookingController extends Controller
             'couple_address' => 'required|string',
             'event_location' => 'required|string',
             'event_location_2' => 'nullable|string', 
+            'event_location_3' => 'nullable|string', // Tambahan All In
             'booking_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
+            'prewed_date' => 'nullable|date',
+            'prewed_start_time' => 'nullable|date_format:H:i',
+            'prewed_end_time' => 'nullable|date_format:H:i|after:prewed_start_time',
             'status' => 'required|in:pending,dp_paid,paid_in_full,completed,cancelled',
             'couple_lat' => 'nullable|numeric',
             'couple_lng' => 'nullable|numeric',
@@ -167,89 +218,153 @@ class BookingController extends Controller
             'event_lng' => 'nullable|numeric',
             'event_lat_2' => 'nullable|numeric',
             'event_lng_2' => 'nullable|numeric',
+            'event_lat_3' => 'nullable|numeric',
+            'event_lng_3' => 'nullable|numeric',
         ]);
+
+        // 2. CEK BENTROK JADWAL UNTUK EDIT (Lebih kompleks karena harus abaikan ID sendiri)
+        $conflictMain = \App\Models\Booking::where('id', '!=', $booking->id)
+            ->whereNotIn('status', ['cancelled'])
+            ->where(function($q) use ($request) {
+                $q->where(function($q2) use ($request) {
+                    $q2->whereDate('booking_date', $request->booking_date)
+                       ->where('start_time', '<', $request->end_time)
+                       ->where('end_time', '>', $request->start_time);
+                })->orWhere(function($q2) use ($request) {
+                    $q2->whereDate('prewed_date', $request->booking_date)
+                       ->where('prewed_start_time', '<', $request->end_time)
+                       ->where('prewed_end_time', '>', $request->start_time);
+                });
+            })->first();
+
+        if ($conflictMain) {
+            return back()->withErrors(['booking_date' => 'Jadwal Acara Utama bentrok dengan pesanan klien lain di rentang jam tersebut!'])->withInput();
+        }
+
+        if ($request->prewed_date) {
+            $conflictPrewed = \App\Models\Booking::where('id', '!=', $booking->id)
+                ->whereNotIn('status', ['cancelled'])
+                ->where(function($q) use ($request) {
+                    $q->where(function($q2) use ($request) {
+                        $q2->whereDate('booking_date', $request->prewed_date)
+                           ->where('start_time', '<', $request->prewed_end_time)
+                           ->where('end_time', '>', $request->prewed_start_time);
+                    })->orWhere(function($q2) use ($request) {
+                        $q2->whereDate('prewed_date', $request->prewed_date)
+                           ->where('prewed_start_time', '<', $request->prewed_end_time)
+                           ->where('prewed_end_time', '>', $request->prewed_start_time);
+                    });
+                })->first();
+
+            if ($conflictPrewed) {
+                return back()->withErrors(['prewed_date' => 'Jadwal Prewedding bentrok dengan pesanan klien lain di rentang jam tersebut!'])->withInput();
+            }
+        }
 
         // 3. LOGIKA GOOGLE CALENDAR
         if ($request->status === 'cancelled') {
-            // Jika status dibatalkan, hapus event utama dari Google Calendar (jika ada)
             if ($booking->google_calendar_id) {
                 try {
                     $event = \Spatie\GoogleCalendar\Event::find($booking->google_calendar_id);
                     $event->delete();
-                    $validated['google_calendar_id'] = null; // Kosongkan ID di database lokal
-                    
-                    // ⚠️ CATATAN BRO: Karena kemarin kita sepakat gak bikin kolom 'prewed_google_calendar_id' 
-                    // buat hemat database, kalau pesanan All In dibatalkan, jadwal Prewed-nya 
-                    // harus dihapus manual oleh Admin langsung di Google Calendar ya!
-                } catch (\Exception $e) {
-                    // Abaikan jika event di Google Calendar sudah terhapus manual atau tidak ditemukan
-                }
+                    $validated['google_calendar_id'] = null; 
+                } catch (\Exception $e) { }
             }
         } elseif (in_array($request->status, ['dp_paid', 'paid_in_full'])) {
-            // BONUS: Jika dari pending berubah jadi DP/Lunas, dan belum ada kalender, kita buatkan
             if (!$booking->google_calendar_id) {
                 try {
                     $customer = \App\Models\User::find($booking->user_id);
-                    $package = \App\Models\Package::find($booking->package_id);
+                    $package = \App\Models\Package::find($request->package_id);
 
-                    // 1. EVENT ACARA UTAMA (WEDDING / SINGLE)
+                    // A. MAIN EVENT
                     $event = new \Spatie\GoogleCalendar\Event;
-                    $event->name = "Everlast Booking: " . $customer->name . " & " . $booking->partner_name;
-                    $event->description = "Paket: " . $package->name . "\nLokasi 1: " . $booking->event_location;
-                    $event->startDateTime = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time, 'Asia/Jakarta');
-                    $event->endDateTime = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time, 'Asia/Jakarta');
+                    $event->name = "Everlast Booking: " . $customer->name . " & " . $request->partner_name;
+                    $event->description = "Paket: " . $package->name . "\nLokasi 1: " . $request->event_location;
+                    $event->startDateTime = \Carbon\Carbon::parse($request->booking_date . ' ' . $request->start_time, 'Asia/Jakarta');
+                    $event->endDateTime = \Carbon\Carbon::parse($request->booking_date . ' ' . $request->end_time, 'Asia/Jakarta');
 
                     $savedEvent = $event->save();
-                    $validated['google_calendar_id'] = $savedEvent->id; // Simpan ID event utama
+                    $validated['google_calendar_id'] = $savedEvent->id;
 
-                    // 2. EVENT PREWEDDING (KHUSUS ALL IN)
-                    if ($booking->prewed_date && $booking->prewed_start_time && $booking->prewed_end_time) {
+                    // B. PREWEDDING EVENT
+                    if ($request->prewed_date && $request->prewed_start_time && $request->prewed_end_time) {
                         $prewedEvent = new \Spatie\GoogleCalendar\Event;
-                        $prewedEvent->name = "[PREWED] Everlast: " . $customer->name . " & " . $booking->partner_name;
-                        
-                        // Prioritaskan lokasi 3, kalau kosong pakai lokasi 2
-                        $lokasiPrewed = $booking->event_location_3 ?? $booking->event_location_2 ?? 'Lokasi belum ditentukan';
+                        $prewedEvent->name = "[PREWED] Everlast: " . $customer->name . " & " . $request->partner_name;
+                        $lokasiPrewed = $request->event_location_3 ?? $request->event_location_2 ?? 'Lokasi belum ditentukan';
                         
                         $prewedEvent->description = "Paket: " . $package->name . "\nLokasi Prewed: " . $lokasiPrewed;
-                        $prewedEvent->startDateTime = \Carbon\Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_start_time, 'Asia/Jakarta');
-                        $prewedEvent->endDateTime = \Carbon\Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_end_time, 'Asia/Jakarta');
+                        $prewedEvent->startDateTime = \Carbon\Carbon::parse($request->prewed_date . ' ' . $request->prewed_start_time, 'Asia/Jakarta');
+                        $prewedEvent->endDateTime = \Carbon\Carbon::parse($request->prewed_date . ' ' . $request->prewed_end_time, 'Asia/Jakarta');
                         
-                        // Simpan ke kalender tanpa nyimpen ID-nya ke database
                         $prewedEvent->save();
                     }
 
-                } catch (\Exception $e) {
-                    // Log error jika diperlukan
-                }
+                } catch (\Exception $e) { }
             }
         }
 
         // ==========================================
-        // 4. LOGIKA SINKRONISASI STATUS PEMBAYARAN & EMAIL
+        // 4. LOGIKA AUTO-CREATE PAYMENT & SINKRONISASI EMAIL (KHUSUS MANUAL EDIT)
         // ==========================================
-        if ($request->status === 'dp_paid') {
-            // Cari pembayaran manual DP yang masih pending
-            $pendingPayment = \App\Models\Payment::where('booking_id', $booking->id)
-                ->where('payment_type', 'dp')->where('status', 'pending')->first();
-                
-            if ($pendingPayment) {
-                $pendingPayment->update(['status' => 'success']);
-                // Kirim Email
-                Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, 'Down Payment (DP)', $pendingPayment->amount));
-            }
-        } 
-        elseif (in_array($request->status, ['paid_in_full', 'completed'])) {
-            // Cari pembayaran pelunasan yang masih pending
-            $pendingPayment = \App\Models\Payment::where('booking_id', $booking->id)
-                ->where('status', 'pending')->first();
+        $package = \App\Models\Package::find($request->package_id);
+        $packagePrice = $package->price ?? 0;
+        $dpAmount = $packagePrice / 2; // Hitung 50%
 
-            if ($pendingPayment) {
-                $pendingPayment->update(['status' => 'success']);
-                // Kirim Email
-                Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, 'Pelunasan', $pendingPayment->amount));
+        // Cek jika status diubah dari Pending -> DP Paid
+        if ($oldStatus === 'pending' && $request->status === 'dp_paid') {
+            
+            // Cek apakah Admin sebelumnya udah buat record manual?
+            $existingPayment = \App\Models\Payment::where('booking_id', $booking->id)->where('payment_type', 'dp')->first();
+            
+            if(!$existingPayment) {
+                // Buat record palsu/manual agar invoice bisa tercetak
+                \App\Models\Payment::create([
+                    'booking_id' => $booking->id,
+                    'amount' => $dpAmount,
+                    'payment_method' => 'manual_admin', // Tandai ini buatan admin
+                    'status' => 'success',
+                    'payment_type' => 'dp',
+                    'notes' => 'Telah dikonfirmasi secara manual oleh Admin'
+                ]);
+            } else {
+                // Kalau ada yang pending (Misal dari form upload bukti transfer), update jadi success
+                $existingPayment->update(['status' => 'success']);
+                $dpAmount = $existingPayment->amount; // Ambil nilai aslinya
             }
+
+            // Kirim Email Sukses
+            \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\PaymentSuccessMail($booking, 'Down Payment (DP)', $dpAmount));
         } 
-        elseif ($request->status === 'cancelled') {
+        
+        // Cek jika status diubah jadi LUNAS (Entah dari DP atau langsung dari Pending)
+        elseif (in_array($oldStatus, ['pending', 'dp_paid']) && in_array($request->status, ['paid_in_full', 'completed'])) {
+            
+            // Cari sisa tagihan yang harus dibayar
+            $totalPaidSoFar = \App\Models\Payment::where('booking_id', $booking->id)->where('status', 'success')->sum('amount');
+            $pelunasanAmount = max(0, $packagePrice - $totalPaidSoFar);
+
+            $existingPayment = \App\Models\Payment::where('booking_id', $booking->id)->where('status', 'pending')->first();
+
+            if(!$existingPayment && $pelunasanAmount > 0) {
+                \App\Models\Payment::create([
+                    'booking_id' => $booking->id,
+                    'amount' => $pelunasanAmount,
+                    'payment_method' => 'manual_admin',
+                    'status' => 'success',
+                    'payment_type' => 'pelunasan',
+                    'notes' => 'Telah dikonfirmasi lunas secara manual oleh Admin'
+                ]);
+            } elseif ($existingPayment) {
+                $existingPayment->update(['status' => 'success']);
+                $pelunasanAmount = $existingPayment->amount;
+            }
+
+            // Kirim Email Sukses
+            \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\PaymentSuccessMail($booking, 'Pelunasan', $pelunasanAmount));
+        }
+        
+        // Cek jika di-cancel
+        elseif ($oldStatus !== 'cancelled' && $request->status === 'cancelled') {
             \App\Models\Payment::where('booking_id', $booking->id)
                 ->where('status', 'pending')
                 ->update(['status' => 'failed']);
@@ -258,7 +373,7 @@ class BookingController extends Controller
         // 5. Simpan perubahan ke database MySQL
         $booking->update($validated);
 
-        return redirect()->route('admin.bookings.index')->with('success', 'Booking berhasil diupdate.');
+        return redirect()->route('admin.bookings.index')->with('success', 'Booking berhasil diupdate & status pembayaran disinkronisasi.');
     }
 
     public function destroy(string $id)

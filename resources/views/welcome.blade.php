@@ -100,18 +100,18 @@
                             
                             <div class="sm:w-36 flex-shrink-0 mb-3 sm:mb-0 pt-1">
                                 <div class="text-xs font-bold tracking-widest text-gray-900 mb-1">
-                                    {{ \Carbon\Carbon::parse($schedule->booking_date)->format('d M Y') }}
+                                    {{ \Carbon\Carbon::parse($schedule->display_date)->translatedFormat('d F Y') }}
                                 </div>
                                 <div class="text-[10px] text-gray-500 font-sans-custom uppercase tracking-wider">
-                                    {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
+                                    {{ \Carbon\Carbon::parse($schedule->display_start)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->display_end)->format('H:i') }}
                                 </div>
                             </div>
 
                             <div class="sm:flex-1">
-                                <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9A66B] mb-1">Main Event</h4>
+                                <h4 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9A66B] mb-1">{{ $schedule->event_label }}</h4>
                                 <p class="text-lg text-gray-900 font-serif-custom mb-1">{{ $schedule->partner_name }}</p>
                                 <p class="text-[11px] text-gray-600 italic mb-2">Package: {{ $schedule->package->category }}</p>
-                                <p class="text-[10px] text-gray-500 uppercase tracking-wider"><i class="fas fa-map-marker-alt mr-2"></i>{{ $schedule->event_location }}</p>
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wider"><i class="fas fa-map-marker-alt mr-2"></i>{{ $schedule->display_location }}</p>
                             </div>
                         </li>
                         @endforeach

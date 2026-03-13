@@ -93,8 +93,8 @@
             <a href="#moments" class="mobile-link text-sm font-bold tracking-[0.3em] uppercase hover:text-[#C9A66B] transition-colors">Portfolio</a>
             
             <div class="pt-8 flex justify-center items-center space-x-6 text-xl text-gray-400 border-t border-gray-200 w-48 mx-auto mt-4">
-                <a href="#" class="hover:text-black transition-colors"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="hover:text-black transition-colors"><i class="fab fa-youtube"></i></a>
+                <a href="https://www.instagram.com/everlast.project/" class="hover:opacity-70 transition-opacity" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://api.whatsapp.com/send?phone=6285161340842&utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnGvTWCNgoWTXWmtOEcNcyrFa-bOVcs8XeWWQfMvyr-QCW0ju-cKavlSEgDbs_aem_2uQnHGVXZBH1N0BiQ6A-Sw" class="hover:opacity-70 transition-opacity" target="_blank"><i class="fab fa-whatsapp"></i></a>
                 
                 @guest
                     <a href="{{ route('login') }}" class="hover:text-black transition-colors" title="Login / Register">
