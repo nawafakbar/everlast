@@ -65,7 +65,7 @@
 
             <p>Jadwal pemotretan Anda telah diamankan di kalender sistem kami. Tim Everlast akan segera menghubungi Anda untuk koordinasi lebih lanjut menjelang hari H.</p>
             
-            <a href="{{ url('/pesanan/'}}" class="btn">Lihat Detail Pesanan</a>
+            <a href="{{ url('/pesanan') }}" class="btn">Lihat Detail Pesanan</a>
             
         </div>
 
