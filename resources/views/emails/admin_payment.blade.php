@@ -82,7 +82,7 @@
                 otomatis berstatus <strong>{{ $payment->payment_type == 'dp' ? 'DP Paid' : 'Paid in Full' }}</strong>. Silakan atur penugasan tim (Freelancer) jika diperlukan.
             </div>
 
-            <a href="http://127.0.0.1:8000/admin/bookings/{{ $booking->id }}" class="btn">Kelola Booking Ini</a>
+            <a href="{{ url('/admin/bookings/' . $booking->id) }}" class="btn">Kelola Booking Ini</a>
         </div>
 
         <div class="footer">

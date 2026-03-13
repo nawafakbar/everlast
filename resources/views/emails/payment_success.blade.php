@@ -65,7 +65,8 @@
 
             <p>Jadwal pemotretan Anda telah diamankan di kalender sistem kami. Tim Everlast akan segera menghubungi Anda untuk koordinasi lebih lanjut menjelang hari H.</p>
             
-            <a href="http://127.0.0.1:8000/pesanan" class="btn">Lihat Detail Pesanan</a>
+            <a href="{{ url('/pesanan/' . $booking->id) }}" class="btn">Lihat Detail Pesanan</a>
+            
         </div>
 
         <div class="footer">
