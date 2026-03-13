@@ -161,21 +161,25 @@ class CheckoutController extends Controller
             // PEMBAYARAN SUKSES
             $payment->update(['status' => 'success']);
             
-            // Update status booking jadi DP atau Lunas (sesuai data enum di database)
+            // Update status booking jadi DP atau Lunas
             $newStatus = $payment->payment_type === 'dp' ? 'dp_paid' : 'paid_in_full';
             $booking->update(['status' => $newStatus]);
 
-            // === TAMBAHAN: KIRIM EMAIL KE KLIEN ===
-            $typeString = $payment->payment_type === 'dp' ? 'Down Payment (DP)' : 'Pelunasan';
-            Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, $typeString, $payment->amount));
+            // ==========================================
+            // BUNGKUS KIRIM EMAIL PAKE TRY-CATCH BIAR GAK CRASH
+            // ==========================================
+            try {
+                $typeString = $payment->payment_type === 'dp' ? 'Down Payment (DP)' : 'Pelunasan';
+                Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, $typeString, $payment->amount));
 
-            // === TAMBAHAN: KIRIM EMAIL KE ADMIN ===
-            // Cari user yang rolenya admin (ambil admin pertama)
-            $admin = User::where('role', 'admin')->first();
-            if ($admin) {
-                Mail::to($admin->email)->send(new AdminPaymentNotificationMail($booking, $payment));
+                $admin = User::where('role', 'admin')->first();
+                if ($admin) {
+                    Mail::to($admin->email)->send(new AdminPaymentNotificationMail($booking, $payment));
+                }
+            } catch (\Exception $e) {
+                // Biarin aja kalau gagal kirim email, yang penting script lanjut jalan
+                \Illuminate\Support\Facades\Log::error('Gagal kirim email Midtrans: ' . $e->getMessage());
             }
-            // =======================================
 
             // ==========================================
             // LOGIKA OTOMATISASI GOOGLE CALENDAR
@@ -193,24 +197,21 @@ class CheckoutController extends Controller
                     $booking->update(['google_calendar_id' => $savedEvent->id]);
 
                     // 2. EVENT PREWEDDING (KHUSUS ALL IN)
-                    // Cek apakah kolom prewed terisi
                     if ($booking->prewed_date && $booking->prewed_start_time && $booking->prewed_end_time) {
                         $prewedEvent = new Event;
                         $prewedEvent->name = "[PREWED] Everlast: " . $booking->user->name . " & " . $booking->partner_name;
                         
-                        // Cek lokasi Prewed (Prioritaskan lokasi 3, kalau kosong pakai lokasi 2)
                         $lokasiPrewed = $booking->event_location_3 ?? $booking->event_location_2 ?? 'Lokasi belum ditentukan';
                         $prewedEvent->description = "Paket: " . $booking->package->name . "\nLokasi Prewed: " . $lokasiPrewed;
                         
                         $prewedEvent->startDateTime = Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_start_time, 'Asia/Jakarta');
                         $prewedEvent->endDateTime = Carbon::parse($booking->prewed_date . ' ' . $booking->prewed_end_time, 'Asia/Jakarta');
                         
-                        // Simpan ke kalender tanpa perlu nyimpen ID-nya ke database
                         $prewedEvent->save();
                     }
 
                 } catch (\Exception $e) {
-                    // Log error jika diperlukan
+                    \Illuminate\Support\Facades\Log::error('Gagal bikin GCalendar: ' . $e->getMessage());
                 }
             }
 
@@ -220,6 +221,9 @@ class CheckoutController extends Controller
             $payment->update(['status' => 'pending']);
         }
 
+        // ==========================================
+        // KODE INI SEKARANG PASTI TEREKSEKUSI!
+        // ==========================================
         return response()->json(['message' => 'Callback sukses.']);
     }
 
