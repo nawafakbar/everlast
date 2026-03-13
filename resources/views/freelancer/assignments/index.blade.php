@@ -1,9 +1,58 @@
 @extends('layouts.freelancer') 
 
 @section('content')
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+
+<style>
+    .leaflet-container { z-index: 10 !important; }
+    
+    /* Styling Kustom Kalender (Di-copy dari Admin) */
+    .fc-theme-standard .fc-scrollgrid { border-color: #f3f4f6; }
+    .fc-theme-standard th { border-color: #f3f4f6; padding: 10px 0; background-color: #f9fafb; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: #6b7280; }
+    .fc-theme-standard td { border-color: #f3f4f6; }
+    .fc-daygrid-day-number { font-size: 12px; font-weight: 600; color: #374151; padding: 8px !important; }
+    .fc-event { border-radius: 2px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 5px; border: none; }
+    
+    .fc .fc-button-primary { background-color: #000000; border-color: #000000; color: #ffffff; text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; border-radius: 2px; padding: 8px 16px; transition: all 0.2s; }
+    .fc .fc-button-primary:hover { background-color: #374151; border-color: #374151; }
+    .fc .fc-button-primary:disabled { background-color: #9ca3af; border-color: #9ca3af; }
+    .fc .fc-button-active { background-color: #374151 !important; border-color: #374151 !important; }
+    .fc-toolbar-title { font-family: 'Montserrat', sans-serif; font-size: 1.1rem !important; font-weight: 700; color: #111827; }
+
+    /* Tanggal yang bisa diklik (interaktif) */
+    .fc-day:not(.fc-day-past) { cursor: pointer; transition: background-color 0.2s; }
+    .fc-day:not(.fc-day-past):hover { background-color: #fdfbf7; }
+
+    /* ==========================================
+       RESPONSIVE FIX KHUSUS MOBILE (Layar kecil)
+       ========================================== */
+    @media (max-width: 640px) {
+        .fc-toolbar.fc-header-toolbar {
+            flex-direction: column; /* Bikin elemen numpuk ke bawah */
+            gap: 12px; /* Jarak antar elemen */
+        }
+        .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center; /* Posisikan tombol di tengah */
+            width: 100%;
+        }
+        .fc .fc-button-primary {
+            padding: 6px 10px; /* Perkecil ukuran padding tombol */
+            font-size: 9px;    /* Perkecil font tombol */
+        }
+        .fc-toolbar-title {
+            font-size: 1.1rem !important; /* Perkecil font judul bulan */
+        }
+    }
+</style>
 <div class="mb-8 border-b border-gray-200 pb-4 mt-2">
     <h2 class="text-xl font-semibold text-gray-900 tracking-tight">My Schedules</h2>
     <p class="text-gray-500 text-xs mt-1">Manage your upcoming events and job assignments.</p>
+    <div class="flex gap-2 mt-3">
+            <button type="button" onclick="openCalendarModal('booking_date')" class="px-6 py-3 bg-gray-100 border border-gray-300 text-gray-900 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors whitespace-nowrap shadow-sm">
+                     <i class="far fa-calendar-alt mr-1"></i> Calendar Everlast
+             </button>
+    </div>
 </div>
 
 @if (session('success'))
@@ -115,4 +164,105 @@
 <div class="mt-8">
     {{ $assignments->links() }}
 </div>
+
+<div id="calendarModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeCalendarModal()"></div>
+    
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0 pointer-events-none">
+        <div class="relative bg-white rounded-md text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-4xl w-full pointer-events-auto border border-gray-100 flex flex-col max-h-[90vh]">
+            
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Ketersediaan Jadwal</h3>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Klik pada tanggal kosong untuk memilih</p>
+                </div>
+                <button onclick="closeCalendarModal()" class="text-gray-400 hover:text-red-500 focus:outline-none transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="px-6 py-6 overflow-y-auto flex-1">
+                <div class="flex gap-4 mb-4 justify-end">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-black rounded-full"></div><span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Booked</span></div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-black/20 rounded-full"></div><span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Available</span></div>
+                </div>
+                <div id='customerCalendar'></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // SCRIPT CALENDAR
+    let customerCalendar;
+    let calendarInitialized = false;
+    let currentTargetInput = ''; // Variabel buat nyimpen ID input yang mau diisi
+
+    // Tambahin parameter targetId
+    function openCalendarModal(targetId) {
+        currentTargetInput = targetId; 
+        const modal = document.getElementById('calendarModal');
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+
+        if (!calendarInitialized) {
+            setTimeout(() => {
+                const calendarEl = document.getElementById('customerCalendar');
+                customerCalendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'today'
+                    },
+                    events: '{{ route("customer.calendar.events") }}', 
+                    
+                    eventDidMount: function(info) {
+                        if (info.event.extendedProps.description) {
+                            info.el.setAttribute('title', info.event.extendedProps.description);
+                        }
+                    },
+                    
+                    height: 'auto',
+                    firstDay: 1,
+                    
+                    dateClick: function(info) {
+                        const today = new Date();
+                        today.setHours(0,0,0,0);
+                        if (info.date < today) {
+                            alert('Tidak dapat memilih tanggal yang sudah lewat.');
+                            return;
+                        }
+                        
+                        const allEvents = customerCalendar.getEvents();
+                        
+                        const isFullBooked = allEvents.some(event => event.startStr === info.dateStr && event.title === 'Full Booked');
+                        if (isFullBooked) {
+                            alert('Maaf, tim kami sudah Full Booked di tanggal ini. Silakan pilih tanggal lain.');
+                            return;
+                        }
+
+                        const availableEvent = allEvents.find(event => event.startStr === info.dateStr && event.title === 'Available');
+                        
+                        if (availableEvent) {
+                            alert('TIPS: Tanggal ini sudah terisi sebagian (' + availableEvent.extendedProps.description + ').\n\nPastikan Anda mengatur Jam Mulai acara yang tidak bentrok dengan sesi tersebut ya!');
+                        }
+
+                        // INJEK TANGGAL KE INPUT YANG BENAR (Bisa booking_date, bisa prewed_date)
+                        document.getElementById(currentTargetInput).value = info.dateStr;
+                        closeCalendarModal();
+                    }
+                });
+                customerCalendar.render();
+                calendarInitialized = true;
+            }, 100);
+        }
+    }
+
+    function closeCalendarModal() {
+        const modal = document.getElementById('calendarModal');
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+</script>
 @endsection

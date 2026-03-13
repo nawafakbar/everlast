@@ -142,7 +142,7 @@
                 <div class="order-1 md:order-2 border-b border-gray-100 md:border-0 pb-8 md:pb-0">
                     <h4 class="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-900 mb-4 md:mb-6 font-sans-custom">For Inquiries</h4>
                     <p class="mb-4 md:mb-6 italic">Akbar (+62) 812 3456 7891</p>
-                    <p class="italic">Team Everlast (+62) 812 3456 7892</p>
+                    <p class="italic">Team Everlast (+62) 851 7406 4098</p>
                 </div>
 
                 <div class="order-3 md:order-3 pt-4 md:pt-0">

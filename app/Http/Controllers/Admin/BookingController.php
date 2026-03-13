@@ -262,6 +262,9 @@ class BookingController extends Controller
         }
 
         // 3. LOGIKA GOOGLE CALENDAR
+        // ⚠️ CATATAN BRO: Karena kemarin kita sepakat gak bikin kolom 'prewed_google_calendar_id' 
+                    // buat hemat database, kalau pesanan All In dibatalkan, jadwal Prewed-nya 
+                    // harus dihapus manual oleh Admin langsung di Google Calendar ya!
         if ($request->status === 'cancelled') {
             if ($booking->google_calendar_id) {
                 try {

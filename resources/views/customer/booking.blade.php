@@ -246,6 +246,7 @@
             <div class="px-6 py-6 overflow-y-auto flex-1">
                 <div class="flex gap-4 mb-4 justify-end">
                     <div class="flex items-center gap-2"><div class="w-3 h-3 bg-black rounded-full"></div><span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Booked</span></div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 bg-black/20 rounded-full"></div><span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Available</span></div>
                 </div>
                 <div id='customerCalendar'></div>
             </div>

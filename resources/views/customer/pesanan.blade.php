@@ -20,7 +20,7 @@
             </div>
             <h3 class="text-lg font-bold text-gray-900 mb-2">Booking is empty</h3>
             <p class="text-xs text-gray-500 mb-6 max-w-md">You haven't booked any services yet. Come immortalize your special moments with the Everlast Project!</p>
-            <a href="/#packages" class="border border-gray-300 text-gray-900 px-6 py-3 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors">
+            <a href="https://drive.google.com/file/d/1eEpPnmcJbQoKZBDhdpyDIvtrJouLE-F6/view?usp=drive_link" class="border border-gray-300 text-gray-900 px-6 py-3 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors" target="_blank">
                 Lets see our packages
             </a>
         </div>
