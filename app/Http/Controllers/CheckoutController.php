@@ -176,7 +176,7 @@ class CheckoutController extends Controller
                 if ($admin) {
                     Mail::to($admin->email)->send(new AdminPaymentNotificationMail($booking, $payment));
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Biarin aja kalau gagal kirim email, yang penting script lanjut jalan
                 \Illuminate\Support\Facades\Log::error('Gagal kirim email Midtrans: ' . $e->getMessage());
             }
@@ -210,7 +210,7 @@ class CheckoutController extends Controller
                         $prewedEvent->save();
                     }
 
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::error('Gagal bikin GCalendar: ' . $e->getMessage());
                 }
             }
