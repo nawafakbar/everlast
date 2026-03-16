@@ -75,6 +75,17 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('admin.cash_flows.index') }}" 
+                       class="flex items-center px-4 py-2.5 rounded-sm transition-all duration-300 mt-2 group {{ request()->routeIs('admin.cash_flows.index') ? 'bg-gray-100 text-gray-500' : 'text-gray-500 hover:text-black hover:bg-gray-50' }}"
+                       title="Bookings">
+                        <div class="w-6 flex items-center justify-center">
+                            <i class="fas fa-exchange-alt text-xs transition-colors {{ request()->routeIs('admin.cash_flows.index') ? 'text-gray-500' : 'text-gray-400 group-hover:text-black' }}"></i>
+                        </div>
+                        <span class="sidebar-text ml-3 font-medium text-xs tracking-wide uppercase whitespace-nowrap">Cash Flow</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('admin.finance') }}" 
                        class="flex items-center px-4 py-2.5 rounded-sm transition-all duration-300 mt-2 group {{ request()->routeIs('admin.finance') ? 'bg-gray-100 text-gray-500' : 'text-gray-500 hover:text-black hover:bg-gray-50' }}"
                        title="Bookings">

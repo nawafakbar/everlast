@@ -315,41 +315,48 @@ class BookingController extends Controller
 
         // Cek jika status diubah dari Pending -> DP Paid
         if ($oldStatus === 'pending' && $request->status === 'dp_paid') {
-            
-            // Cek apakah Admin sebelumnya udah buat record manual?
             $existingPayment = \App\Models\Payment::where('booking_id', $booking->id)->where('payment_type', 'dp')->first();
             
             if(!$existingPayment) {
-                // Buat record palsu/manual agar invoice bisa tercetak
-                \App\Models\Payment::create([
+                // Tangkap hasil create ke variabel
+                $paymentToRecord = \App\Models\Payment::create([
                     'booking_id' => $booking->id,
                     'amount' => $dpAmount,
-                    'payment_method' => 'manual_admin', // Tandai ini buatan admin
+                    'payment_method' => 'manual_admin', 
                     'status' => 'success',
                     'payment_type' => 'dp',
                     'notes' => 'Telah dikonfirmasi secara manual oleh Admin'
                 ]);
             } else {
-                // Kalau ada yang pending (Misal dari form upload bukti transfer), update jadi success
                 $existingPayment->update(['status' => 'success']);
-                $dpAmount = $existingPayment->amount; // Ambil nilai aslinya
+                $dpAmount = $existingPayment->amount; 
+                $paymentToRecord = $existingPayment; // Jadikan variabel
             }
 
-            // Kirim Email Sukses
+            // === [INJECTOR 2A] OTOMATIS CATAT PEMASUKAN DP MANUAL ===
+            \App\Models\CashFlow::firstOrCreate(
+                ['reference_id' => 'payment_' . $paymentToRecord->id],
+                [
+                    'date' => now()->toDateString(),
+                    'type' => 'income',
+                    'category' => 'booking_payment',
+                    'amount' => $dpAmount,
+                    'description' => 'Pembayaran DP dari ' . $booking->user->name . ' (Manual Admin)'
+                ]
+            );
+            // ========================================================
+
             \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\PaymentSuccessMail($booking, 'Down Payment (DP)', $dpAmount));
         } 
         
         // Cek jika status diubah jadi LUNAS (Entah dari DP atau langsung dari Pending)
         elseif (in_array($oldStatus, ['pending', 'dp_paid']) && in_array($request->status, ['paid_in_full', 'completed'])) {
-            
-            // Cari sisa tagihan yang harus dibayar
             $totalPaidSoFar = \App\Models\Payment::where('booking_id', $booking->id)->where('status', 'success')->sum('amount');
             $pelunasanAmount = max(0, $packagePrice - $totalPaidSoFar);
-
             $existingPayment = \App\Models\Payment::where('booking_id', $booking->id)->where('status', 'pending')->first();
 
             if(!$existingPayment && $pelunasanAmount > 0) {
-                \App\Models\Payment::create([
+                $paymentToRecord = \App\Models\Payment::create([
                     'booking_id' => $booking->id,
                     'amount' => $pelunasanAmount,
                     'payment_method' => 'manual_admin',
@@ -360,12 +367,27 @@ class BookingController extends Controller
             } elseif ($existingPayment) {
                 $existingPayment->update(['status' => 'success']);
                 $pelunasanAmount = $existingPayment->amount;
+                $paymentToRecord = $existingPayment;
             }
 
-            // Kirim Email Sukses
+            // === [INJECTOR 2B] OTOMATIS CATAT PEMASUKAN PELUNASAN MANUAL ===
+            if (isset($paymentToRecord)) {
+                \App\Models\CashFlow::firstOrCreate(
+                    ['reference_id' => 'payment_' . $paymentToRecord->id],
+                    [
+                        'date' => now()->toDateString(),
+                        'type' => 'income',
+                        'category' => 'booking_payment',
+                        'amount' => $pelunasanAmount,
+                        'description' => 'Pelunasan dari ' . $booking->user->name . ' (Manual Admin)'
+                    ]
+                );
+            }
+            // ===============================================================
+
             \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\PaymentSuccessMail($booking, 'Pelunasan', $pelunasanAmount));
         }
-        
+                
         // Cek jika di-cancel
         elseif ($oldStatus !== 'cancelled' && $request->status === 'cancelled') {
             \App\Models\Payment::where('booking_id', $booking->id)
@@ -383,13 +405,27 @@ class BookingController extends Controller
     {
         $booking = \App\Models\Booking::findOrFail($id);
 
-        // ATURAN BISNIS: Harus Cancelled dulu
         if ($booking->status !== 'cancelled') {
-            // Kembalikan ke halaman sebelumnya dengan pesan error bawaan (kita tangkap di Javascript/Blade nanti)
             return back()->with('error', 'Gagal menghapus! Ubah status booking menjadi Cancelled terlebih dahulu.');
         }
 
-        // Hapus dari database (Event GCal sudah otomatis terhapus saat update ke cancelled)
+        // === [INJECTOR 4] SAPU BERSIH ARUS KAS TERKAIT PESANAN INI ===
+        // 1. Tarik kembali uang masuk
+        $payments = \App\Models\Payment::where('booking_id', $booking->id)->get();
+        foreach ($payments as $payment) {
+            \App\Models\CashFlow::where('reference_id', 'payment_' . $payment->id)->delete();
+        }
+
+        // 2. Tarik kembali uang keluar (fee kru)
+        // (Pastikan lo punya model Assignment dan kolom booking_id)
+        if (class_exists(\App\Models\Assignment::class)) {
+            $assignments = \App\Models\Assignment::where('booking_id', $booking->id)->get();
+            foreach ($assignments as $assignment) {
+                \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
+            }
+        }
+        // ===========================================================
+
         $booking->delete();
 
         return redirect()->route('admin.bookings.index')->with('success', 'Booking berhasil dihapus permanen.');

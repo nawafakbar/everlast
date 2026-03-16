@@ -25,7 +25,6 @@ class AssignmentController extends Controller
     // 2. Fungsi buat ngubah status (Terima/Tolak/Selesai)
     public function updateStatus(Request $request, Assignment $assignment)
     {
-        // Validasi keamanan: Pastikan hanya yang ditugaskan yang bisa ngubah status
         if ($assignment->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -38,7 +37,21 @@ class AssignmentController extends Controller
             'status' => $validated['status']
         ]);
 
-        // Pesan sukses dinamis berdasarkan aksi yang dipilih
+        // === [INJECTOR 3] OTOMATIS CATAT PENGELUARAN FEE KRU ===
+        if ($validated['status'] == 'completed' && $assignment->fee > 0) {
+            \App\Models\CashFlow::firstOrCreate(
+                ['reference_id' => 'assignment_' . $assignment->id],
+                [
+                    'date' => now()->toDateString(),
+                    'type' => 'expense',
+                    'category' => 'freelancer_fee',
+                    'amount' => $assignment->fee,
+                    'description' => 'Fee Kru: ' . ($assignment->user->name ?? 'Kru') . ' (Pesanan #' . $assignment->booking_id . ')'
+                ]
+            );
+        }
+        // ======================================================
+
         $message = 'Status penugasan diperbarui!';
         if ($validated['status'] == 'accepted') {
             $message = 'Tugas diterima! Jangan lupa dicatat di kalendermu bro.';

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\FinancialReportController;
+use App\Http\Controllers\Admin\CashFlowController;
 use App\Http\Controllers\Freelancer\MomentController;
 use App\Http\Controllers\Freelancer\AssignmentController;
 use App\Http\Controllers\CheckoutController;
@@ -188,6 +189,11 @@ Route::prefix('admin')
         Route::get('/finance', [FinancialReportController::class, 'index'])->name('finance');
         Route::get('/admin/finance/pdf', [FinancialReportController::class, 'exportPdf'])->name('finance.pdf');
         Route::get('/admin/finance/excel', [FinancialReportController::class, 'exportExcel'])->name('finance.excel');
+
+        // Cash Flow Routes
+        Route::get('/cash-flows', [CashFlowController::class, 'index'])->name('cash_flows.index');
+        Route::post('/cash-flows', [CashFlowController::class, 'store'])->name('cash_flows.store');
+        Route::delete('/cash-flows/{cashFlow}', [CashFlowController::class, 'destroy'])->name('cash_flows.destroy');
 });
 
 require __DIR__.'/auth.php';

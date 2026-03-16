@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Payment;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
+use App\Models\CashFlow;
 use Spatie\GoogleCalendar\Event;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -164,6 +165,18 @@ class CheckoutController extends Controller
             // Update status booking jadi DP atau Lunas
             $newStatus = $payment->payment_type === 'dp' ? 'dp_paid' : 'paid_in_full';
             $booking->update(['status' => $newStatus]);
+
+            // === [INJECTOR 1] OTOMATIS CATAT PEMASUKAN MIDTRANS ===
+            \App\Models\CashFlow::firstOrCreate(
+                ['reference_id' => 'payment_' . $payment->id],
+                [
+                    'date' => now()->toDateString(),
+                    'type' => 'income',
+                    'category' => 'booking_payment',
+                    'amount' => $payment->amount,
+                    'description' => 'Pembayaran ' . strtoupper($payment->payment_type) . ' dari ' . $booking->user->name . ' (Midtrans)'
+                ]
+            );
 
             // ==========================================
             // BUNGKUS KIRIM EMAIL PAKE TRY-CATCH BIAR GAK CRASH
