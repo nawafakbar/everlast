@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CashFlow;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CashFlowController extends Controller
 {
@@ -50,5 +51,34 @@ class CashFlowController extends Controller
     {
         $cashFlow->delete();
         return back()->with('success', 'Catatan arus kas berhasil dihapus!');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // Tangkap filter bulan dan tahun dari URL
+        $month = $request->input('month', Carbon::now()->month);
+        $year = $request->input('year', Carbon::now()->year);
+
+        // Tarik data persis seperti fungsi index, tapi get() semua tanpa paging
+        $cashFlows = CashFlow::whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date', 'asc') // Urutkan dari tanggal termuda biar rapi di laporan
+            ->get();
+
+        // Hitung total
+        $totalIncome = $cashFlows->where('type', 'income')->sum('amount');
+        $totalExpense = $cashFlows->where('type', 'expense')->sum('amount');
+        $netBalance = $totalIncome - $totalExpense;
+
+        // Render ke file Blade khusus PDF
+        $pdf = Pdf::loadView('admin.cash_flows.pdf', compact('cashFlows', 'totalIncome', 'totalExpense', 'netBalance', 'month', 'year'));
+        
+        // Atur ukuran kertas ke A4 (opsional)
+        $pdf->setPaper('A4', 'portrait');
+
+        $monthName = date('F', mktime(0, 0, 0, $month, 10));
+        
+        // Langsung otomatis ter-download
+        return $pdf->download("Laporan_Kas_Everlast_{$monthName}_{$year}.pdf");
     }
 }

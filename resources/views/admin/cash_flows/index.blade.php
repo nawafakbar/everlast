@@ -7,6 +7,7 @@
         <p class="text-gray-500 text-xs mt-1">Pantau pemasukan dan pengeluaran operasional Everlast.</p>
     </div>
 </div>
+<div class="flex">
 <form action="{{ route('admin.cash_flows.index') }}" method="GET" class="flex gap-2 mb-7">
         <select name="month" class="px-3 py-2 bg-white border border-gray-200 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-black">
             @for($i = 1; $i <= 12; $i++)
@@ -20,6 +21,10 @@
         </select>
         <button type="submit" class="bg-black text-white px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-sm hover:bg-gray-800">Filter</button>
     </form>
+    <a href="{{ route('admin.cash_flows.export_pdf', ['month' => $month, 'year' => $year]) }}" class="bg-red-600 text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-700 transition flex items-center shadow-sm">
+        <i class="fas fa-file-pdf mr-2"></i> Cetak PDF
+    </a>
+    </div>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-white p-6 border border-gray-200 rounded-sm shadow-sm">

@@ -194,6 +194,7 @@ Route::prefix('admin')
         Route::get('/cash-flows', [CashFlowController::class, 'index'])->name('cash_flows.index');
         Route::post('/cash-flows', [CashFlowController::class, 'store'])->name('cash_flows.store');
         Route::delete('/cash-flows/{cashFlow}', [CashFlowController::class, 'destroy'])->name('cash_flows.destroy');
+        Route::get('/cash-flows/export-pdf', [CashFlowController::class, 'exportPdf'])->name('cash_flows.export_pdf');
 });
 
 require __DIR__.'/auth.php';
