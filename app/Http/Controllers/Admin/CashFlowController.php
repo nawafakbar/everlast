@@ -20,7 +20,8 @@ class CashFlowController extends Controller
             ->whereYear('date', $year)
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10)
+            ->appends(['month' => $month, 'year' => $year]);
 
         // Hitung total buat Dashboard Card
         $totalIncome = $cashFlows->where('type', 'income')->sum('amount');

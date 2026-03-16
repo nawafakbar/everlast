@@ -120,6 +120,11 @@
                 </tbody>
             </table>
             </div>
+            @if($cashFlows->hasPages())
+                <div class="px-6 py-4 border-t border-gray-200 bg-white">
+                    {{ $cashFlows->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </div>
