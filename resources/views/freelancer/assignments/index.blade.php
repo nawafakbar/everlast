@@ -67,30 +67,39 @@
         
         @php
             $isPrewed = $assign->event_type === 'all_in_prewedding';
+            // Deteksi apakah ini paket All In (punya prewed_date)
+            $isAllInPackage = !empty($assign->booking->prewed_date); 
             
             $eventDate = $isPrewed ? $assign->booking->prewed_date : $assign->booking->booking_date;
             $eventStart = $isPrewed ? $assign->booking->prewed_start_time : $assign->booking->start_time;
             $eventEnd = $isPrewed ? $assign->booking->prewed_end_time : $assign->booking->end_time;
             
-            // Variabel Default (Untuk acara utama)
-            $loc1 = $assign->booking->event_location;
-            $lat1 = $assign->booking->event_lat;
-            $lng1 = $assign->booking->event_lng;
-            
-            // Variabel Ekstra (Untuk Prewed)
+            // Variabel penampung lokasi
+            $loc1 = null; $lat1 = null; $lng1 = null;
             $loc2 = null; $lat2 = null; $lng2 = null;
 
             if ($isPrewed) {
-                // Setup Lokasi Prewed 1 (Dari event_location_2)
-                $loc1 = $assign->booking->event_location_2 ?? 'Lokasi 1 belum ditentukan';
+                // SKENARIO 1: TUGAS PREWEDDING
+                $loc1 = $assign->booking->event_location_2 ?? 'Lokasi Prewed 1 belum ditentukan';
                 $lat1 = $assign->booking->event_lat_2;
                 $lng1 = $assign->booking->event_lng_2;
 
-                // Setup Lokasi Prewed 2 (Dari event_location_3) - Jika ada
                 if ($assign->booking->event_location_3) {
                     $loc2 = $assign->booking->event_location_3;
                     $lat2 = $assign->booking->event_lat_3;
                     $lng2 = $assign->booking->event_lng_3;
+                }
+            } else {
+                // SKENARIO 2: TUGAS MAIN EVENT (WEDDING)
+                $loc1 = $assign->booking->event_location ?? 'Lokasi Wedding belum ditentukan';
+                $lat1 = $assign->booking->event_lat;
+                $lng1 = $assign->booking->event_lng;
+
+                // Jika BUKAN paket All In, freelancer bisa lihat lokasi wedding kedua (dari event_location_2)
+                if (!$isAllInPackage && $assign->booking->event_location_2) {
+                    $loc2 = $assign->booking->event_location_2;
+                    $lat2 = $assign->booking->event_lat_2;
+                    $lng2 = $assign->booking->event_lng_2;
                 }
             }
         @endphp
@@ -120,7 +129,7 @@
                     <div class="flex items-start gap-2 text-gray-700">
                         <i class="fas fa-map-marker-alt w-4 text-center mt-1 text-gray-400"></i> 
                         <div class="flex-1">
-                            <p class="font-medium">{{ $isPrewed ? 'Lokasi 1: ' : '' }}{{ $loc1 }}</p>
+                            <p class="font-medium">Lokasi 1: {{ $loc1 }}</p>
                             @if($lat1 && $lng1)
                                 <a href="https://www.google.com/maps/search/?api=1&query={{ $lat1 }},{{ $lng1 }}" target="_blank" class="inline-block mt-1 text-[10px] font-bold tracking-wider uppercase text-blue-600 hover:text-blue-800 transition-colors">
                                     <i class="fas fa-location-arrow mr-1"></i> Buka Maps
@@ -129,7 +138,7 @@
                         </div>
                     </div>
 
-                    @if($isPrewed && $loc2)
+                    @if($loc2)
                     <div class="flex items-start gap-2 text-gray-700 pt-2 border-t border-gray-50">
                         <i class="fas fa-map-marker-alt w-4 text-center mt-1 text-gray-400"></i> 
                         <div class="flex-1">
