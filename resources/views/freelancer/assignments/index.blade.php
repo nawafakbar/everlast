@@ -72,21 +72,25 @@
             $eventStart = $isPrewed ? $assign->booking->prewed_start_time : $assign->booking->start_time;
             $eventEnd = $isPrewed ? $assign->booking->prewed_end_time : $assign->booking->end_time;
             
-            // Inisialisasi variabel nama lokasi & titik koordinat
-            $eventLoc = $assign->booking->event_location;
-            $eventLat = $assign->booking->event_lat;
-            $eventLng = $assign->booking->event_lng;
+            // Variabel Default (Untuk acara utama)
+            $loc1 = $assign->booking->event_location;
+            $lat1 = $assign->booking->event_lat;
+            $lng1 = $assign->booking->event_lng;
+            
+            // Variabel Ekstra (Untuk Prewed)
+            $loc2 = null; $lat2 = null; $lng2 = null;
 
             if ($isPrewed) {
-                // Prioritaskan lokasi 3, jika tidak ada pakai lokasi 2
+                // Setup Lokasi Prewed 1 (Dari event_location_2)
+                $loc1 = $assign->booking->event_location_2 ?? 'Lokasi 1 belum ditentukan';
+                $lat1 = $assign->booking->event_lat_2;
+                $lng1 = $assign->booking->event_lng_2;
+
+                // Setup Lokasi Prewed 2 (Dari event_location_3) - Jika ada
                 if ($assign->booking->event_location_3) {
-                    $eventLoc = $assign->booking->event_location_3;
-                    $eventLat = $assign->booking->event_lat_3;
-                    $eventLng = $assign->booking->event_lng_3;
-                } else {
-                    $eventLoc = $assign->booking->event_location_2 ?? 'Lokasi belum ditentukan';
-                    $eventLat = $assign->booking->event_lat_2;
-                    $eventLng = $assign->booking->event_lng_2;
+                    $loc2 = $assign->booking->event_location_3;
+                    $lat2 = $assign->booking->event_lat_3;
+                    $lng2 = $assign->booking->event_lng_3;
                 }
             }
         @endphp
@@ -106,25 +110,42 @@
                     </p>
                 </div>
                 <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-sm text-[8px] font-bold uppercase tracking-widest">
-                        {{ $assign->event_type }}
+                        {{ str_replace('_', ' ', $assign->event_type) }}
                     </span>
-                <h3 class="mt-3 text-lg font-serif-custom text-gray-900 leading-tight mb-2">
+                <h3 class="mt-3 text-lg font-serif-custom text-gray-900 leading-tight mb-4">
                     {{ $assign->booking->user->name }} & {{ $assign->booking->partner_name }}
                 </h3>
                 
-                <div class="text-xs text-gray-500 mb-6 space-y-2">
-                    <div class="flex items-start gap-2 text-blue-900 hover:text-blue-800 transition-colors">
-                        <i class="fas fa-map-marker-alt w-4 text-center mt-1"></i> 
+                <div class="text-xs text-gray-500 mb-6 space-y-4">
+                    <div class="flex items-start gap-2 text-gray-700">
+                        <i class="fas fa-map-marker-alt w-4 text-center mt-1 text-gray-400"></i> 
                         <div class="flex-1">
-                            @if($eventLat && $eventLng)
-                                <a href="https://www.google.com/maps/search/?api=1&query={{ $eventLat }},{{ $eventLng }}" target="_blank">
-                                {{ $eventLoc }} </a> 
+                            <p class="font-medium">{{ $isPrewed ? 'Lokasi 1: ' : '' }}{{ $loc1 }}</p>
+                            @if($lat1 && $lng1)
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ $lat1 }},{{ $lng1 }}" target="_blank" class="inline-block mt-1 text-[10px] font-bold tracking-wider uppercase text-blue-600 hover:text-blue-800 transition-colors">
+                                    <i class="fas fa-location-arrow mr-1"></i> Buka Maps
+                                </a>
                             @endif
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+
+                    @if($isPrewed && $loc2)
+                    <div class="flex items-start gap-2 text-gray-700 pt-2 border-t border-gray-50">
+                        <i class="fas fa-map-marker-alt w-4 text-center mt-1 text-gray-400"></i> 
+                        <div class="flex-1">
+                            <p class="font-medium">Lokasi 2: {{ $loc2 }}</p>
+                            @if($lat2 && $lng2)
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ $lat2 }},{{ $lng2 }}" target="_blank" class="inline-block mt-1 text-[10px] font-bold tracking-wider uppercase text-blue-600 hover:text-blue-800 transition-colors">
+                                    <i class="fas fa-location-arrow mr-1"></i> Buka Maps
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="flex items-center gap-2 text-gray-700 pt-2 border-t border-gray-50">
                         <i class="far fa-clock w-4 text-center text-gray-400"></i> 
-                        <p>{{ \Carbon\Carbon::parse($eventStart)->format('H:i') }} - {{ \Carbon\Carbon::parse($eventEnd)->format('H:i') }}</p>
+                        <p class="font-medium">{{ \Carbon\Carbon::parse($eventStart)->format('H:i') }} - {{ \Carbon\Carbon::parse($eventEnd)->format('H:i') }} WIB</p>
                     </div>
                 </div>
 
