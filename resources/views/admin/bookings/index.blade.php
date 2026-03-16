@@ -63,7 +63,29 @@
                 </thead>
                 <tbody class="text-sm divide-y divide-gray-100">
                     @forelse ($bookings as $booking)
-                        <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="openBookingModal(this)" data-client="{{ $booking->user->name }}" data-partner="{{ $booking->partner_name }}" data-package="{{ $booking->package->name }}" data-date="{{ \Carbon\Carbon::parse($booking->booking_date)->format('d F Y') }}" data-time="{{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }}" data-address="{{ $booking->couple_address }}" data-location="{{ $booking->event_location }}" data-status="{{ strtoupper(str_replace('_', ' ', $booking->status)) }}" data-prewed_date="{{ $booking->prewed_date ? \Carbon\Carbon::parse($booking->prewed_date)->translatedFormat('d F Y') : '' }}" data-prewed_start_time="{{ $booking->prewed_start_time }}" data-prewed_end_time="{{ $booking->prewed_end_time }}" data-event_location_2="{{ $booking->event_location_2 }}" data-event_location_3="{{ $booking->event_location_3 }}">
+                        <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" 
+                            onclick="openBookingModal(this)" 
+                            data-client="{{ $booking->user->name }}" 
+                            data-partner="{{ $booking->partner_name }}" 
+                            data-package="{{ $booking->package->name }}" 
+                            data-date="{{ \Carbon\Carbon::parse($booking->booking_date)->format('d F Y') }}" 
+                            data-time="{{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }}" 
+                            data-address="{{ $booking->couple_address }}" 
+                            data-location="{{ $booking->event_location }}" 
+                            data-status="{{ strtoupper(str_replace('_', ' ', $booking->status)) }}" 
+                            data-prewed_date="{{ $booking->prewed_date ? \Carbon\Carbon::parse($booking->prewed_date)->translatedFormat('d F Y') : '' }}" 
+                            data-prewed_start_time="{{ $booking->prewed_start_time }}" 
+                            data-prewed_end_time="{{ $booking->prewed_end_time }}" 
+                            data-event_location_2="{{ $booking->event_location_2 }}" 
+                            data-event_location_3="{{ $booking->event_location_3 }}"
+                            data-c_lat="{{ $booking->couple_lat }}"
+                            data-c_lng="{{ $booking->couple_lng }}"
+                            data-e_lat="{{ $booking->event_lat }}"
+                            data-e_lng="{{ $booking->event_lng }}"
+                            data-e_lat_2="{{ $booking->event_lat_2 }}"
+                            data-e_lng_2="{{ $booking->event_lng_2 }}"
+                            data-e_lat_3="{{ $booking->event_lat_3 }}"
+                            data-e_lng_3="{{ $booking->event_lng_3 }}">
                             <td class="px-6 py-4" onclick="event.stopPropagation()">
                                 <input type="checkbox" name="ids[]" value="{{ $booking->id }}" form="bulkDeleteForm" class="row-checkbox w-3.5 h-3.5 text-black bg-gray-100 border-gray-300 rounded-sm cursor-pointer">
                             </td>
@@ -118,7 +140,7 @@
 
     <div class="mt-4">{{ $bookings->links() }}</div>
 
-        <div id="bookingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm transition-opacity">
+    <div id="bookingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-sm shadow-2xl w-full max-w-lg p-8 relative transform transition-all">
             <button onclick="closeBookingModal()" class="absolute top-5 right-5 text-gray-400 hover:text-black transition-colors">
                 <i class="fas fa-times fa-lg"></i>
@@ -139,8 +161,20 @@
                 
                 <div>
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Locations</p>
-                    <p class="text-sm text-gray-800"><span class="font-medium">Couple Address:</span> <span id="bModalAddress" class="text-gray-600"></span></p>
-                    <p class="text-sm text-gray-800 mt-1"><span class="font-medium">Venue:</span> <span id="bModalLocation" class="text-gray-600"></span></p>
+                    <div class="text-sm text-gray-800 mb-2">
+                        <span class="font-medium">Couple Address:</span> 
+                        <span id="bModalAddress" class="text-gray-600 block mt-1"></span>
+                        <a id="btnMapCouple" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                        </a>
+                    </div>
+                    <div class="text-sm text-gray-800">
+                        <span class="font-medium">Venue:</span> 
+                        <span id="bModalLocation" class="text-gray-600 block mt-1"></span>
+                        <a id="btnMapMain" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                        </a>
+                    </div>
                 </div>
 
                 <div id="bModalPrewedSection" class="hidden pt-4 border-t border-gray-100 mt-4 space-y-4">
@@ -152,8 +186,20 @@
                     
                     <div>
                         <p class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-wider mb-1">Prewedding Locations</p>
-                        <p class="text-sm text-gray-800"><span class="font-medium">Venue 1:</span> <span id="bModalPrewedLoc1" class="text-gray-600"></span></p>
-                        <p id="bModalPrewedLoc2Container" class="text-sm text-gray-800 mt-1 hidden"><span class="font-medium">Venue 2:</span> <span id="bModalPrewedLoc2" class="text-gray-600"></span></p>
+                        <div class="text-sm text-gray-800 mb-2">
+                            <span class="font-medium">Venue 1:</span> 
+                            <span id="bModalPrewedLoc1" class="text-gray-600 block mt-1"></span>
+                            <a id="btnMapPrewed1" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                            </a>
+                        </div>
+                        <div id="bModalPrewedLoc2Container" class="text-sm text-gray-800 mt-1 hidden">
+                            <span class="font-medium">Venue 2:</span> 
+                            <span id="bModalPrewedLoc2" class="text-gray-600 block mt-1"></span>
+                            <a id="btnMapPrewed2" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,6 +226,18 @@
     </script>
 
     <script>
+        // Fungsi pembantu buat ngeset tombol maps
+        function setupMapButton(btnId, lat, lng) {
+            const btn = document.getElementById(btnId);
+            if (lat && lng) {
+                btn.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+                btn.href = '#';
+            }
+        }
+
         function openBookingModal(row) {
             document.getElementById('bModalCouple').innerText = row.dataset.client + ' & ' + row.dataset.partner;
             document.getElementById('bModalPackage').innerText = row.dataset.package;
@@ -189,33 +247,38 @@
             document.getElementById('bModalLocation').innerText = row.dataset.location;
             document.getElementById('bModalStatus').innerText = row.dataset.status;
 
+            // SET TOMBOL MAPS UTAMA & ALAMAT PASANGAN
+            setupMapButton('btnMapCouple', row.dataset.c_lat, row.dataset.c_lng);
+            setupMapButton('btnMapMain', row.dataset.e_lat, row.dataset.e_lng);
+
             const modal = document.getElementById('bookingModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // TAMBAHAN LOGIKA DYNAMIC POP-UP PREWEDDING
             const prewedSection = document.getElementById('bModalPrewedSection');
             
-            // Cek kalau ada data prewed_date di dataset HTML (berarti paket All In)
+            // Cek kalau ada data prewed_date (paket All In)
             if (row.dataset.prewed_date) {
                 prewedSection.classList.remove('hidden'); 
                 
                 document.getElementById('bModalPrewedDate').innerText = row.dataset.prewed_date;
                 document.getElementById('bModalPrewedTime').innerText = row.dataset.prewed_start_time + ' - ' + row.dataset.prewed_end_time + ' WIB';
                 
-                // Isi lokasi (Prioritaskan lokasi 2)
                 document.getElementById('bModalPrewedLoc1').innerText = row.dataset.event_location_2 || 'Belum diisi klien';
+                // Set Maps Prewed 1
+                setupMapButton('btnMapPrewed1', row.dataset.e_lat_2, row.dataset.e_lng_2);
                 
-                // Cek kalau dia punya 3 map/lokasi
                 const loc3Container = document.getElementById('bModalPrewedLoc2Container');
                 if (row.dataset.event_location_3) {
                     loc3Container.classList.remove('hidden');
                     document.getElementById('bModalPrewedLoc2').innerText = row.dataset.event_location_3;
+                    // Set Maps Prewed 2
+                    setupMapButton('btnMapPrewed2', row.dataset.e_lat_3, row.dataset.e_lng_3);
                 } else {
                     loc3Container.classList.add('hidden');
+                    document.getElementById('btnMapPrewed2').classList.add('hidden');
                 }
             } else {
-                // Kalau bukan All In, sembunyikan total div-nya
                 prewedSection.classList.add('hidden');
             }
         }

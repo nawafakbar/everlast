@@ -109,7 +109,16 @@
                                         <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 mb-3 border-b border-gray-100 pb-2">Information Couple</h4>
                                         <div class="space-y-3 text-sm text-gray-600">
                                             <p><strong class="font-semibold text-gray-800">Name:</strong> {{ Auth::user()->name }} & {{ $booking->partner_name }}</p>
-                                            <p><strong class="font-semibold text-gray-800">Address:</strong> {{ $booking->couple_address ?? '-' }}</p>
+                                            
+                                            <div>
+                                                <strong class="font-semibold text-gray-800">Address:</strong> 
+                                                <span class="block mt-1">{{ $booking->couple_address ?? '-' }}</span>
+                                                @if($booking->couple_lat && $booking->couple_lng)
+                                                    <a href="https://www.google.com/maps/search/?api=1&query={{ $booking->couple_lat }},{{ $booking->couple_lng }}" target="_blank" class="inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-xs">
+                                                        <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                                                    </a>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
 
@@ -118,10 +127,27 @@
                                         <div class="space-y-3 text-sm text-gray-600">
                                             <p><strong class="font-semibold text-gray-800">Date:</strong> {{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d F Y') }}</p>
                                             <p><strong class="font-semibold text-gray-800">Date Time:</strong> {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('H:i') }} WIB</p>
-                                            <p><strong class="font-semibold text-gray-800">Main location:</strong> {{ $booking->event_location ?? '-' }}</p>
+                                            
+                                            <div>
+                                                <strong class="font-semibold text-gray-800">Main location:</strong> 
+                                                <span class="block mt-1">{{ $booking->event_location ?? '-' }}</span>
+                                                @if($booking->event_lat && $booking->event_lng)
+                                                    <a href="https://www.google.com/maps/search/?api=1&query={{ $booking->event_lat }},{{ $booking->event_lng }}" target="_blank" class="inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-xs">
+                                                        <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                                                    </a>
+                                                @endif
+                                            </div>
                                             
                                             @if(!$booking->prewed_date && $booking->event_location_2)
-                                                <p><strong class="font-semibold text-gray-800">Second Location:</strong> {{ $booking->event_location_2 }}</p>
+                                                <div>
+                                                    <strong class="font-semibold text-gray-800">Second Location:</strong> 
+                                                    <span class="block mt-1">{{ $booking->event_location_2 }}</span>
+                                                    @if($booking->event_lat_2 && $booking->event_lng_2)
+                                                        <a href="https://www.google.com/maps/search/?api=1&query={{ $booking->event_lat_2 }},{{ $booking->event_lng_2 }}" target="_blank" class="inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-xs">
+                                                            <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
@@ -137,9 +163,26 @@
                                             <p><strong class="font-semibold text-gray-800">Date Time:</strong> {{ \Carbon\Carbon::parse($booking->prewed_start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->prewed_end_time)->format('H:i') }} WIB</p>
                                         </div>
                                         <div class="space-y-3 text-sm text-gray-600">
-                                            <p><strong class="font-semibold text-gray-800">Location 1:</strong> {{ $booking->event_location_2 ?? 'Belum ditentukan' }}</p>
+                                            <div>
+                                                <strong class="font-semibold text-gray-800">Location 1:</strong> 
+                                                <span class="block mt-1">{{ $booking->event_location_2 ?? 'Belum ditentukan' }}</span>
+                                                @if($booking->event_lat_2 && $booking->event_lng_2)
+                                                    <a href="https://www.google.com/maps/search/?api=1&query={{ $booking->event_lat_2 }},{{ $booking->event_lng_2 }}" target="_blank" class="inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-xs">
+                                                        <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                                                    </a>
+                                                @endif
+                                            </div>
+                                            
                                             @if($booking->event_location_3)
-                                                <p><strong class="font-semibold text-gray-800">Location 2:</strong> {{ $booking->event_location_3 }}</p>
+                                                <div>
+                                                    <strong class="font-semibold text-gray-800">Location 2:</strong> 
+                                                    <span class="block mt-1">{{ $booking->event_location_3 }}</span>
+                                                    @if($booking->event_lat_3 && $booking->event_lng_3)
+                                                        <a href="https://www.google.com/maps/search/?api=1&query={{ $booking->event_lat_3 }},{{ $booking->event_lng_3 }}" target="_blank" class="inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-xs">
+                                                            <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             @endif
                                         </div>
                                     </div>

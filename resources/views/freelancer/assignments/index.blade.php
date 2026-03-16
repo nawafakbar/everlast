@@ -72,9 +72,22 @@
             $eventStart = $isPrewed ? $assign->booking->prewed_start_time : $assign->booking->start_time;
             $eventEnd = $isPrewed ? $assign->booking->prewed_end_time : $assign->booking->end_time;
             
+            // Inisialisasi variabel nama lokasi & titik koordinat
             $eventLoc = $assign->booking->event_location;
+            $eventLat = $assign->booking->event_lat;
+            $eventLng = $assign->booking->event_lng;
+
             if ($isPrewed) {
-                $eventLoc = $assign->booking->event_location_3 ?? ($assign->booking->event_location_2 ?? 'Lokasi belum ditentukan');
+                // Prioritaskan lokasi 3, jika tidak ada pakai lokasi 2
+                if ($assign->booking->event_location_3) {
+                    $eventLoc = $assign->booking->event_location_3;
+                    $eventLat = $assign->booking->event_lat_3;
+                    $eventLng = $assign->booking->event_lng_3;
+                } else {
+                    $eventLoc = $assign->booking->event_location_2 ?? 'Lokasi belum ditentukan';
+                    $eventLat = $assign->booking->event_lat_2;
+                    $eventLng = $assign->booking->event_lng_2;
+                }
             }
         @endphp
 
@@ -99,9 +112,20 @@
                     {{ $assign->booking->user->name }} & {{ $assign->booking->partner_name }}
                 </h3>
                 
-                <div class="text-xs text-gray-500 mb-6 space-y-1">
-                    <p><i class="fas fa-map-marker-alt w-4 text-center text-gray-400"></i> {{ $eventLoc }}</p>
-                    <p><i class="far fa-clock w-4 text-center text-gray-400"></i> {{ \Carbon\Carbon::parse($eventStart)->format('H:i') }} - {{ \Carbon\Carbon::parse($eventEnd)->format('H:i') }}</p>
+                <div class="text-xs text-gray-500 mb-6 space-y-2">
+                    <div class="flex items-start gap-2 text-blue-900 hover:text-blue-800 transition-colors">
+                        <i class="fas fa-map-marker-alt w-4 text-center mt-1"></i> 
+                        <div class="flex-1">
+                            @if($eventLat && $eventLng)
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ $eventLat }},{{ $eventLng }}" target="_blank">
+                                {{ $eventLoc }} </a> 
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="far fa-clock w-4 text-center text-gray-400"></i> 
+                        <p>{{ \Carbon\Carbon::parse($eventStart)->format('H:i') }} - {{ \Carbon\Carbon::parse($eventEnd)->format('H:i') }}</p>
+                    </div>
                 </div>
 
                 <div class="bg-gray-50 p-4 rounded-sm border border-gray-100 mb-2">
