@@ -21,7 +21,7 @@
         </select>
         <button type="submit" class="bg-black text-white px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-sm hover:bg-gray-800">Filter</button>
     </form>
-    <a href="{{ route('admin.cash_flows.export_pdf', ['month' => $month, 'year' => $year]) }}" class="bg-red-600 text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-700 transition flex items-center shadow-sm">
+    <a href="{{ route('admin.cash_flows.export_pdf', ['month' => $month, 'year' => $year]) }}" class="bg-red text-white px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-sm hover:bg-gray-800">
         <i class="fas fa-file-pdf mr-2"></i> Cetak PDF
     </a>
     </div>
