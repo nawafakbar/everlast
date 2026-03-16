@@ -9,7 +9,7 @@
         <source src="{{ asset('assets/video/herosection.mp4') }}" type="video/mp4">
     </video>
     
-    <div class="absolute inset-0 bg-black/30 -z-10"></div>
+    <div class="absolute inset-0 bg-black/15 -z-10"></div>
 </section>
 
 <!-- about us section -->
