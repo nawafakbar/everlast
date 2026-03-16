@@ -6,7 +6,7 @@
 <section id="home" class="relative w-full h-[100dvh] overflow-hidden z-0 bg-black flex items-center justify-center">
     
     <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover -z-10">
-        <source src="{{ asset('assets/video/hero2.mp4') }}" type="video/mp4">
+        <source src="{{ asset('assets/video/hero.mp4') }}" type="video/mp4">
     </video>
     
     <div class="absolute inset-0 bg-black/30 -z-10"></div>
