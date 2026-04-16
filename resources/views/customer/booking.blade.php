@@ -142,14 +142,10 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label for="start_time" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Jam Mulai <span class="text-red-500">*</span></label>
                                 <input type="time" name="start_time" id="start_time" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
-                            </div>
-                            <div>
-                                <label for="end_time" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Jam Selesai</label>
-                                <input type="time" name="end_time" id="end_time" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-500 cursor-not-allowed" title="Jam selesai otomatis dihitung berdasarkan paket">
                             </div>
                         </div>
 
