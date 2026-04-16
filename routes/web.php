@@ -89,6 +89,11 @@ Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCa
 // Webhook Midtrans (Pastikan URL ini masuk pengecualian di VerifyCsrfToken!)
 Route::post('/api/midtrans/callback', [CheckoutController::class, 'callback']);
 
+// Calender Everlast
+Route::get('/calendar', [CalendarController::class, 'index'])->name('admin.calendar');
+Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('admin.calendar.events');
+Route::get('/customer/calendar-events', [CalendarController::class, 'getAvailableDates'])->name('customer.calendar.events');
+
 // ==========================================
 // 2. AUTHENTICATED ROUTES (Semua role masuk ke sini dulu)
 // ==========================================
@@ -126,11 +131,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Route Cetak Nota Pembayaran (Customer / Admin)
     Route::get('/payment/{booking}/invoice', [CheckoutController::class, 'downloadInvoice'])->name('booking.invoice');
-
-    // Calender Everlast
-    Route::get('/calendar', [CalendarController::class, 'index'])->name('admin.calendar');
-    Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('admin.calendar.events');
-    Route::get('/customer/calendar-events', [CalendarController::class, 'getAvailableDates'])->name('customer.calendar.events');
 
     // ROUTE KHUSUS CUSTOMER (Bisa diakses Admin & Freelancer juga)
     // Jika ada route seperti 'Pesanan Saya', bungkus di sini pakai:
