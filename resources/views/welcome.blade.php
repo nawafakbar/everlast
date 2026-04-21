@@ -251,7 +251,7 @@
                 <div>
                     <h3 class="text-lg font-bold text-gray-900">Ketersediaan Jadwal</h3>
                     <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Klik pada tanggal kosong untuk memilih</p>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Penjelasan: Full Booked artinya sudah tidak bisa lagi booking tanggal. Partially artinya masih ada jadwal tersisa di hari itu, jikalau bimbang silahkan hubungi admin via WA.</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-wider mt-1">Penjelasan: Full Booked artinya sudah tidak bisa lagi booking di tanggal itu. Partially artinya masih ada jadwal tersisa di hari itu, jikalau bimbang silahkan hubungi admin via WA.</p>
                 </div>
                 <button onclick="closeCalendarModal()" class="text-gray-400 hover:text-red-500 focus:outline-none transition-colors">
                     <i class="fas fa-times text-xl"></i>
