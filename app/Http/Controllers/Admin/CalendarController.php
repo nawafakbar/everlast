@@ -51,7 +51,7 @@ class CalendarController extends Controller
             }
 
             $events[] = [
-                'title' => $isFull ? 'Full Booked' : 'Available',
+                'title' => $isFull ? 'Full Booked' : 'Partially',
                 'start' => $date,
                 'backgroundColor' => $isFull ? '#000000' : '#9CA3AF', 
                 'borderColor' => $isFull ? '#000000' : '#9CA3AF',
@@ -101,7 +101,7 @@ class CalendarController extends Controller
             }
 
             $events[] = [
-                'title' => $isFull ? 'Full Booked' : 'Available',
+                'title' => $isFull ? 'Full Booked' : 'Partially',
                 'start' => $date, 
                 'backgroundColor' => $isFull ? '#000000' : '#9CA3AF', 
                 'borderColor' => $isFull ? '#000000' : '#9CA3AF',
