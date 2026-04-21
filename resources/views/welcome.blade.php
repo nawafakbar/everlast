@@ -318,7 +318,7 @@
                             return;
                         }
 
-                        const availableEvent = allEvents.find(event => event.startStr === info.dateStr && event.title === 'Available');
+                        const availableEvent = allEvents.find(event => event.startStr === info.dateStr && event.title === 'Partially');
                         
                         if (availableEvent) {
                             alert('TIPS: Tanggal ini sudah terisi sebagian (' + availableEvent.extendedProps.description + ').\n\nPastikan Anda mengatur Jam Mulai acara yang tidak bentrok dengan sesi tersebut ya!');
