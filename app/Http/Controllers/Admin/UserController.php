@@ -14,7 +14,7 @@ class UserController extends Controller
         $search = $request->input('search');
 
         // Query dengan pencarian dan paginasi (10 data per halaman)
-        $users = User::where('role', '!=', 'admin') // ⬅️ filter di sini
+        $users = User::where('role', '!=', 'admin')
         ->when($search, function ($query, $search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
