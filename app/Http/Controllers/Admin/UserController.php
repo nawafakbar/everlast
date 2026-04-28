@@ -14,10 +14,15 @@ class UserController extends Controller
         $search = $request->input('search');
 
         // Query dengan pencarian dan paginasi (10 data per halaman)
-        $users = User::when($search, function ($query, $search) {
-            return $query->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-        })->orderBy('created_at', 'desc')->paginate(10);
+        $users = User::where('role', '!=', 'admin') // ⬅️ filter di sini
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
 
         return view('admin.users.index', compact('users', 'search'));
     }
