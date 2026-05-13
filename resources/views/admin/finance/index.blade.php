@@ -37,7 +37,6 @@
     </div>
 </form>
 
-{{-- 👇 UPDATED: 4 Cards dengan Expenses & Net Profit --}}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     {{-- Card 1: Total Revenue --}}
     <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
@@ -46,47 +45,43 @@
         <p class="text-[10px] text-gray-400 mt-2 italic font-serif">{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
     </div>
 
-    {{-- Card 2: Total Expenses 👈 BARU --}}
-    <div class="bg-red-50 border border-red-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center">
+    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center">
             <i class="fas fa-arrow-down mr-1.5"></i> Total Expenses
         </p>
-        <h3 class="text-3xl font-bold text-red-600">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h3>
-        <p class="text-[10px] text-red-400 mt-2 italic font-serif">Operational Costs</p>
+        <h3 class="text-3xl font-bold text-gray-900">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h3>
+        <p class="text-[10px] text-gray-400 mt-2 italic font-serif">Operational Costs</p>
     </div>
 
-    {{-- Card 3: Net Profit/Loss 👈 BARU --}}
-    <div class="bg-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-50 border border-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-600 uppercase tracking-widest mb-1 flex items-center">
+    <div class="bg-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-50 border border-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-600 uppercase tracking-widest mb-1 flex items-center">
             <i class="fas fa-{{ $netProfit >= 0 ? 'arrow-up' : 'exclamation-triangle' }} mr-1.5"></i> 
             {{ $netProfit >= 0 ? 'Net Profit' : 'Net Loss' }}
         </p>
-        <h3 class="text-3xl font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-700">
+        <h3 class="text-3xl font-bold text-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-700">
             Rp {{ number_format(abs($netProfit), 0, ',', '.') }}
         </h3>
-        <p class="text-[10px] text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-500 mt-2 italic font-serif">
+        <p class="text-[10px] text-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-500 mt-2 italic font-serif">
             Revenue - Expenses
         </p>
     </div>
 
-    {{-- Card 4: Payment Breakdown --}}
     <div class="bg-gray-50 border border-gray-200 p-6 rounded-sm flex flex-col justify-center">
         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Payment Breakdown</p>
         <div class="space-y-2">
             <div class="flex justify-between items-center">
                 <span class="text-[9px] text-gray-600 uppercase tracking-wider">Down Payment</span>
-                <span class="text-sm font-bold text-yellow-600">Rp {{ number_format($totalDP, 0, ',', '.') }}</span>
+                <span class="text-sm font-bold text-gray-900">Rp {{ number_format($totalDP, 0, ',', '.') }}</span>
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-[9px] text-gray-600 uppercase tracking-wider">Full Payment</span>
-                <span class="text-sm font-bold text-blue-600">Rp {{ number_format($totalFullPayment, 0, ',', '.') }}</span>
+                <span class="text-sm font-bold text-gray-900">Rp {{ number_format($totalFullPayment, 0, ',', '.') }}</span>
             </div>
         </div>
     </div>
 </div>
 
-{{-- 👇 ADDED: Quick Stats Bar --}}
-<div class="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 p-4 rounded-sm shadow-md mb-8 flex flex-wrap items-center justify-between gap-4">
+<div class="bg-gradient-to-r bg-white border border-gray-200 p-4 rounded-sm shadow-md mb-8 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
         <div class="bg-white/10 p-3 rounded-sm">
             <i class="fas fa-chart-line text-yellow-400 text-xl"></i>
