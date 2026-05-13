@@ -37,7 +37,7 @@
     </div>
 </form>
 
-{{-- 👇 UPDATED: 4 Cards dengan UI Konsisten (Logika tidak diubah) --}}
+{{-- 👇 UPDATED: 4 Cards dengan Expenses & Net Profit --}}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     {{-- Card 1: Total Revenue --}}
     <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
@@ -46,8 +46,8 @@
         <p class="text-[10px] text-gray-400 mt-2 italic font-serif">{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
     </div>
 
-    {{-- Card 2: Total Expenses --}}
-    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+    {{-- Card 2: Total Expenses 👈 BARU --}}
+    <div class="bg-red-50 border border-red-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
         <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center">
             <i class="fas fa-arrow-down mr-1.5"></i> Total Expenses
         </p>
@@ -55,8 +55,8 @@
         <p class="text-[10px] text-red-400 mt-2 italic font-serif">Operational Costs</p>
     </div>
 
-    {{-- Card 3: Net Profit/Loss --}}
-    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+    {{-- Card 3: Net Profit/Loss 👈 BARU --}}
+    <div class="bg-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-50 border border-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
         <p class="text-[10px] font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-600 uppercase tracking-widest mb-1 flex items-center">
             <i class="fas fa-{{ $netProfit >= 0 ? 'arrow-up' : 'exclamation-triangle' }} mr-1.5"></i> 
             {{ $netProfit >= 0 ? 'Net Profit' : 'Net Loss' }}
@@ -70,7 +70,7 @@
     </div>
 
     {{-- Card 4: Payment Breakdown --}}
-    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+    <div class="bg-gray-50 border border-gray-200 p-6 rounded-sm flex flex-col justify-center">
         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Payment Breakdown</p>
         <div class="space-y-2">
             <div class="flex justify-between items-center">
@@ -197,7 +197,7 @@
         const ctx = document.getElementById('revenueChart').getContext('2d');
         
         const labels = {!! json_encode($chartLabels ?? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']) !!};
-        const data = {!! json_encode($chartData ??) !!};
+        const data = {!! json_encode($chartData ?? [15000000, 20000000, 18000000, 30000000, 25000000, 40000000]) !!};
 
         new Chart(ctx, {
             type: 'line',
