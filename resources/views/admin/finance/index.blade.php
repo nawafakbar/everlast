@@ -81,14 +81,14 @@
     </div>
 </div>
 
-<div class="bg-gradient-to-r bg-white border border-gray-200 p-4 rounded-sm shadow-md mb-8 flex flex-wrap items-center justify-between gap-4">
+<div class="bg-white border border-gray-200 p-4 rounded-sm mb-8 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
         <div class="bg-white/10 p-3 rounded-sm">
             <i class="fas fa-chart-line text-yellow-400 text-xl"></i>
         </div>
         <div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Profit Margin</p>
-            <p class="text-lg font-bold text-white">
+            <p class="text-lg font-bold text-gray-900">
                 {{ $totalRevenue > 0 ? number_format(($netProfit / $totalRevenue) * 100, 1) : '0' }}%
             </p>
         </div>
@@ -100,7 +100,7 @@
         </div>
         <div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Avg Transaction</p>
-            <p class="text-lg font-bold text-white">
+            <p class="text-lg font-bold text-gray-900">
                 Rp {{ $payments->count() > 0 ? number_format($totalRevenue / $payments->total(), 0, ',', '.') : '0' }}
             </p>
         </div>
@@ -112,7 +112,7 @@
         </div>
         <div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Total Transactions</p>
-            <p class="text-lg font-bold text-white">{{ $payments->total() }}</p>
+            <p class="text-lg font-bold text-gray-900">{{ $payments->total() }}</p>
         </div>
     </div>
 </div>
