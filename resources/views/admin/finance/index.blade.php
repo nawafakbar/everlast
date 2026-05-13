@@ -37,19 +37,88 @@
     </div>
 </form>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+{{-- 👇 UPDATED: 4 Cards dengan Expenses & Net Profit --}}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {{-- Card 1: Total Revenue --}}
     <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
         <h3 class="text-3xl font-bold text-gray-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
-        <p class="text-[10px] text-gray-400 mt-2 italic font-serif">Filtered Period: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
+        <p class="text-[10px] text-gray-400 mt-2 italic font-serif">{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
     </div>
-    <div class="bg-gray-50 border border-gray-200 p-6 rounded-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Down Payment</p>
-        <h3 class="text-xl font-bold text-gray-800">Rp {{ number_format($totalDP, 0, ',', '.') }}</h3>
+
+    {{-- Card 2: Total Expenses 👈 BARU --}}
+    <div class="bg-red-50 border border-red-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center">
+            <i class="fas fa-arrow-down mr-1.5"></i> Total Expenses
+        </p>
+        <h3 class="text-3xl font-bold text-red-600">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h3>
+        <p class="text-[10px] text-red-400 mt-2 italic font-serif">Operational Costs</p>
     </div>
+
+    {{-- Card 3: Net Profit/Loss 👈 BARU --}}
+    <div class="bg-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-50 border border-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-600 uppercase tracking-widest mb-1 flex items-center">
+            <i class="fas fa-{{ $netProfit >= 0 ? 'arrow-up' : 'exclamation-triangle' }} mr-1.5"></i> 
+            {{ $netProfit >= 0 ? 'Net Profit' : 'Net Loss' }}
+        </p>
+        <h3 class="text-3xl font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-700">
+            Rp {{ number_format(abs($netProfit), 0, ',', '.') }}
+        </h3>
+        <p class="text-[10px] text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-500 mt-2 italic font-serif">
+            Revenue - Expenses
+        </p>
+    </div>
+
+    {{-- Card 4: Payment Breakdown --}}
     <div class="bg-gray-50 border border-gray-200 p-6 rounded-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Full Payment</p>
-        <h3 class="text-xl font-bold text-gray-800">Rp {{ number_format($totalFullPayment, 0, ',', '.') }}</h3>
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Payment Breakdown</p>
+        <div class="space-y-2">
+            <div class="flex justify-between items-center">
+                <span class="text-[9px] text-gray-600 uppercase tracking-wider">Down Payment</span>
+                <span class="text-sm font-bold text-yellow-600">Rp {{ number_format($totalDP, 0, ',', '.') }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-[9px] text-gray-600 uppercase tracking-wider">Full Payment</span>
+                <span class="text-sm font-bold text-blue-600">Rp {{ number_format($totalFullPayment, 0, ',', '.') }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- 👇 ADDED: Quick Stats Bar --}}
+<div class="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 p-4 rounded-sm shadow-md mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+        <div class="bg-white/10 p-3 rounded-sm">
+            <i class="fas fa-chart-line text-yellow-400 text-xl"></i>
+        </div>
+        <div>
+            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Profit Margin</p>
+            <p class="text-lg font-bold text-white">
+                {{ $totalRevenue > 0 ? number_format(($netProfit / $totalRevenue) * 100, 1) : '0' }}%
+            </p>
+        </div>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <div class="bg-white/10 p-3 rounded-sm">
+            <i class="fas fa-money-bill-wave text-green-400 text-xl"></i>
+        </div>
+        <div>
+            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Avg Transaction</p>
+            <p class="text-lg font-bold text-white">
+                Rp {{ $payments->count() > 0 ? number_format($totalRevenue / $payments->total(), 0, ',', '.') : '0' }}
+            </p>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+        <div class="bg-white/10 p-3 rounded-sm">
+            <i class="fas fa-receipt text-blue-400 text-xl"></i>
+        </div>
+        <div>
+            <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Total Transactions</p>
+            <p class="text-lg font-bold text-white">{{ $payments->total() }}</p>
+        </div>
     </div>
 </div>
 
@@ -108,7 +177,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="p-10 text-center text-gray-400 text-xs italic">
+                        <td colspan="6" class="p-10 text-center text-gray-400 text-xs italic">
                             No successful transactions found for the selected period.
                         </td>
                     </tr>
@@ -127,7 +196,6 @@
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('revenueChart').getContext('2d');
         
-        // Data Fallback (Kalau dari Controller belum ada, pakai data dummy ini dulu biar tampil)
         const labels = {!! json_encode($chartLabels ?? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']) !!};
         const data = {!! json_encode($chartData ?? [15000000, 20000000, 18000000, 30000000, 25000000, 40000000]) !!};
 
@@ -138,23 +206,23 @@
                 datasets: [{
                     label: 'Revenue (Rp)',
                     data: data,
-                    borderColor: '#111827', // Hitam Elegan (gray-900)
-                    backgroundColor: 'rgba(17, 24, 39, 0.05)', // Transparan Hitam
+                    borderColor: '#111827',
+                    backgroundColor: 'rgba(17, 24, 39, 0.05)',
                     borderWidth: 2,
-                    pointBackgroundColor: '#C9A66B', // Titik Emas (Sesuai tema)
+                    pointBackgroundColor: '#C9A66B',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.4 // Garis Melengkung Smooth
+                    tension: 0.4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }, // Sembunyikan legenda atas
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: '#111827',
                         padding: 12,
@@ -175,7 +243,6 @@
                             font: { family: 'Montserrat', size: 10 },
                             color: '#6b7280',
                             callback: function(value) {
-                                // Format angka jadi 'Jt' (Juta) biar nggak kepanjangan
                                 if(value >= 1000000) return (value / 1000000) + ' Jt';
                                 if(value >= 1000) return (value / 1000) + ' Rb';
                                 return value;

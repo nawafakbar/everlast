@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\CashFlow; // 👈 TAMBAHKAN INI
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\FinanceExport;
@@ -12,9 +13,6 @@ use Carbon\Carbon;
 
 class FinancialReportController extends Controller
 {
-    // ==========================================
-    // FUNGSI HELPER: Biar logika tanggal nggak diulang-ulang
-    // ==========================================
     private function resolveDates(Request $request)
     {
         $preset = $request->input('preset');
@@ -52,16 +50,13 @@ class FinancialReportController extends Controller
 
     public function index(Request $request)
     {
-        // Ambil tanggal dari fungsi helper
         [$startDate, $endDate, $preset] = $this->resolveDates($request);
 
+        // === INCOME (dari Payment) ===
         $query = Payment::with(['booking.user', 'booking.package'])->where('status', 'success');
-
-        // Terapkan Filter Tanggal
         $query->whereDate('created_at', '>=', $startDate)
               ->whereDate('created_at', '<=', $endDate);
 
-        // Kloning Query untuk ngitung Total (biar nggak bentrok sama Pagination)
         $totalsQuery = clone $query;
         $totalRevenue = $totalsQuery->sum('amount');
         
@@ -71,16 +66,22 @@ class FinancialReportController extends Controller
         $fullPaymentQuery = clone $query;
         $totalFullPayment = $fullPaymentQuery->where('payment_type', 'pelunasan')->sum('amount');
 
-        // Tarik Data dengan Pagination (10 data per halaman) & Simpan parameter URL-nya
         $payments = $query->latest()->paginate(10)->appends([
             'start_date' => $startDate,
             'end_date' => $endDate,
             'preset' => $preset
         ]);
 
-        // ==========================================
-        // LOGIKA UNTUK GRAFIK CHART.JS (REAL DATA)
-        // ==========================================
+        // === EXPENSES (dari CashFlow) 👇 TAMBAHAN BARU ===
+        $totalExpenses = CashFlow::where('type', 'expense')
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->sum('amount');
+
+        // === NET PROFIT/LOSS ===
+        $netProfit = $totalRevenue - $totalExpenses;
+
+        // === CHART DATA ===
         $chartQuery = Payment::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->where('status', 'success')
             ->orderBy('created_at')
@@ -122,6 +123,8 @@ class FinancialReportController extends Controller
             'totalRevenue', 
             'totalDP', 
             'totalFullPayment', 
+            'totalExpenses',    // 👈 TAMBAHKAN
+            'netProfit',        // 👈 TAMBAHKAN
             'startDate', 
             'endDate',
             'chartLabels',
@@ -131,7 +134,6 @@ class FinancialReportController extends Controller
 
     public function exportPdf(Request $request)
     {
-        // Ambil tanggal yang akurat dari fungsi helper
         [$startDate, $endDate] = $this->resolveDates($request);
 
         $payments = Payment::with('booking.user')
@@ -144,8 +146,23 @@ class FinancialReportController extends Controller
         $totalDP = $payments->where('payment_type', 'dp')->sum('amount');
         $totalFullPayment = $totalRevenue - $totalDP;
 
+        // 👇 TAMBAHKAN EXPENSES
+        $totalExpenses = CashFlow::where('type', 'expense')
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->sum('amount');
+
+        $netProfit = $totalRevenue - $totalExpenses;
+
         $pdf = Pdf::loadView('admin.finance.export-template', compact(
-            'payments', 'totalRevenue', 'totalDP', 'totalFullPayment', 'startDate', 'endDate'
+            'payments', 
+            'totalRevenue', 
+            'totalDP', 
+            'totalFullPayment', 
+            'totalExpenses',    // 👈 TAMBAHKAN
+            'netProfit',        // 👈 TAMBAHKAN
+            'startDate', 
+            'endDate'
         ));
 
         $fileName = 'Everlast_Finance_' . Carbon::parse($startDate)->format('M_Y') . '.pdf';
@@ -155,7 +172,6 @@ class FinancialReportController extends Controller
 
     public function exportExcel(Request $request)
     {
-        // Ambil tanggal yang akurat dari fungsi helper
         [$startDate, $endDate] = $this->resolveDates($request);
 
         $fileName = 'Everlast_Finance_' . Carbon::parse($startDate)->format('M_Y') . '.xlsx';
