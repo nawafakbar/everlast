@@ -41,7 +41,7 @@
     {{-- Card 1: Total Revenue --}}
     <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
-        <h5 class="text-5xl font-bold text-gray-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h5>
+        <h5 class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h5>
         <p class="text-[10px] text-gray-400 mt-2 italic font-serif">{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
     </div>
 
@@ -49,7 +49,7 @@
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center">
             <i class="fas fa-arrow-down mr-1.5"></i> Total Expenses
         </p>
-        <h5 class="text-5xl font-bold text-gray-900">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h5>
+        <h5 class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h5>
         <p class="text-[10px] text-gray-400 mt-2 italic font-serif">Operational Costs</p>
     </div>
 
@@ -58,7 +58,7 @@
             <i class="fas fa-{{ $netProfit >= 0 ? 'arrow-up' : 'exclamation-triangle' }} mr-1.5"></i> 
             {{ $netProfit >= 0 ? 'Net Profit' : 'Net Loss' }}
         </p>
-        <h5 class="text-5xl font-bold text-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-700">
+        <h5 class="text-2xl font-bold text-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-700">
             Rp {{ number_format(abs($netProfit), 0, ',', '.') }}
         </h5>
         <p class="text-[10px] text-{{ $netProfit >= 0 ? 'gray' : 'yellow' }}-500 mt-2 italic font-serif">
