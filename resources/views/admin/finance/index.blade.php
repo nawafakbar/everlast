@@ -37,7 +37,7 @@
     </div>
 </form>
 
-{{-- 👇 UPDATED: 4 Cards dengan Expenses & Net Profit --}}
+{{-- 👇 UPDATED: 4 Cards dengan UI Konsisten --}}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     {{-- Card 1: Total Revenue --}}
     <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
@@ -46,40 +46,40 @@
         <p class="text-[10px] text-gray-400 mt-2 italic font-serif">{{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
     </div>
 
-    {{-- Card 2: Total Expenses 👈 BARU --}}
-    <div class="bg-red-50 border border-red-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center">
-            <i class="fas fa-arrow-down mr-1.5"></i> Total Expenses
+    {{-- Card 2: Total Expenses --}}
+    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 flex items-center">
+            <i class="fas fa-arrow-down text-red-500 mr-1.5"></i> Total Expenses
         </p>
         <h3 class="text-3xl font-bold text-red-600">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h3>
-        <p class="text-[10px] text-red-400 mt-2 italic font-serif">Operational Costs</p>
+        <p class="text-[10px] text-gray-400 mt-2 italic font-serif">Operational Costs</p>
     </div>
 
-    {{-- Card 3: Net Profit/Loss 👈 BARU --}}
-    <div class="bg-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-50 border border-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-600 uppercase tracking-widest mb-1 flex items-center">
-            <i class="fas fa-{{ $netProfit >= 0 ? 'arrow-up' : 'exclamation-triangle' }} mr-1.5"></i> 
+    {{-- Card 3: Net Profit/Loss --}}
+    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 flex items-center">
+            <i class="fas fa-{{ $netProfit >= 0 ? 'arrow-up text-green-500' : 'arrow-down text-red-500' }} mr-1.5"></i> 
             {{ $netProfit >= 0 ? 'Net Profit' : 'Net Loss' }}
         </p>
-        <h3 class="text-3xl font-bold text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-700">
+        <h3 class="text-3xl font-bold text-{{ $netProfit >= 0 ? 'green-600' : 'red-600' }}">
             Rp {{ number_format(abs($netProfit), 0, ',', '.') }}
         </h3>
-        <p class="text-[10px] text-{{ $netProfit >= 0 ? 'green' : 'yellow' }}-500 mt-2 italic font-serif">
+        <p class="text-[10px] text-gray-400 mt-2 italic font-serif">
             Revenue - Expenses
         </p>
     </div>
 
     {{-- Card 4: Payment Breakdown --}}
-    <div class="bg-gray-50 border border-gray-200 p-6 rounded-sm flex flex-col justify-center">
-        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Payment Breakdown</p>
+    <div class="bg-white border border-gray-200 p-6 rounded-sm shadow-sm flex flex-col justify-center">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Payment Breakdown</p>
         <div class="space-y-2">
             <div class="flex justify-between items-center">
-                <span class="text-[9px] text-gray-600 uppercase tracking-wider">Down Payment</span>
-                <span class="text-sm font-bold text-yellow-600">Rp {{ number_format($totalDP, 0, ',', '.') }}</span>
+                <span class="text-[9px] text-gray-500 uppercase tracking-wider">Down Payment</span>
+                <span class="text-sm font-bold text-[#C9A66B]">Rp {{ number_format($totalDP, 0, ',', '.') }}</span>
             </div>
             <div class="flex justify-between items-center">
-                <span class="text-[9px] text-gray-600 uppercase tracking-wider">Full Payment</span>
-                <span class="text-sm font-bold text-blue-600">Rp {{ number_format($totalFullPayment, 0, ',', '.') }}</span>
+                <span class="text-[9px] text-gray-500 uppercase tracking-wider">Full Payment</span>
+                <span class="text-sm font-bold text-gray-900">Rp {{ number_format($totalFullPayment, 0, ',', '.') }}</span>
             </div>
         </div>
     </div>
@@ -89,7 +89,7 @@
 <div class="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 p-4 rounded-sm shadow-md mb-8 flex flex-wrap items-center justify-between gap-4">
     <div class="flex items-center gap-3">
         <div class="bg-white/10 p-3 rounded-sm">
-            <i class="fas fa-chart-line text-yellow-400 text-xl"></i>
+            <i class="fas fa-chart-line text-[#C9A66B] text-xl"></i>
         </div>
         <div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Profit Margin</p>
@@ -101,7 +101,7 @@
     
     <div class="flex items-center gap-3">
         <div class="bg-white/10 p-3 rounded-sm">
-            <i class="fas fa-money-bill-wave text-green-400 text-xl"></i>
+            <i class="fas fa-money-bill-wave text-[#C9A66B] text-xl"></i>
         </div>
         <div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Avg Transaction</p>
@@ -113,7 +113,7 @@
 
     <div class="flex items-center gap-3">
         <div class="bg-white/10 p-3 rounded-sm">
-            <i class="fas fa-receipt text-blue-400 text-xl"></i>
+            <i class="fas fa-receipt text-[#C9A66B] text-xl"></i>
         </div>
         <div>
             <p class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Total Transactions</p>
@@ -168,10 +168,10 @@
                             @if($payment->payment_type == 'dp')
                                 <span class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold">DP (50%)</span>
                             @else
-                                <span class="bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold">Full Payment</span>
+                                <span class="bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1 rounded-full text-[9px] uppercase tracking-widest font-bold">Full Payment</span>
                             @endif
                         </td>
-                        <td class="p-4 text-right font-bold text-green-600">
+                        <td class="p-4 text-right font-bold text-gray-900">
                             Rp {{ number_format($payment->amount, 0, ',', '.') }}
                         </td>
                     </tr>
@@ -197,7 +197,7 @@
         const ctx = document.getElementById('revenueChart').getContext('2d');
         
         const labels = {!! json_encode($chartLabels ?? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']) !!};
-        const data = {!! json_encode($chartData ?? [15000000, 20000000, 18000000, 30000000, 25000000, 40000000]) !!};
+        const data = {!! json_encode($chartData ??) !!};
 
         new Chart(ctx, {
             type: 'line',
