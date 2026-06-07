@@ -19,6 +19,7 @@
 </head>
 <body class="bg-[#f8f9fa] text-gray-800 flex h-screen overflow-hidden text-sm selection:bg-black selection:text-white">
 
+    {{-- admin --}}
     <div id="mobileOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden md:hidden transition-opacity" onclick="toggleMobileSidebar()"></div>
 
     <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col fixed md:relative z-40 h-full transform -translate-x-full md:translate-x-0">
