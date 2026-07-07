@@ -315,7 +315,10 @@ class BookingController extends Controller
 
         // Cek jika status diubah dari Pending -> DP Paid
         if ($oldStatus === 'pending' && $request->status === 'dp_paid') {
-            $existingPayment = \App\Models\Payment::where('booking_id', $booking->id)->where('payment_type', 'dp')->first();
+            $existingPayment = \App\Models\Payment::where('booking_id', $booking->id)
+                ->where('payment_type', 'dp')
+                ->where('status', '!=', 'failed')
+                ->first();
             
             if(!$existingPayment) {
                 // Tangkap hasil create ke variabel
