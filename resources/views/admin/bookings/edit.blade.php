@@ -140,7 +140,7 @@
                                     onsubmit="return confirm('Apakah kamu yakin pembayaran ini TIDAK VALID? Client akan menerima pesan penolakan via WhatsApp.');"
                                     class="mt-3">
                                     @csrf
-                                    <button type="submit" class="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors">
+                                    <button type="submit" class="px-3 py-1.5 mt-4 text-[9px] font-bold uppercase tracking-widest bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors">
                                         <i class="fas fa-times mr-1"></i> Tandai Tidak Valid
                                     </button>
                                 </form>
