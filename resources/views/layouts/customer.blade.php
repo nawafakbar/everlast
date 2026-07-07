@@ -20,6 +20,11 @@
 </head>
 <body class="bg-[#F5F6F8] font-sans-custom text-gray-900 antialiased">
 
+    @if (session('wa_link'))
+    <script>
+        window.open("{{ session('wa_link') }}", "_blank");
+    </script>
+    @endif
     <div class="md:hidden bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 w-full z-40 shadow-sm">
         <div class="font-bold text-lg tracking-widest uppercase">Everlast</div>
         <button id="mobile-menu-btn" class="text-gray-900 focus:outline-none">

@@ -41,4 +41,8 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'admin_whatsapp' => [
+        'number' => env('ADMIN_WHATSAPP_NUMBER'),
+    ],
+
 ];

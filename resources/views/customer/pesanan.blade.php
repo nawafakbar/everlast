@@ -195,7 +195,11 @@
                                 <button onclick="closeModal('modal-{{ $booking->id }}')" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors text-center">
                                     Close
                                 </button>
-                                
+                                @if(in_array(strtolower($booking->status), ['pending', 'dp_paid']))
+                                    <a href="{{ route('customer.bookings.cancel', $booking->id) }}" class="border border-red-300 text-red-600 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-red-50 transition-colors text-center">
+                                        Cancel Booking
+                                    </a>
+                                @endif
                                 @if(in_array(strtolower($booking->status), ['pending', 'dp_paid']))
                                     <a href="{{ route('customer.checkout', $booking->id) }}" class="bg-black text-white px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md text-center">
                                         Next to Payment

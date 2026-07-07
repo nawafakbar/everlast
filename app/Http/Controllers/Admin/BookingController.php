@@ -389,10 +389,34 @@ class BookingController extends Controller
         }
                 
         // Cek jika di-cancel
+        // elseif ($oldStatus !== 'cancelled' && $request->status === 'cancelled') {
+        //     \App\Models\Payment::where('booking_id', $booking->id)
+        //         ->where('status', 'pending')
+        //         ->update(['status' => 'failed']);
+        // }
+        // Cek jika di-cancel
         elseif ($oldStatus !== 'cancelled' && $request->status === 'cancelled') {
+            // 1. Hapus catatan pemasukan (income) di CashFlow dari payment yang sudah success
+            $successPayments = \App\Models\Payment::where('booking_id', $booking->id)
+                ->where('status', 'success')
+                ->get();
+
+            foreach ($successPayments as $payment) {
+                \App\Models\CashFlow::where('reference_id', 'payment_' . $payment->id)->delete();
+            }
+
+            // 2. Tandai semua payment (pending & success) jadi failed, supaya tidak terhitung revenue
             \App\Models\Payment::where('booking_id', $booking->id)
-                ->where('status', 'pending')
+                ->whereIn('status', ['pending', 'success'])
                 ->update(['status' => 'failed']);
+
+            // 3. Hapus catatan pengeluaran (expense) fee kru di CashFlow
+            $assignments = \App\Models\Assignment::where('booking_id', $booking->id)->get();
+
+            foreach ($assignments as $assignment) {
+                \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
+                $assignment->update(['status' => 'rejected']);
+            }
         }
 
         // 5. Simpan perubahan ke database MySQL
