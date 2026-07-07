@@ -108,6 +108,12 @@
                             <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
                                 <div class="flex justify-end space-x-3">
 
+                                    <a href="{{ route('admin.bookings.delivery', $booking->id) }}" 
+                                    class="{{ $booking->status === 'completed' ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
+                                    title="{{ $booking->status === 'completed' ? 'Karya Sudah Selesai' : 'Kirim Karya ke Client' }}">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+
                                     <a href="{{ route('admin.bookings.show', $booking->id) }}" 
                                     class="{{ $booking->assignments->isNotEmpty() ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
                                     title="{{ $booking->assignments->isNotEmpty() ? 'Team Assigned - Edit Team' : 'Assign Team' }}">

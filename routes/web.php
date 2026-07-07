@@ -195,6 +195,10 @@ Route::prefix('admin')
         Route::post('/cash-flows', [CashFlowController::class, 'store'])->name('cash_flows.store');
         Route::delete('/cash-flows/{cashFlow}', [CashFlowController::class, 'destroy'])->name('cash_flows.destroy');
         Route::get('/cash-flows/export-pdf', [CashFlowController::class, 'exportPdf'])->name('cash_flows.export_pdf');
+
+        //Send Delivery Result
+        Route::get('bookings/{id}/delivery', [BookingController::class, 'showDelivery'])->name('bookings.delivery');
+        Route::post('bookings/{id}/delivery', [BookingController::class, 'sendDelivery'])->name('bookings.delivery.store');
 });
 
 require __DIR__.'/auth.php';

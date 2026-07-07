@@ -19,6 +19,11 @@
 </head>
 <body class="bg-[#f8f9fa] text-gray-800 flex h-screen overflow-hidden text-sm selection:bg-black selection:text-white">
 
+    @if (session('wa_link'))
+    <script>
+        window.open("{{ session('wa_link') }}", "_blank");
+    </script>
+    @endif
     {{-- admin --}}
     <div id="mobileOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden md:hidden transition-opacity" onclick="toggleMobileSidebar()"></div>
 

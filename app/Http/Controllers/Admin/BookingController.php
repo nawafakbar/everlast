@@ -700,4 +700,50 @@ class BookingController extends Controller
         
         return redirect()->route('admin.bookings.show', $bookingId)->with('success', 'Freelancer berhasil dihapus dari tim acara ini!');
     }
+
+    // Tampilkan form kirim karya
+    public function showDelivery(string $id)
+    {
+        $booking = \App\Models\Booking::with('user')->findOrFail($id);
+        return view('admin.bookings.send-delivery', compact('booking'));
+    }
+
+    // Proses: update status jadi completed + generate link WhatsApp (tanpa simpan link ke DB)
+    public function sendDelivery(Request $request, string $id)
+    {
+        $booking = \App\Models\Booking::with('user')->findOrFail($id);
+
+        // Aturan bisnis: cegah kirim kalau belum lunas
+        if (!in_array($booking->status, ['paid_in_full', 'completed'])) {
+            return back()->with('error', 'Booking ini belum lunas. Karya hanya bisa dikirim setelah status Paid In Full.');
+        }
+
+        $validated = $request->validate([
+            'delivery_link' => ['required', 'url', 'regex:/drive\.google\.com/'],
+        ], [
+            'delivery_link.regex' => 'Link harus berupa link Google Drive yang valid.',
+        ]);
+
+        // Cukup ubah status, tidak ada kolom baru yang disentuh
+        $booking->update(['status' => 'completed']);
+
+        // Susun pesan WhatsApp
+        $clientName = $booking->user->name;
+        $message = "Halo {$clientName}! 🎉\n\n"
+            . "Karya foto/video acara Anda bersama {$booking->partner_name} sudah selesai kami proses.\n\n"
+            . "Silakan cek hasilnya di link berikut:\n{$validated['delivery_link']}\n\n"
+            . "Terima kasih telah mempercayakan momen Anda kepada Everlast. 🤍";
+
+        // Bersihkan nomor HP (format 62xxx)
+        $phone = preg_replace('/\D/', '', $booking->user->phone);
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        $waLink = "https://wa.me/{$phone}?text=" . urlencode($message);
+
+        return redirect()->route('admin.bookings.index')
+            ->with('success', 'Status booking otomatis menjadi Completed! Silakan lanjutkan kirim pesan di WhatsApp.')
+            ->with('wa_link', $waLink);
+    }
 }
