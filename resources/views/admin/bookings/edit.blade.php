@@ -112,7 +112,7 @@
                 $manualPayments = $booking->payments->whereNotNull('proof_image');
             @endphp
             
-            @if($manualPayments->count() > 0)
+            {{-- @if($manualPayments->count() > 0)
                 <div class="mt-10 pt-8 border-t border-gray-100">
                     <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4"><i class="fas fa-receipt text-gray-400 mr-2"></i> Payment Proofs (Manual Transfer / QRIS)</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -139,7 +139,7 @@
                         @endforeach
                     </div>
                 </div>
-            @endif
+            @endif --}}
 
             <div class="mt-10 pt-6 pb-6 pr-4 border-t border-gray-100 flex justify-end">
                 <button type="submit" class="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-gray-800 transition-colors shadow-md">
@@ -156,8 +156,16 @@
                 <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4"><i class="fas fa-receipt text-gray-400 mr-2"></i> Payment Proofs (Manual Transfer / QRIS)</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     @foreach($manualPayments as $payment)
-                        <div class="border border-gray-200 bg-gray-50 rounded-sm p-4 text-center flex flex-col items-center">
-                            ...
+                            <div class="border border-gray-200 bg-gray-50 rounded-sm p-4 text-center flex flex-col items-center">
+                                <span class="block text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-2">
+                                    Tagihan: {{ $payment->payment_type }}
+                                </span>
+                                
+                                <a href="{{ asset('storage/' . $payment->proof_image) }}" target="_blank" class="block mb-3 border border-gray-300 rounded-sm overflow-hidden hover:opacity-80 transition-opacity" title="Klik untuk memperbesar">
+                                    <img src="{{ asset('storage/' . $payment->proof_image) }}" alt="Bukti Pembayaran" class="w-full h-32 object-cover">
+                                </a>
+                                
+                                <p class="text-xs font-bold text-black mb-1">Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
                             @if($payment->status == 'pending')
                             <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST"
                                 onsubmit="return confirm('Apakah kamu yakin pembayaran ini TIDAK VALID? Client akan menerima pesan penolakan via WhatsApp.');"
