@@ -59,7 +59,7 @@
 
                     <tr>
                         <td class="label">Pembayaran</td>
-                        <td class="value">{{ $payment->payment_type == 'dp' ? 'Down Payment (50%)' : 'Pelunasan' }}</td>
+                        <td class="value">{{ $payment->payment_type == 'dp' ? 'Down Payment (30%)' : 'Pelunasan' }}</td>
                     </tr>
                     <tr>
                         <td class="label">Metode</td>

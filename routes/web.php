@@ -177,6 +177,7 @@ Route::prefix('admin')
         Route::get('/admin/assignments/{assignment}/edit', [BookingController::class, 'editAssignment'])->name('assignments.edit');
         Route::put('/admin/assignments/{assignment}', [BookingController::class, 'updateAssignment'])->name('assignments.update');
         Route::delete('/admin/assignments/{assignment}', [BookingController::class, 'deleteAssignment'])->name('assignments.destroy');
+        Route::post('payments/{id}/reject', [BookingController::class, 'rejectPayment'])->name('payments.reject');
         
         // Bulk Delete
         Route::post('users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulkDelete');
