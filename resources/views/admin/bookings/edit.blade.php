@@ -152,7 +152,7 @@
         @endphp
 
         @if($manualPayments->count() > 0)
-            <div class="mt-10 pt-8 border-t border-gray-100 px-8">  {{-- tambahkan px-8 biar padding tetap konsisten --}}
+            <div class="mt-10 pt-8 pb-8 border-t border-gray-100 px-8">  {{-- tambahkan px-8 biar padding tetap konsisten --}}
                 <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4"><i class="fas fa-receipt text-gray-400 mr-2"></i> Payment Proofs (Manual Transfer / QRIS)</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     @foreach($manualPayments as $payment)
@@ -166,6 +166,13 @@
                                 </a>
                                 
                                 <p class="text-xs font-bold text-black mb-1">Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
+                                @if($payment->status == 'pending')
+                                    <span class="px-2 py-1 text-[9px] uppercase tracking-widest bg-yellow-100 text-yellow-700 font-bold rounded-sm">Menunggu Cek</span>
+                                @elseif($payment->status == 'success')
+                                    <span class="px-2 py-1 text-[9px] uppercase tracking-widest bg-green-100 text-green-700 font-bold rounded-sm">Valid</span>
+                                @else
+                                    <span class="px-2 py-1 text-[9px] uppercase tracking-widest bg-red-100 text-red-700 font-bold rounded-sm">Ditolak</span>
+                                @endif
                             @if($payment->status == 'pending')
                             <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST"
                                 onsubmit="return confirm('Apakah kamu yakin pembayaran ini TIDAK VALID? Client akan menerima pesan penolakan via WhatsApp.');"
