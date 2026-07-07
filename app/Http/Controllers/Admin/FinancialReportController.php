@@ -138,7 +138,6 @@ class FinancialReportController extends Controller
         [$startDate, $endDate] = $this->resolveDates($request);
 
         $payments = Payment::with('booking.user')
-            ->whereHas('booking')
             ->where('status', 'success')
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->orderBy('created_at')
@@ -148,21 +147,25 @@ class FinancialReportController extends Controller
         $totalDP = $payments->where('payment_type', 'dp')->sum('amount');
         $totalFullPayment = $totalRevenue - $totalDP;
 
-        // 👇 TAMBAHKAN EXPENSES
-        $totalExpenses = CashFlow::where('type', 'expense')
+        // Ambil data expense (CashFlow type = expense)
+        $expenses = CashFlow::where('type', 'expense')
             ->whereDate('date', '>=', $startDate)
             ->whereDate('date', '<=', $endDate)
-            ->sum('amount');
+            ->orderBy('date')
+            ->get();
+
+        $totalExpenses = $expenses->sum('amount'); // 👈 sekalian pakai dari collection yang sama, lebih efisien (1 query, bukan 2)
 
         $netProfit = $totalRevenue - $totalExpenses;
 
         $pdf = Pdf::loadView('admin.finance.export-template', compact(
             'payments', 
+            'expenses',          // 👈 TAMBAHKAN INI - ini yang sebelumnya hilang
             'totalRevenue', 
             'totalDP', 
             'totalFullPayment', 
-            'totalExpenses',    // 👈 TAMBAHKAN
-            'netProfit',        // 👈 TAMBAHKAN
+            'totalExpenses',
+            'netProfit',
             'startDate', 
             'endDate'
         ));
