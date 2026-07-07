@@ -311,7 +311,7 @@ class BookingController extends Controller
         // ==========================================
         $package = \App\Models\Package::find($request->package_id);
         $packagePrice = $package->price ?? 0;
-        $dpAmount = $packagePrice / 2; // Hitung 50%
+        $dpAmount = $packagePrice * 0.3; // Hitung 50%
 
         // Cek jika status diubah dari Pending -> DP Paid
         if ($oldStatus === 'pending' && $request->status === 'dp_paid') {
@@ -729,10 +729,10 @@ class BookingController extends Controller
 
         // Susun pesan WhatsApp
         $clientName = $booking->user->name;
-        $message = "Halo {$clientName}! 🎉\n\n"
-            . "Karya foto/video acara Anda bersama {$booking->partner_name} sudah selesai kami proses.\n\n"
-            . "Silakan cek hasilnya di link berikut:\n{$validated['delivery_link']}\n\n"
-            . "Terima kasih telah mempercayakan momen Anda kepada Everlast. 🤍";
+        $message = "Halo {$clientName}!\n"
+            . "Karya foto/video acara Anda bersama {$booking->partner_name} sudah selesai kami proses.\n"
+            . "Silakan cek hasilnya di link berikut:\n{$validated['delivery_link']}\n"
+            . "Terima kasih telah mempercayakan momen Anda kepada Everlast.";
 
         // Bersihkan nomor HP (format 62xxx)
         $phone = preg_replace('/\D/', '', $booking->user->phone);

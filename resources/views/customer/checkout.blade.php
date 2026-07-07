@@ -64,7 +64,7 @@
                                     <label class="cursor-pointer">
                                         <input type="radio" name="payment_type" value="dp" checked class="peer hidden" onchange="updateAmount()">
                                         <div class="border border-gray-200 p-4 rounded-sm text-center peer-checked:border-black peer-checked:bg-gray-50 transition-colors">
-                                            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Bayar DP (50%)</p>
+                                            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Bayar DP (30%)</p>
                                             <p class="text-sm font-bold text-gray-900">Rp {{ number_format($fullPrice / 2, 0, ',', '.') }}</p>
                                         </div>
                                     </label>

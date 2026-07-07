@@ -68,7 +68,8 @@ class CheckoutController extends Controller
         }
 
         // Nominal yang harus dibayar
-        $amount = $request->payment_type === 'dp' ? ($fullPrice / 2) : $remainingAmount;
+        $minDpPercentage = 0.3;
+        $amount = $request->payment_type === 'dp' ? ($fullPrice * $minDpPercentage) : $remainingAmount;
         $orderId = 'EVL-' . $booking->id . '-' . time(); // EVL untuk klien
 
         // JIKA PILIH MIDTRANS
@@ -250,6 +251,11 @@ class CheckoutController extends Controller
         // Validasi Keamanan
         if ($booking->user_id !== \Illuminate\Support\Facades\Auth::id() && \Illuminate\Support\Facades\Auth::user()->role !== 'admin') {
             abort(403, 'Anda tidak memiliki akses ke nota ini.');
+        }
+
+        // Validasi Status: Invoice hanya bisa dicetak kalau sudah Lunas / Selesai
+        if (!in_array($booking->status, ['paid_in_full', 'completed'])) {
+            abort(400, 'Invoice hanya bisa dicetak setelah pembayaran lunas.');
         }
 
         // Hitung total uang yang udah masuk
