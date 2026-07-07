@@ -83,6 +83,7 @@ class FinancialReportController extends Controller
 
         // === CHART DATA ===
         $chartQuery = Payment::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->whereHas('booking')
             ->where('status', 'success')
             ->orderBy('created_at')
             ->get();
@@ -137,6 +138,7 @@ class FinancialReportController extends Controller
         [$startDate, $endDate] = $this->resolveDates($request);
 
         $payments = Payment::with('booking.user')
+            ->whereHas('booking')
             ->where('status', 'success')
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->orderBy('created_at')
