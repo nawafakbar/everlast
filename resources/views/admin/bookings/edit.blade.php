@@ -135,16 +135,6 @@
                                 @else
                                     <span class="px-2 py-1 text-[9px] uppercase tracking-widest bg-red-100 text-red-700 font-bold rounded-sm">Ditolak</span>
                                 @endif
-                                @if($payment->status == 'pending')
-                                <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah kamu yakin pembayaran ini TIDAK VALID? Client akan menerima pesan penolakan via WhatsApp.');"
-                                    class="mt-3">
-                                    @csrf
-                                    <button type="submit" class="px-3 py-1.5 mt-4 text-[9px] font-bold uppercase tracking-widest bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors">
-                                        <i class="fas fa-times mr-1"></i> Tandai Tidak Valid
-                                    </button>
-                                </form>
-                            @endif
                             </div>
                         @endforeach
                     </div>
@@ -157,6 +147,32 @@
                 </button>
             </div>
         </form>
+        @php
+            $manualPayments = $booking->payments->whereNotNull('proof_image');
+        @endphp
+
+        @if($manualPayments->count() > 0)
+            <div class="mt-10 pt-8 border-t border-gray-100 px-8">  {{-- tambahkan px-8 biar padding tetap konsisten --}}
+                <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4"><i class="fas fa-receipt text-gray-400 mr-2"></i> Payment Proofs (Manual Transfer / QRIS)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                    @foreach($manualPayments as $payment)
+                        <div class="border border-gray-200 bg-gray-50 rounded-sm p-4 text-center flex flex-col items-center">
+                            ...
+                            @if($payment->status == 'pending')
+                            <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST"
+                                onsubmit="return confirm('Apakah kamu yakin pembayaran ini TIDAK VALID? Client akan menerima pesan penolakan via WhatsApp.');"
+                                class="mt-3">
+                                @csrf
+                                <button type="submit" class="px-3 py-1.5 mt-4 text-[9px] font-bold uppercase tracking-widest bg-red-500 text-white rounded-sm hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-times mr-1"></i> Tandai Tidak Valid
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 
     <script>
