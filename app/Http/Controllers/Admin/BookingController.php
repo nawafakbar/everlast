@@ -792,9 +792,16 @@ class BookingController extends Controller
             . "Mohon kirimkan ulang bukti transfer yang jelas dan sesuai, atau hubungi kami jika ada pertanyaan.\n"
             . "Terima kasih,\nTim Everlast";
 
-        $phone = preg_replace('/\D/', '', $booking->user->phone);
+        $phone = preg_replace('/\D/', '', $booking->user->phone ?? '');
+
         if (str_starts_with($phone, '0')) {
             $phone = '62' . substr($phone, 1);
+        } elseif (!str_starts_with($phone, '62')) {
+            $phone = '62' . $phone; // jaga-jaga kalau user simpan tanpa awalan
+        }
+
+        if (empty($phone) || strlen($phone) < 10) {
+            return back()->with('error', 'Nomor HP client tidak valid, tidak bisa kirim WA. Silakan hubungi manual.');
         }
 
         $waLink = "https://wa.me/{$phone}?text=" . urlencode($message);
