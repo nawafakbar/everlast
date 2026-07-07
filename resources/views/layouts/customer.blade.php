@@ -21,9 +21,16 @@
 <body class="bg-[#F5F6F8] font-sans-custom text-gray-900 antialiased">
 
     @if (session('wa_link'))
-    <script>
-        window.open("{{ session('wa_link') }}", "_blank");
-    </script>
+    <div class="fixed bottom-6 right-6 z-50 bg-white border border-gray-200 shadow-xl rounded-sm p-4 max-w-sm animate-pulse-once">
+        <p class="text-xs font-bold text-gray-900 mb-2">
+            <i class="fas fa-check-circle text-green-500 mr-1"></i> Aksi berhasil!
+        </p>
+        <p class="text-[11px] text-gray-500 mb-3">Klik tombol di bawah untuk kirim pesan WhatsApp.</p>
+        <a href="{{ session('wa_link') }}" target="_blank"
+        class="block text-center bg-green-500 text-white px-4 py-2.5 rounded-sm text-xs font-bold uppercase tracking-wider hover:bg-green-600 transition-colors">
+            <i class="fab fa-whatsapp mr-1"></i> Buka WhatsApp
+        </a>
+    </div>
     @endif
     <div class="md:hidden bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 w-full z-40 shadow-sm">
         <div class="font-bold text-lg tracking-widest uppercase">Everlast</div>

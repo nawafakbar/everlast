@@ -20,9 +20,16 @@
 <body class="bg-[#f8f9fa] text-gray-800 flex h-screen overflow-hidden text-sm selection:bg-black selection:text-white">
 
     @if (session('wa_link'))
-    <script>
-        window.open("{{ session('wa_link') }}", "_blank");
-    </script>
+    <div class="fixed bottom-6 right-6 z-50 bg-white border border-gray-200 shadow-xl rounded-sm p-4 max-w-sm animate-pulse-once">
+        <p class="text-xs font-bold text-gray-900 mb-2">
+            <i class="fas fa-check-circle text-green-500 mr-1"></i> Aksi berhasil!
+        </p>
+        <p class="text-[11px] text-gray-500 mb-3">Klik tombol di bawah untuk kirim pesan WhatsApp.</p>
+        <a href="{{ session('wa_link') }}" target="_blank"
+        class="block text-center bg-green-500 text-white px-4 py-2.5 rounded-sm text-xs font-bold uppercase tracking-wider hover:bg-green-600 transition-colors">
+            <i class="fab fa-whatsapp mr-1"></i> Buka WhatsApp
+        </a>
+    </div>
     @endif
     {{-- admin --}}
     <div id="mobileOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden md:hidden transition-opacity" onclick="toggleMobileSidebar()"></div>
