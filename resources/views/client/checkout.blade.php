@@ -32,7 +32,7 @@
                         <input type="radio" name="payment_type" value="dp" class="peer sr-only" onchange="updatePriceUI()" checked>
                         <div class="w-full">
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-bold text-gray-900 uppercase tracking-wider">Down Payment (DP) 50%</span>
+                                <span class="text-sm font-bold text-gray-900 uppercase tracking-wider">Down Payment (DP) 30%</span>
                                 <i class="fas fa-check-circle text-black opacity-0 peer-checked:opacity-100 transition-opacity"></i>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">Bayar setengah harga untuk booking jadwal.</p>
