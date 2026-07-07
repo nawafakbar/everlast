@@ -151,7 +151,7 @@
                 </div>
             @endif
 
-            <div class="mt-10 pt-6 border-t border-gray-100 flex justify-end">
+            <div class="mt-10 pt-6 pb-6 border-t border-gray-100 flex justify-end">
                 <button type="submit" class="bg-black text-white px-8 py-3 text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-gray-800 transition-colors shadow-md">
                     Update Booking
                 </button>
