@@ -746,4 +746,37 @@ class BookingController extends Controller
             ->with('success', 'Status booking otomatis menjadi Completed! Silakan lanjutkan kirim pesan di WhatsApp.')
             ->with('wa_link', $waLink);
     }
+
+    public function rejectPayment(Request $request, string $id)
+    {
+        $payment = \App\Models\Payment::with('booking.user')->findOrFail($id);
+
+        // Cegah reject ulang kalau sudah bukan pending
+        if ($payment->status !== 'pending') {
+            return back()->with('error', 'Pembayaran ini sudah diverifikasi sebelumnya.');
+        }
+
+        $payment->update(['status' => 'failed']);
+
+        $booking = $payment->booking;
+        $clientName = $booking->user->name;
+
+        $message = "Halo {$clientName},\n\n"
+            . "Mohon maaf, bukti pembayaran ({$payment->payment_type}) sebesar Rp "
+            . number_format($payment->amount, 0, ',', '.') . " yang Anda kirimkan "
+            . "tidak dapat kami verifikasi / tidak valid.\n"
+            . "Mohon kirimkan ulang bukti transfer yang jelas dan sesuai, atau hubungi kami jika ada pertanyaan.\n"
+            . "Terima kasih,\nTim Everlast";
+
+        $phone = preg_replace('/\D/', '', $booking->user->phone);
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        $waLink = "https://wa.me/{$phone}?text=" . urlencode($message);
+
+        return back()
+            ->with('success', 'Pembayaran ditandai tidak valid & pesan siap dikirim ke client.')
+            ->with('wa_link', $waLink);
+    }
 }

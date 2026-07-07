@@ -131,6 +131,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Route Cetak Nota Pembayaran (Customer / Admin)
     Route::get('/payment/{booking}/invoice', [CheckoutController::class, 'downloadInvoice'])->name('booking.invoice');
+    Route::post('payments/{id}/reject', [BookingController::class, 'rejectPayment'])->name('payments.reject');
 
     // ROUTE KHUSUS CUSTOMER (Bisa diakses Admin & Freelancer juga)
     // Jika ada route seperti 'Pesanan Saya', bungkus di sini pakai:
