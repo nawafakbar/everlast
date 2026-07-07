@@ -188,7 +188,7 @@ Route::prefix('admin')
 
         // Financial Report
         Route::get('/finance', [FinancialReportController::class, 'index'])->name('finance');
-        Route::get('/admin/finance/pdf', [FinancialReportController::class, 'exportPdf'])->name('finance.pdf');
+        Route::get('/finance/pdf', [FinancialReportController::class, 'exportPdf'])->name('finance.pdf');
         Route::get('/admin/finance/excel', [FinancialReportController::class, 'exportExcel'])->name('finance.excel');
 
         // Cash Flow Routes
