@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Package;
+use App\Models\User;
+use App\Mail\AdminBookingCancelledMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class CustomerBookingController extends Controller
@@ -24,10 +27,15 @@ class CustomerBookingController extends Controller
         return view('customer.booking', compact('packages'));
     }
 
+    public function packages()
+    {
+        $packages = Package::all();
+        return view('customer.packages', compact('packages'));
+    }
+
     // 2. Proses Validasi & Simpan Data
     public function store(Request $request)
     {
-        // Validasi pindah ke sini (Tambahan rule buat jam dan prewed)
         $validated = $request->validate([
             'package_id' => 'required|exists:packages,id',
             'partner_name' => 'required|string|max:255',
@@ -46,9 +54,6 @@ class CustomerBookingController extends Controller
             'event_location_3' => 'nullable|string',
             'event_lat_3' => 'nullable',
             'event_lng_3' => 'nullable',
-            // ==========================================
-            // TAMBAHAN VALIDASI DOUBLE DATE (PREWEDDING)
-            // ==========================================
             'prewed_date' => 'nullable|date|after_or_equal:today',
             'prewed_start_time' => 'nullable|date_format:H:i|required_with:prewed_date',
             'prewed_end_time' => 'nullable|date_format:H:i|after:prewed_start_time|required_with:prewed_date',
@@ -56,21 +61,20 @@ class CustomerBookingController extends Controller
 
         // ==========================================
         // CEK BENTROK JADWAL 1: TANGGAL UTAMA (WEDDING/SINGLE EVENT)
+        // Cuma booking yang SUDAH CONFIRMED yang dianggap mengunci slot
         // ==========================================
-        $mainConflict = Booking::whereNotIn('status', ['cancelled'])
+        $mainConflict = Booking::whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])
             ->where(function ($q) use ($request) {
-                // Cek bentrok dengan Acara Utama klien lain
                 $q->where(function ($q2) use ($request) {
                     $q2->where('booking_date', $request->booking_date)
-                       ->where('start_time', '<', $request->end_time)
-                       ->where('end_time', '>', $request->start_time);
+                    ->where('start_time', '<', $request->end_time)
+                    ->where('end_time', '>', $request->start_time);
                 })
-                // Cek bentrok dengan Acara Prewed klien lain (karena fotografernya sama)
                 ->orWhere(function ($q3) use ($request) {
                     $q3->whereNotNull('prewed_date')
-                       ->where('prewed_date', $request->booking_date)
-                       ->where('prewed_start_time', '<', $request->end_time)
-                       ->where('prewed_end_time', '>', $request->start_time);
+                    ->where('prewed_date', $request->booking_date)
+                    ->where('prewed_start_time', '<', $request->end_time)
+                    ->where('prewed_end_time', '>', $request->start_time);
                 });
             })->exists();
 
@@ -82,20 +86,18 @@ class CustomerBookingController extends Controller
         // CEK BENTROK JADWAL 2: TANGGAL PREWEDDING (JIKA ADA)
         // ==========================================
         if ($request->filled('prewed_date')) {
-            $prewedConflict = Booking::whereNotIn('status', ['cancelled'])
+            $prewedConflict = Booking::whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])
                 ->where(function ($q) use ($request) {
-                    // Cek bentrok dengan Acara Utama klien lain
                     $q->where(function ($q2) use ($request) {
                         $q2->where('booking_date', $request->prewed_date)
-                           ->where('start_time', '<', $request->prewed_end_time)
-                           ->where('end_time', '>', $request->prewed_start_time);
+                        ->where('start_time', '<', $request->prewed_end_time)
+                        ->where('end_time', '>', $request->prewed_start_time);
                     })
-                    // Cek bentrok dengan Acara Prewed klien lain
                     ->orWhere(function ($q3) use ($request) {
                         $q3->whereNotNull('prewed_date')
-                           ->where('prewed_date', $request->prewed_date)
-                           ->where('prewed_start_time', '<', $request->prewed_end_time)
-                           ->where('prewed_end_time', '>', $request->prewed_start_time);
+                        ->where('prewed_date', $request->prewed_date)
+                        ->where('prewed_start_time', '<', $request->prewed_end_time)
+                        ->where('prewed_end_time', '>', $request->prewed_start_time);
                     });
                 })->exists();
 
@@ -104,14 +106,11 @@ class CustomerBookingController extends Controller
             }
         }
 
-        // Tambahkan data otomatis
         $validated['user_id'] = auth()->id();
         $validated['status'] = 'pending';
 
-        // Simpan ke database
         $booking = Booking::create($validated);
 
-        // Lempar ke halaman pembayaran
         return redirect()->route('customer.checkout', $booking->id);
     }
 
@@ -188,6 +187,21 @@ class CustomerBookingController extends Controller
             . "Bank: {$validated['bank_name']}\n"
             . "No. Rek: {$validated['account_number']}\n"
             . "A/N: {$validated['account_holder']}";
+
+
+        // Kirim notifikasi email ke admin
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            Mail::to($admin->email)->send(new AdminBookingCancelledMail(
+                $booking,
+                $validated['reason'],
+                $totalPaid,
+                $validated['bank_name'],
+                $validated['account_number'],
+                $validated['account_holder'],
+                $dpProof ? asset('storage/' . $dpProof->proof_image) : null
+            ));
+        }
 
         $adminPhone = config('services.admin_whatsapp.number');
         $waLink = "https://wa.me/{$adminPhone}?text=" . urlencode($message);

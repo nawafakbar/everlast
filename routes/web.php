@@ -135,6 +135,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/booking/{id}/cancel', [CustomerBookingController::class, 'cancelForm'])->name('customer.bookings.cancel');
     Route::post('/booking/{id}/cancel', [CustomerBookingController::class, 'cancelStore'])->name('customer.bookings.cancel.store');
 
+    // Route list packages
+    Route::get('/packages', [CustomerBookingController::class, 'packages'])->name('customer.packages');
+
     // ROUTE KHUSUS CUSTOMER (Bisa diakses Admin & Freelancer juga)
     // Jika ada route seperti 'Pesanan Saya', bungkus di sini pakai:
     // Route::middleware(['role:admin,freelancer,customer'])->group(function() { ... });

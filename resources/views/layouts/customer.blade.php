@@ -64,6 +64,10 @@
                     <i class="far fa-user w-5 text-center"></i> <span>My Profil</span>
                 </a>
                 
+                <a href="{{ route('customer.packages') }}" class="flex items-center gap-3 px-4 py-3 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-black transition-colors rounded-sm {{ request()->routeIs('customer.packages') ? 'bg-gray-50 text-black font-bold' : '' }}">
+                    <i class="fas fa-box-open w-4"></i> Packages
+                </a>
+
                 <a href="{{ route('customer.pesanan') }}" class="flex items-center space-x-3 px-4 py-3 rounded-md text-xs font-medium transition-colors {{ request()->routeIs('customer.pesanan') ? 'bg-gray-100 text-black font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-black' }}">
                     <i class="fas fa-receipt w-5 text-center"></i> <span>My Booking</span>
                 </a>
