@@ -525,6 +525,30 @@
             }
         }
 
+        // ==========================================
+        // AUTO-SELECT PAKET DARI HALAMAN PACKAGES
+        // ==========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectPackageId = urlParams.get('package_id');
+
+        if (preselectPackageId) {
+            const preselectedPkg = packagesData.find(p => p.id == preselectPackageId);
+
+            if (preselectedPkg) {
+                // Langkah 1: Set kategori, lalu trigger event 'change'
+                // (ini akan otomatis mengisi ulang opsi dropdown paket)
+                categorySelect.value = preselectedPkg.category;
+                categorySelect.dispatchEvent(new Event('change'));
+
+                // Langkah 2: Tunggu sebentar sampai opsi paket selesai di-generate,
+                // baru set paketnya & trigger 'change' lagi
+                setTimeout(() => {
+                    packageSelect.value = preselectedPkg.id;
+                    packageSelect.dispatchEvent(new Event('change'));
+                }, 100);
+            }
+        }
+
         setTimeout(function(){ coupleMap.invalidateSize(); eventMap.invalidateSize(); }, 500);
     });
 

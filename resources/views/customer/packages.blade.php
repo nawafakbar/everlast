@@ -108,7 +108,7 @@
                 <button onclick="closeModal('package-modal-{{ $package->id }}')" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors text-center">
                     Close
                 </button>
-                <a href="{{ route('customer.booking') }}" class="bg-black text-white px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md text-center">
+                <a href="{{ route('customer.booking', ['package_id' => $package->id]) }}" class="bg-black text-white px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md text-center">
                     Book This Package
                 </a>
             </div>
