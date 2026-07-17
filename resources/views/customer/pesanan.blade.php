@@ -41,20 +41,17 @@
                     
                     <div class="flex-1">
                         <div class="flex items-center gap-3 mb-3">
-                            <h3 class="text-lg font-bold text-gray-900">{{ $booking->package->name ?? 'Paket Kustom' }}</h3>
-                            <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full {{ $statusClass }}">
-                                {{ $booking->status }}
-                            </span>
-                            @if($booking->status === 'cancelled' && in_array($booking->refund_status, ['pending', 'processing']))
-                            <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
-                                <i class="fas fa-clock mr-1"></i> Refund Diproses
-                            </span>
-                        @elseif($booking->status === 'cancelled' && $booking->refund_status === 'completed')
-                            <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full bg-green-50 text-green-700 border border-green-200">
-                                <i class="fas fa-check-circle mr-1"></i> Refund Selesai
-                            </span>
-                        @endif
-                        </div>
+    <h3 class="text-lg font-bold text-gray-900">{{ $booking->package->name ?? 'Paket Kustom' }}</h3>
+    <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full {{ $statusClass }}">
+        {{ $booking->status }}
+    </span>
+
+    @if($booking->cancel_reason && $booking->status !== 'cancelled')
+        <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full bg-orange-50 text-orange-700 border border-orange-200">
+            <i class="fas fa-hourglass-half mr-1"></i> Menunggu Konfirmasi Admin
+        </span>
+    @endif
+</div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-xs text-gray-500">
                             <p class="flex items-center"><i class="far fa-calendar-alt w-5 text-gray-400"></i> 
                                 {{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d F Y') }}
@@ -195,7 +192,7 @@
                                             @endif
                                         </div>
                                     </div>
-                                </div>
+                                </div>  
                                 @endif
                                 @if($booking->status === 'cancelled')
                                 <div class="pt-2 border-t border-gray-50">
@@ -224,20 +221,20 @@
                             </div>
 
                             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row justify-end gap-3">
-                                <button onclick="closeModal('modal-{{ $booking->id }}')" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors text-center">
-                                    Close
-                                </button>
-                                @if(in_array(strtolower($booking->status), ['pending', 'dp_paid']))
-                                    <a href="{{ route('customer.bookings.cancel', $booking->id) }}" class="border border-red-300 text-red-600 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-red-50 transition-colors text-center">
-                                        Cancel Booking
-                                    </a>
-                                @endif
-                                @if(in_array(strtolower($booking->status), ['pending', 'dp_paid']))
-                                    <a href="{{ route('customer.checkout', $booking->id) }}" class="bg-black text-white px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md text-center">
-                                        Next to Payment
-                                    </a>
-                                @endif
-                            </div>
+    <button onclick="closeModal('modal-{{ $booking->id }}')" class="border border-gray-300 text-gray-700 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors text-center">
+        Close
+    </button>
+    @if(in_array(strtolower($booking->status), ['pending', 'dp_paid']) && !$booking->cancel_reason)
+        <a href="{{ route('customer.bookings.cancel', $booking->id) }}" class="border border-red-300 text-red-600 px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-red-50 transition-colors text-center">
+            Cancel Booking
+        </a>
+    @endif
+    @if(in_array(strtolower($booking->status), ['pending', 'dp_paid']))
+        <a href="{{ route('customer.checkout', $booking->id) }}" class="bg-black text-white px-6 py-2 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors shadow-md text-center">
+            Next to Payment
+        </a>
+    @endif
+</div>
 
                         </div>
                     </div>

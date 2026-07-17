@@ -148,45 +148,20 @@ class CustomerBookingController extends Controller
         $totalPaid = $successPayments->sum('amount');
         $dpProof = $successPayments->firstWhere('proof_image', '!=', null);
 
-        foreach ($successPayments as $payment) {
-            \App\Models\CashFlow::where('reference_id', 'payment_' . $payment->id)->delete();
-        }
-
-        \App\Models\Payment::where('booking_id', $booking->id)
-            ->whereIn('status', ['pending', 'success'])
-            ->update(['status' => 'failed']);
-
-        $assignments = \App\Models\Assignment::where('booking_id', $booking->id)->get();
-        foreach ($assignments as $assignment) {
-            \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
-            $assignment->update(['status' => 'rejected']);
-        }
-
-        if ($booking->google_calendar_id) {
-            try {
-                $event = \Spatie\GoogleCalendar\Event::find($booking->google_calendar_id);
-                $event->delete();
-            } catch (\Exception $e) {}
-        }
-
+        // HANYA simpan data cancel. Status TIDAK diubah — masih pending/dp_paid.
+        // Ini jadi "sinyal" bahwa ada request cancel yang nunggu konfirmasi admin.
         $booking->update([
-            'status' => 'cancelled',
-            'google_calendar_id' => null,
             'cancel_reason' => $validated['reason'],
             'cancel_bank_name' => $validated['bank_name'],
             'cancel_account_number' => $validated['account_number'],
             'cancel_account_holder' => $validated['account_holder'],
-            'cancelled_at' => now(),
-            // Kalau ada uang yang udah dibayar, berarti perlu direfund
-            // Kalau belum bayar sama sekali (misal masih 'pending'), nggak perlu refund
-            'refund_status' => $totalPaid > 0 ? 'pending' : null,
         ]);
 
         $proofText = $dpProof
             ? asset('storage/' . $dpProof->proof_image)
             : 'Tidak ada bukti manual (pembayaran via Midtrans / belum ada payment)';
 
-        $message = "*PEMBATALAN BOOKING*\n"
+        $message = "*PERMINTAAN PEMBATALAN BOOKING*\n"
             . "Client: {$booking->user->name}\n"
             . "Partner: {$booking->partner_name}\n"
             . "Paket: " . ($booking->package->name ?? '-') . "\n"
@@ -197,9 +172,9 @@ class CustomerBookingController extends Controller
             . "*Data Rekening Pengembalian:*\n"
             . "Bank: {$validated['bank_name']}\n"
             . "No. Rek: {$validated['account_number']}\n"
-            . "A/N: {$validated['account_holder']}";
+            . "A/N: {$validated['account_holder']}\n\n"
+            . "⚠️ Mohon konfirmasi pembatalan ini di panel admin.";
 
-        // Kirim notifikasi email ke admin
         $admin = User::where('role', 'admin')->first();
         if ($admin) {
             Mail::to($admin->email)->send(new AdminBookingCancelledMail(
@@ -217,7 +192,7 @@ class CustomerBookingController extends Controller
         $waLink = "https://wa.me/{$adminPhone}?text=" . urlencode($message);
 
         return redirect()->route('customer.pesanan')
-            ->with('success', 'Booking berhasil dibatalkan. Konfirmasi pengembalian dana akan kami proses via WhatsApp.')
+            ->with('success', 'Permintaan pembatalan booking terkirim. Admin akan mengkonfirmasi dalam waktu 1x24 jam.')
             ->with('wa_link', $waLink);
     }
 }

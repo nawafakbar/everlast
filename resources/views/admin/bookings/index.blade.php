@@ -75,6 +75,7 @@
                             data-status="{{ strtoupper(str_replace('_', ' ', $booking->status)) }}" 
                             data-booking_id="{{ $booking->id }}"
                             data-refund_status="{{ $booking->refund_status }}"
+                            data-has_cancel_request="{{ $booking->cancel_reason && $booking->status !== 'cancelled' ? '1' : '0' }}"
                             data-cancel_reason="{{ $booking->cancel_reason }}"
                             data-cancel_bank_name="{{ $booking->cancel_bank_name }}"
                             data-cancel_account_number="{{ $booking->cancel_account_number }}"
@@ -130,9 +131,9 @@
                                     <!-- <a href="{{ route('admin.bookings.checkout', $booking->id) }}" class="text-gray-400 hover:text-green-500 transition-colors" title="Test Payment">
                                         <i class="fas fa-credit-card"></i>
                                     </a> -->
-                                    @if($booking->status === 'cancelled' && in_array($booking->refund_status, ['pending', 'processing']))
-                                        <span title="Menunggu Refund" class="text-yellow-500">
-                                            <i class="fas fa-hand-holding-usd"></i>
+                                    @if($booking->cancel_reason && $booking->status !== 'cancelled')
+                                        <span title="Ada Permintaan Pembatalan" class="text-orange-500 animate-pulse">
+                                            <i class="fas fa-exclamation-triangle"></i>
                                         </span>
                                     @endif
                                     <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit">

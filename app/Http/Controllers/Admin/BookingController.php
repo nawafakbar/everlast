@@ -829,4 +829,66 @@ class BookingController extends Controller
 
         return back()->with('success', 'Refund berhasil ditandai selesai.');
     }
+
+    public function confirmCancel(Request $request, $id)
+    {
+        $booking = \App\Models\Booking::with(['payments', 'assignments'])
+            ->whereNotNull('cancel_reason')   // pastikan memang ada request cancel
+            ->where('status', '!=', 'cancelled')
+            ->findOrFail($id);
+
+        $successPayments = $booking->payments->where('status', 'success');
+        $totalPaid = $successPayments->sum('amount');
+
+        foreach ($successPayments as $payment) {
+            \App\Models\CashFlow::where('reference_id', 'payment_' . $payment->id)->delete();
+        }
+
+        \App\Models\Payment::where('booking_id', $booking->id)
+            ->whereIn('status', ['pending', 'success'])
+            ->update(['status' => 'failed']);
+
+        foreach ($booking->assignments as $assignment) {
+            \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
+            $assignment->update(['status' => 'rejected']);
+        }
+
+        if ($booking->google_calendar_id) {
+            try {
+                $event = \Spatie\GoogleCalendar\Event::find($booking->google_calendar_id);
+                $event->delete();
+            } catch (\Exception $e) {}
+        }
+
+        // Kalau admin sekalian ceklis "dana udah ditransfer" pas konfirmasi
+        $alreadyRefunded = $request->boolean('mark_refunded');
+
+        $booking->update([
+            'status' => 'cancelled',
+            'google_calendar_id' => null,
+            'cancelled_at' => now(),
+            'refund_status' => $totalPaid > 0
+                ? ($alreadyRefunded ? 'completed' : 'pending')
+                : null,
+            'refunded_at' => ($totalPaid > 0 && $alreadyRefunded) ? now() : null,
+        ]);
+
+        return back()->with('success', 'Pembatalan booking berhasil dikonfirmasi.');
+    }
+
+    public function rejectCancel($id)
+    {
+        $booking = \App\Models\Booking::whereNotNull('cancel_reason')
+            ->where('status', '!=', 'cancelled')
+            ->findOrFail($id);
+
+        $booking->update([
+            'cancel_reason' => null,
+            'cancel_bank_name' => null,
+            'cancel_account_number' => null,
+            'cancel_account_holder' => null,
+        ]);
+
+        return back()->with('success', 'Permintaan pembatalan ditolak.');
+    }
 }
