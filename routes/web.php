@@ -213,8 +213,8 @@ Route::prefix('admin')
 
         //Mark refund
         Route::post('/bookings/{id}/mark-refunded', [BookingController::class, 'markRefunded'])->name('bookings.mark_refunded');
-        Route::post('/bookings/{id}/confirm-cancel', [BookingController::class, 'confirmCancel'])->name('admin.bookings.confirm_cancel');
-        Route::post('/bookings/{id}/reject-cancel', [BookingController::class, 'rejectCancel'])->name('admin.bookings.reject_cancel');
+        Route::post('/bookings/{id}/confirm-cancel', [BookingController::class, 'confirmCancel'])->name('bookings.confirm_cancel');
+        Route::post('/bookings/{id}/reject-cancel', [BookingController::class, 'rejectCancel'])->name('bookings.reject_cancel');
 });
 
 require __DIR__.'/auth.php';
