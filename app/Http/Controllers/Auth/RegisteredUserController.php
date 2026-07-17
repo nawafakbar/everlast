@@ -32,14 +32,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => [
-                'required', 
-                'confirmed', 
-                \Illuminate\Validation\Rules\Password::min(8)
-                    ->mixedCase() // Wajib huruf besar & kecil
-                    ->numbers()   // Wajib angka
-                    ->symbols()   // Wajib simbol
-            ],
+            'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
         $user = User::create([

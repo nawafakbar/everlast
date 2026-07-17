@@ -148,7 +148,7 @@
                                 <input type="time" name="start_time" id="start_time" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
                             </div>
                             <div>
-                                <input type="time" name="end_time" id="end_time" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-500 cursor-not-allowed" title="Jam selesai otomatis dihitung berdasarkan paket" style="display:none;">
+                                <input type="time" name="end_time" id="end_time" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-500 cursor-not-allowed" title="Jam selesai otomatis dihitung berdasarkan paket">
                             </div>
                         </div>
 
@@ -156,8 +156,8 @@
                             <label for="event_location" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Lokasi Acara <span class="text-red-500">*</span></label>
                             <textarea name="event_location" id="event_location" rows="2" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Nama gedung, hotel, atau detail venue..."></textarea>
                             
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Acara</p>
-                            <div id="eventMap" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
+                            <p class="hidden text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Acara</p>
+                            <div id="eventMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                         </div>
 
                         <div id="location2_container" class="hidden pt-4 border-t border-gray-100 mt-4">

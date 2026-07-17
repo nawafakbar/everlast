@@ -14,6 +14,7 @@ use App\Http\Controllers\Freelancer\MomentController;
 use App\Http\Controllers\Freelancer\AssignmentController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerBookingController;
+use App\Http\Controllers\Freelancer\CashFlowController as FreelancerCashFlowController;
 use App\Models\Booking;
 use App\Models\Portfolio;
 use Carbon\Carbon;
@@ -159,6 +160,9 @@ Route::prefix('freelance')
         Route::put('/moments/{portfolio}', [MomentController::class, 'update'])->name('moments.update');
         Route::get('/schedules', [AssignmentController::class, 'index'])->name('schedules.index');
         Route::patch('/schedules/{assignment}/status', [AssignmentController::class, 'updateStatus'])->name('schedules.status');
+        Route::get('/cash-flows', [FreelancerCashFlowController::class, 'index'])->name('cash_flows.index');
+        Route::post('/cash-flows', [FreelancerCashFlowController::class, 'store'])->name('cash_flows.store');
+        Route::delete('/cash-flows/{cashFlow}', [FreelancerCashFlowController::class, 'destroy'])->name('cash_flows.destroy');
         
 });
 

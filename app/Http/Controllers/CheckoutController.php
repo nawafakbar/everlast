@@ -60,7 +60,7 @@ class CheckoutController extends Controller
 
         $request->validate([
             'payment_type' => 'required|in:dp,pelunasan',
-            'payment_method' => 'required|in:midtrans,manual_transfer,manual_qris',
+            'payment_method' => 'required|in:midtrans,manual_transfer,manual_qris,cash',
         ]);
 
         if ($totalPaid > 0 && $request->payment_type === 'dp') {

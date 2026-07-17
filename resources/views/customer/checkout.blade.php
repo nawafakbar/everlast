@@ -86,6 +86,7 @@
                                 <option value="midtrans">Otomatis (Virtual Account, Gopay, dll)</option>
                                 <option value="manual_transfer">Transfer Bank Manual (BCA/Mandiri)</option>
                                 <option value="manual_qris">QRIS Manual</option>
+                                <option value="cash">Bayar Cash / Tunai</option>
                             </select>
                         </div>
 
@@ -98,6 +99,11 @@
                             <div id="info_qris" class="hidden text-center">
                                 <img src="{{ asset('assets/images/qris_dummy.jpg') }}" alt="QRIS Everlast" class="w-40 h-40 mx-auto border border-gray-300 rounded-sm mb-2 object-cover">
                                 <p class="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Scan QRIS di atas</p>
+                            </div>
+
+                            <div id="info_cash" class="hidden text-xs text-gray-600 leading-relaxed text-center">
+                                Silakan lakukan pembayaran tunai langsung ke admin/kasir kami.<br>
+                                <strong class="text-black text-sm block mt-2">Upload bukti kwitansi / tanda terima pembayaran cash di bawah ini.</strong>
                             </div>
 
                             <div class="border-t border-gray-200 pt-4 mt-4">
@@ -126,6 +132,7 @@
     const proofInput = document.getElementById('proof_image');
     const form = document.getElementById('payment-form');
     const btnSubmit = document.getElementById('btn-submit');
+    const infoCash = document.getElementById('info_cash');
 
     // LOGIKA TAMPIL/SEMBUNYI METODE BAYAR
     paymentMethodSelect.addEventListener('change', function() {
@@ -135,13 +142,18 @@
         } else {
             manualArea.classList.remove('hidden');
             proofInput.setAttribute('required', 'required');
-            
+
+            // sembunyikan semua info dulu
+            infoTransfer.classList.add('hidden');
+            infoQris.classList.add('hidden');
+            infoCash.classList.add('hidden');
+
             if (this.value === 'manual_transfer') {
                 infoTransfer.classList.remove('hidden');
-                infoQris.classList.add('hidden');
-            } else {
-                infoTransfer.classList.add('hidden');
+            } else if (this.value === 'manual_qris') {
                 infoQris.classList.remove('hidden');
+            } else if (this.value === 'cash') {
+                infoCash.classList.remove('hidden');
             }
         }
     });

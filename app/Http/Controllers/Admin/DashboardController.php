@@ -16,7 +16,7 @@ class DashboardController extends Controller
 
         // 2. Total Revenue (Hanya dari status Lunas/Completed)
         // Kita loop dari relasi package untuk menjumlahkan harganya
-        $revenue = Booking::whereIn('status', ['paid_in_full', 'completed'])
+        $revenue = Booking::whereIn('status', ['paid', 'paid_in_full', 'completed'])
             ->with('package')->get()
             ->sum(function($booking) {
                 return $booking->package->price ?? 0;
