@@ -33,7 +33,7 @@
             </div>
 
             <div class="relative">
-                <input type="password" name="password" required placeholder="Password (Min. 8, Uppercase, Number, Symbol)" 
+                <input type="password" name="password" required placeholder="Password (Min. 8 Caracter)" 
                        class="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-sm text-gray-900 focus:ring-0 focus:border-black transition-colors placeholder-gray-400 font-serif-custom italic outline-none">
                 
                 <button type="button" onclick="togglePassword(this)" class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none">
