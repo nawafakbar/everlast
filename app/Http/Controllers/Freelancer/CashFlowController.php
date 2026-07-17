@@ -69,7 +69,7 @@ class CashFlowController extends Controller
     public function destroy(CashFlow $cashFlow)
     {
         // Pastikan cuma boleh hapus punya sendiri
-        abort_if($cashFlow->reference_id !== auth()->id(), 403);
+        abort_if((int) $cashFlow->reference_id !== auth()->id(), 403);
 
         $cashFlow->delete();
 
