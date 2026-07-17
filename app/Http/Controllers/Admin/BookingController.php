@@ -833,7 +833,7 @@ class BookingController extends Controller
     public function confirmCancel(Request $request, $id)
     {
         $booking = \App\Models\Booking::with(['payments', 'assignments'])
-            ->whereNotNull('cancel_reason')   // pastikan memang ada request cancel
+            ->whereNotNull('cancel_reason')
             ->where('status', '!=', 'cancelled')
             ->findOrFail($id);
 
@@ -850,7 +850,7 @@ class BookingController extends Controller
 
         foreach ($booking->assignments as $assignment) {
             \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
-            $assignment->update(['status' => 'rejected']);
+            $assignment->delete();   // <- hapus beneran, bukan cuma update status
         }
 
         if ($booking->google_calendar_id) {
@@ -860,7 +860,6 @@ class BookingController extends Controller
             } catch (\Exception $e) {}
         }
 
-        // Kalau admin sekalian ceklis "dana udah ditransfer" pas konfirmasi
         $alreadyRefunded = $request->boolean('mark_refunded');
 
         $booking->update([
