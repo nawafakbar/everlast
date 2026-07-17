@@ -195,6 +195,30 @@
                     </div>
                 </div>
 
+                <!-- Section: ADA REQUEST CANCEL, MASIH NUNGGU ADMIN KONFIRMASI -->
+                <div id="bModalCancelRequestSection" class="hidden pt-4 border-t border-gray-100 mt-4">
+                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-2">⚠️ Menunggu Konfirmasi Pembatalan</p>
+                    <p class="text-xs text-gray-600 mb-3"><strong>Alasan:</strong> <span id="bModalReqReason"></span></p>
+                    <p class="text-xs text-gray-600 mb-1">Rekening tujuan refund:</p>
+                    <p class="text-xs text-gray-800 mb-3"><span id="bModalReqBank"></span> — <span id="bModalReqAccNumber"></span> a.n. <span id="bModalReqAccHolder"></span></p>
+
+                    <div class="flex gap-2">
+                        <form id="confirmCancelForm" method="POST" onsubmit="return confirm('Yakin konfirmasi pembatalan booking ini? Payment & assignment terkait akan dibatalkan.');" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-700">
+                                Konfirmasi Cancel
+                            </button>
+                        </form>
+                        <form id="rejectCancelForm" method="POST" onsubmit="return confirm('Tolak permintaan pembatalan ini?');" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full bg-gray-200 text-gray-700 px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-gray-300">
+                                Tolak
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Section: BOOKING SUDAH CANCELLED, INFO REFUND -->
                 <div id="bModalRefundSection" class="hidden pt-4 border-t border-gray-100 mt-4">
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Info Pembatalan & Refund</p>
                     <p class="text-xs text-gray-600 mb-1"><strong>Alasan:</strong> <span id="bModalCancelReason"></span></p>
@@ -215,6 +239,31 @@
 
                     <div id="bModalRefundCompleted" class="hidden bg-green-50 border border-green-200 p-3 rounded-sm text-xs text-green-700 font-bold mt-3">
                         ✓ Refund selesai pada <span id="bModalRefundedAt"></span>
+                    </div>
+                </div>
+                <div id="bModalPrewedSection" class="hidden pt-4 border-t border-gray-100 mt-4 space-y-4">
+                    <div>
+                        <p class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-wider mb-1">Prewedding Schedule</p>
+                        <p class="text-sm text-gray-800"><i class="far fa-calendar-alt w-5 text-[#C9A66B]"></i> <span id="bModalPrewedDate"></span></p>
+                        <p class="text-sm text-gray-800 mt-1"><i class="far fa-clock w-5 text-[#C9A66B]"></i> <span id="bModalPrewedTime"></span></p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-wider mb-1">Prewedding Locations</p>
+                        <div class="text-sm text-gray-800 mb-2">
+                            <span class="font-medium">Venue 1:</span> 
+                            <span id="bModalPrewedLoc1" class="text-gray-600 block mt-1"></span>
+                            <a id="btnMapPrewed1" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                            </a>
+                        </div>
+                        <div id="bModalPrewedLoc2Container" class="text-sm text-gray-800 mt-1 hidden">
+                            <span class="font-medium">Venue 2:</span> 
+                            <span id="bModalPrewedLoc2" class="text-gray-600 block mt-1"></span>
+                            <a id="btnMapPrewed2" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -270,7 +319,22 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // SET INFO REFUND
+            // SECTION: REQUEST CANCEL MASIH PENDING (belum dikonfirmasi admin)
+            const cancelReqSection = document.getElementById('bModalCancelRequestSection');
+            if (row.dataset.has_cancel_request === '1') {
+                cancelReqSection.classList.remove('hidden');
+                document.getElementById('bModalReqReason').innerText = row.dataset.cancel_reason || '-';
+                document.getElementById('bModalReqBank').innerText = row.dataset.cancel_bank_name || '-';
+                document.getElementById('bModalReqAccNumber').innerText = row.dataset.cancel_account_number || '-';
+                document.getElementById('bModalReqAccHolder').innerText = row.dataset.cancel_account_holder || '-';
+
+                document.getElementById('confirmCancelForm').action = `/admin/bookings/${row.dataset.booking_id}/confirm-cancel`;
+                document.getElementById('rejectCancelForm').action = `/admin/bookings/${row.dataset.booking_id}/reject-cancel`;
+            } else {
+                cancelReqSection.classList.add('hidden');
+            }
+
+            // SECTION: BOOKING SUDAH CANCELLED (info refund)
             const refundSection = document.getElementById('bModalRefundSection');
             const refundPending = document.getElementById('bModalRefundPending');
             const refundCompleted = document.getElementById('bModalRefundCompleted');
