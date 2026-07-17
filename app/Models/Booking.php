@@ -15,7 +15,21 @@ class Booking extends Model
         'prewed_date', 'prewed_start_time', 'prewed_end_time',
         'status', 'event_location_2', 'event_lat_2', 'event_lng_2', 
         'event_location_3', 'event_lat_3', 'event_lng_3',
-        'google_calendar_id'
+        'google_calendar_id',
+
+        // Cancellation & Refund
+        'cancel_reason',
+        'cancel_bank_name',
+        'cancel_account_number',
+        'cancel_account_holder',
+        'cancelled_at',
+        'refund_status',
+        'refunded_at',
+    ];
+
+    protected $casts = [
+        'cancelled_at' => 'datetime',
+        'refunded_at' => 'datetime',
     ];
 
     // Relasi ke User (Pemesan)
