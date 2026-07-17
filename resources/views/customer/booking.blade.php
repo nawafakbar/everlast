@@ -123,9 +123,9 @@
                             <label for="couple_address" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Alamat Rumah <span class="text-red-500">*</span></label>
                             <textarea name="couple_address" id="couple_address" rows="3" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lengkap untuk koordinasi tim..."></textarea>
                             
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Rumah</p>
+                            <p class="hidden text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Rumah</p>
                             <div id="coupleMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
-                            <p class="text-[9px] text-gray-400 italic">Geser pin (marker) ke lokasi yang tepat.</p>
+                            <p class="hidden text-[9px] text-gray-400 italic">Geser pin (marker) ke lokasi yang tepat.</p>
                         </div>
                     </div>
 
