@@ -136,6 +136,11 @@
                                             <i class="fas fa-exclamation-triangle"></i>
                                         </span>
                                     @endif
+                                    @if($booking->status === 'cancelled' && in_array($booking->refund_status, ['pending', 'processing']))
+                                        <span title="Menunggu Refund" class="text-yellow-500">
+                                            <i class="fas fa-hand-holding-usd"></i>
+                                        </span>
+                                    @endif
                                     <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
