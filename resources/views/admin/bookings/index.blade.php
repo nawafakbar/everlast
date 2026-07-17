@@ -73,6 +73,13 @@
                             data-address="{{ $booking->couple_address }}" 
                             data-location="{{ $booking->event_location }}" 
                             data-status="{{ strtoupper(str_replace('_', ' ', $booking->status)) }}" 
+                            data-booking_id="{{ $booking->id }}"
+                            data-refund_status="{{ $booking->refund_status }}"
+                            data-cancel_reason="{{ $booking->cancel_reason }}"
+                            data-cancel_bank_name="{{ $booking->cancel_bank_name }}"
+                            data-cancel_account_number="{{ $booking->cancel_account_number }}"
+                            data-cancel_account_holder="{{ $booking->cancel_account_holder }}"
+                            data-refunded_at="{{ $booking->refunded_at?->translatedFormat('d F Y, H:i') }}" 
                             data-prewed_date="{{ $booking->prewed_date ? \Carbon\Carbon::parse($booking->prewed_date)->translatedFormat('d F Y') : '' }}" 
                             data-prewed_start_time="{{ $booking->prewed_start_time }}" 
                             data-prewed_end_time="{{ $booking->prewed_end_time }}" 
@@ -123,7 +130,11 @@
                                     <!-- <a href="{{ route('admin.bookings.checkout', $booking->id) }}" class="text-gray-400 hover:text-green-500 transition-colors" title="Test Payment">
                                         <i class="fas fa-credit-card"></i>
                                     </a> -->
-                                    
+                                    @if($booking->status === 'cancelled' && in_array($booking->refund_status, ['pending', 'processing']))
+                                        <span title="Menunggu Refund" class="text-yellow-500">
+                                            <i class="fas fa-hand-holding-usd"></i>
+                                        </span>
+                                    @endif
                                     <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
@@ -183,29 +194,26 @@
                     </div>
                 </div>
 
-                <div id="bModalPrewedSection" class="hidden pt-4 border-t border-gray-100 mt-4 space-y-4">
-                    <div>
-                        <p class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-wider mb-1">Prewedding Schedule</p>
-                        <p class="text-sm text-gray-800"><i class="far fa-calendar-alt w-5 text-[#C9A66B]"></i> <span id="bModalPrewedDate"></span></p>
-                        <p class="text-sm text-gray-800 mt-1"><i class="far fa-clock w-5 text-[#C9A66B]"></i> <span id="bModalPrewedTime"></span></p>
+                <div id="bModalRefundSection" class="hidden pt-4 border-t border-gray-100 mt-4">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Info Pembatalan & Refund</p>
+                    <p class="text-xs text-gray-600 mb-1"><strong>Alasan:</strong> <span id="bModalCancelReason"></span></p>
+
+                    <div id="bModalRefundPending" class="hidden bg-yellow-50 border border-yellow-200 p-4 rounded-sm mt-3">
+                        <p class="text-xs font-bold text-yellow-800 mb-2">Rekening Tujuan Refund</p>
+                        <p class="text-xs text-gray-700">Bank: <span id="bModalBankName"></span></p>
+                        <p class="text-xs text-gray-700">No. Rek: <span id="bModalAccountNumber"></span></p>
+                        <p class="text-xs text-gray-700 mb-3">A/N: <span id="bModalAccountHolder"></span></p>
+
+                        <form id="markRefundForm" method="POST" onsubmit="return confirm('Konfirmasi kamu sudah transfer dana ke rekening client?');">
+                            @csrf
+                            <button type="submit" class="bg-green-600 text-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-green-700 w-full">
+                                Tandai Refund Selesai
+                            </button>
+                        </form>
                     </div>
-                    
-                    <div>
-                        <p class="text-[10px] font-bold text-[#C9A66B] uppercase tracking-wider mb-1">Prewedding Locations</p>
-                        <div class="text-sm text-gray-800 mb-2">
-                            <span class="font-medium">Venue 1:</span> 
-                            <span id="bModalPrewedLoc1" class="text-gray-600 block mt-1"></span>
-                            <a id="btnMapPrewed1" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
-                                <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
-                            </a>
-                        </div>
-                        <div id="bModalPrewedLoc2Container" class="text-sm text-gray-800 mt-1 hidden">
-                            <span class="font-medium">Venue 2:</span> 
-                            <span id="bModalPrewedLoc2" class="text-gray-600 block mt-1"></span>
-                            <a id="btnMapPrewed2" target="_blank" class="hidden inline-flex items-center mt-1 text-blue-600 hover:text-blue-800 hover:underline text-[10px] font-bold uppercase tracking-wider">
-                                <i class="fas fa-map-marker-alt mr-1"></i> Buka Maps
-                            </a>
-                        </div>
+
+                    <div id="bModalRefundCompleted" class="hidden bg-green-50 border border-green-200 p-3 rounded-sm text-xs text-green-700 font-bold mt-3">
+                        ✓ Refund selesai pada <span id="bModalRefundedAt"></span>
                     </div>
                 </div>
             </div>
@@ -261,6 +269,34 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
+            // SET INFO REFUND
+            const refundSection = document.getElementById('bModalRefundSection');
+            const refundPending = document.getElementById('bModalRefundPending');
+            const refundCompleted = document.getElementById('bModalRefundCompleted');
+            const markRefundForm = document.getElementById('markRefundForm');
+
+            if (row.dataset.status.includes('CANCELLED')) {
+                refundSection.classList.remove('hidden');
+                document.getElementById('bModalCancelReason').innerText = row.dataset.cancel_reason || '-';
+
+                if (row.dataset.refund_status === 'pending' || row.dataset.refund_status === 'processing') {
+                    refundPending.classList.remove('hidden');
+                    refundCompleted.classList.add('hidden');
+                    document.getElementById('bModalBankName').innerText = row.dataset.cancel_bank_name;
+                    document.getElementById('bModalAccountNumber').innerText = row.dataset.cancel_account_number;
+                    document.getElementById('bModalAccountHolder').innerText = row.dataset.cancel_account_holder;
+                    markRefundForm.action = `/admin/bookings/${row.dataset.booking_id}/mark-refunded`;
+                } else if (row.dataset.refund_status === 'completed') {
+                    refundPending.classList.add('hidden');
+                    refundCompleted.classList.remove('hidden');
+                    document.getElementById('bModalRefundedAt').innerText = row.dataset.refunded_at;
+                } else {
+                    refundPending.classList.add('hidden');
+                    refundCompleted.classList.add('hidden');
+                }
+            } else {
+                refundSection.classList.add('hidden');
+            }
             const prewedSection = document.getElementById('bModalPrewedSection');
             
             // Cek kalau ada data prewed_date (paket All In)

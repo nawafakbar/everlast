@@ -813,4 +813,20 @@ class BookingController extends Controller
             ->with('success', 'Pembayaran ditandai tidak valid & pesan siap dikirim ke client.')
             ->with('wa_link', $waLink);
     }
+
+    public function markRefunded($id)
+    {
+        $booking = \App\Models\Booking::where('status', 'cancelled')->findOrFail($id);
+
+        if ($booking->refund_status !== 'pending' && $booking->refund_status !== 'processing') {
+            return back()->with('error', 'Refund untuk booking ini sudah selesai atau tidak berlaku.');
+        }
+
+        $booking->update([
+            'refund_status' => 'completed',
+            'refunded_at' => now(),
+        ]);
+
+        return back()->with('success', 'Refund berhasil ditandai selesai.');
+    }
 }

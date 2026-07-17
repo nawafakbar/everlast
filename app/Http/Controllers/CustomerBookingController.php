@@ -169,7 +169,18 @@ class CustomerBookingController extends Controller
             } catch (\Exception $e) {}
         }
 
-        $booking->update(['status' => 'cancelled', 'google_calendar_id' => null]);
+        $booking->update([
+            'status' => 'cancelled',
+            'google_calendar_id' => null,
+            'cancel_reason' => $validated['reason'],
+            'cancel_bank_name' => $validated['bank_name'],
+            'cancel_account_number' => $validated['account_number'],
+            'cancel_account_holder' => $validated['account_holder'],
+            'cancelled_at' => now(),
+            // Kalau ada uang yang udah dibayar, berarti perlu direfund
+            // Kalau belum bayar sama sekali (misal masih 'pending'), nggak perlu refund
+            'refund_status' => $totalPaid > 0 ? 'pending' : null,
+        ]);
 
         $proofText = $dpProof
             ? asset('storage/' . $dpProof->proof_image)
@@ -187,7 +198,6 @@ class CustomerBookingController extends Controller
             . "Bank: {$validated['bank_name']}\n"
             . "No. Rek: {$validated['account_number']}\n"
             . "A/N: {$validated['account_holder']}";
-
 
         // Kirim notifikasi email ke admin
         $admin = User::where('role', 'admin')->first();

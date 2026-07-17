@@ -45,6 +45,15 @@
                             <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full {{ $statusClass }}">
                                 {{ $booking->status }}
                             </span>
+                            @if($booking->status === 'cancelled' && in_array($booking->refund_status, ['pending', 'processing']))
+                            <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                <i class="fas fa-clock mr-1"></i> Refund Diproses
+                            </span>
+                        @elseif($booking->status === 'cancelled' && $booking->refund_status === 'completed')
+                            <span class="px-3 py-1 text-[9px] font-bold tracking-wider uppercase rounded-full bg-green-50 text-green-700 border border-green-200">
+                                <i class="fas fa-check-circle mr-1"></i> Refund Selesai
+                            </span>
+                        @endif
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-xs text-gray-500">
                             <p class="flex items-center"><i class="far fa-calendar-alt w-5 text-gray-400"></i> 
@@ -188,6 +197,29 @@
                                     </div>
                                 </div>
                                 @endif
+                                @if($booking->status === 'cancelled')
+                                <div class="pt-2 border-t border-gray-50">
+                                    <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-900 mb-3 border-b border-gray-100 pb-2">Info Pembatalan & Refund</h4>
+                                    <div class="space-y-3 text-sm text-gray-600">
+                                        <p><strong class="font-semibold text-gray-800">Alasan:</strong> {{ $booking->cancel_reason }}</p>
+                                        <p><strong class="font-semibold text-gray-800">Dibatalkan pada:</strong> {{ $booking->cancelled_at?->translatedFormat('d F Y, H:i') }}</p>
+
+                                        @if(in_array($booking->refund_status, ['pending', 'processing']))
+                                            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-sm">
+                                                <p class="text-xs font-bold text-yellow-800 mb-2"><i class="fas fa-clock mr-1"></i> Refund sedang diproses admin</p>
+                                                <p class="text-xs text-gray-600">Dana akan dikirim ke:</p>
+                                                <p class="text-xs text-gray-800 mt-1">{{ $booking->cancel_bank_name }} — {{ $booking->cancel_account_number }} a.n. {{ $booking->cancel_account_holder }}</p>
+                                            </div>
+                                        @elseif($booking->refund_status === 'completed')
+                                            <div class="bg-green-50 border border-green-200 p-4 rounded-sm">
+                                                <p class="text-xs font-bold text-green-700">
+                                                    <i class="fas fa-check-circle mr-1"></i> Refund selesai pada {{ $booking->refunded_at?->translatedFormat('d F Y, H:i') }}
+                                                </p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                                 
                             </div>
 

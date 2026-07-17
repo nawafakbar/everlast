@@ -210,6 +210,9 @@ Route::prefix('admin')
         //Send Delivery Result
         Route::get('bookings/{id}/delivery', [BookingController::class, 'showDelivery'])->name('bookings.delivery');
         Route::post('bookings/{id}/delivery', [BookingController::class, 'sendDelivery'])->name('bookings.delivery.store');
+
+        //Mark refund
+        Route::post('/bookings/{id}/mark-refunded', [BookingController::class, 'markRefunded'])->name('bookings.mark_refunded');
 });
 
 require __DIR__.'/auth.php';
