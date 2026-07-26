@@ -129,7 +129,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" id="coupleLocationSearch" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
                                     <button type="button" id="coupleGeoBtn" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
-                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                        <i class="fas fa-location-crosshairs mr-1"></i>
                                     </button>
                                 </div>
                                 <div id="coupleLocationSuggestions" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
@@ -173,7 +173,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" id="eventLocationSearch" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
                                     <button type="button" id="eventGeoBtn" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
-                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                        <i class="fas fa-location-crosshairs mr-1"></i>
                                     </button>
                                 </div>
                                 <div id="eventLocationSuggestions" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
@@ -192,7 +192,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" id="eventLocationSearch2" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
                                     <button type="button" id="eventGeoBtn2" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
-                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                        <i class="fas fa-location-crosshairs mr-1"></i>
                                     </button>
                                 </div>
                                 <div id="eventLocationSuggestions2" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
@@ -214,7 +214,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" id="eventLocationSearch3" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
                                     <button type="button" id="eventGeoBtn3" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
-                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                        <i class="fas fa-location-crosshairs mr-1"></i>
                                     </button>
                                 </div>
                                 <div id="eventLocationSuggestions3" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
@@ -316,7 +316,7 @@
     let eventMap3, eventMarker3;
 
     // ==========================================
-    // HELPER: Cari Alamat (Nominatim/OSM) + Gunakan Lokasi Saya (Geolocation)
+    // HELPER: Cari Alamat (Nominatim/OSM) + Gunakan (Geolocation)
     // Reusable buat semua peta (rumah, acara utama, lokasi ke-2, ke-3)
     // ==========================================
     function setupLocationTools({ map, marker, latInputId, lngInputId, searchInputId, suggestionsId, geoBtnId }) {
