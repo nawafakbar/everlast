@@ -135,6 +135,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('payments/{id}/reject', [BookingController::class, 'rejectPayment'])->name('payments.reject');
     Route::get('/booking/{id}/cancel', [CustomerBookingController::class, 'cancelForm'])->name('customer.bookings.cancel');
     Route::post('/booking/{id}/cancel', [CustomerBookingController::class, 'cancelStore'])->name('customer.bookings.cancel.store');
+    Route::get('/booking/available-slots', [CustomerBookingController::class, 'availableSlots'])->name('customer.booking.available-slots');
 
     // Route list packages
     Route::get('/packages', [CustomerBookingController::class, 'packages'])->name('customer.packages');

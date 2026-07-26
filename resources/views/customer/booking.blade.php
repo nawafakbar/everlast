@@ -116,12 +116,12 @@
 
                         <div>
                             <label for="partner_name" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Nama Pasangan <span class="text-red-500">*</span></label>
-                            <input type="text" name="partner_name" id="partner_name" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm" placeholder="Contoh: Jane Doe">
+                            <input type="text" name="partner_name" id="partner_name" value="{{ old('partner_name') }}" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm" placeholder="Contoh: Jane Doe">
                         </div>
 
                         <div>
                             <label for="couple_address" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Alamat Rumah <span class="text-red-500">*</span></label>
-                            <textarea name="couple_address" id="couple_address" rows="3" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lengkap untuk koordinasi tim..."></textarea>
+                            <textarea name="couple_address" id="couple_address" rows="3" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lengkap untuk koordinasi tim...">{{ old('couple_address') }}</textarea>
                             
                             <p class="hidden text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Rumah</p>
                             <div id="coupleMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
@@ -135,7 +135,7 @@
                         <div>
                             <label for="booking_date" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Tanggal Acara <span class="text-red-500">*</span></label>
                             <div class="flex gap-2">
-                                <input type="date" name="booking_date" min="{{ \Carbon\Carbon::today()->toDateString() }}" id="booking_date" required class="flex-1 px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
+                                <input type="date" name="booking_date" min="{{ \Carbon\Carbon::today()->toDateString() }}" id="booking_date" value="{{ old('booking_date') }}" required class="flex-1 px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
                                 <button type="button" onclick="openCalendarModal('booking_date')" class="px-6 py-3 bg-gray-100 border border-gray-300 text-gray-900 rounded-sm text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors whitespace-nowrap shadow-sm">
                                     <i class="far fa-calendar-alt mr-1"></i> Cek Jadwal
                                 </button>
@@ -145,16 +145,16 @@
                         <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label for="start_time" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Jam Mulai <span class="text-red-500">*</span></label>
-                                <input type="time" name="start_time" id="start_time" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
+                                <input type="time" name="start_time" id="start_time" value="{{ old('start_time') }}" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm text-gray-700 cursor-pointer">
                             </div>
                             <div>
-                                <input type="time" name="end_time" id="end_time" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-500 cursor-not-allowed" title="Jam selesai otomatis dihitung berdasarkan paket">
+                                <input type="time" name="end_time" id="end_time" value="{{ old('end_time') }}" required readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none text-sm text-gray-500 cursor-not-allowed" title="Jam selesai otomatis dihitung berdasarkan paket">
                             </div>
                         </div>
 
                         <div>
                             <label for="event_location" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Lokasi Acara <span class="text-red-500">*</span></label>
-                            <textarea name="event_location" id="event_location" rows="2" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Nama gedung, hotel, atau detail venue..."></textarea>
+                            <textarea name="event_location" id="event_location" rows="2" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Nama gedung, hotel, atau detail venue...">{{ old('event_location') }}</textarea>
                             
                             <p class="hidden text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Acara</p>
                             <div id="eventMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
@@ -162,7 +162,7 @@
 
                         <div id="location2_container" class="hidden pt-4 border-t border-gray-100 mt-4">
                             <label for="event_location_2" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Lokasi Acara Ke-2 (Prewedding)</label>
-                            <textarea name="event_location_2" id="event_location_2" rows="2" class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lokasi kedua..."></textarea>
+                            <textarea name="event_location_2" id="event_location_2" rows="2" class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lokasi kedua...">{{ old('event_location_2') }}</textarea>
 
                             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Ke-2</p>
                             <div id="eventMap2" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
@@ -249,6 +249,14 @@
                     <div class="flex items-center gap-2"><div class="w-3 h-3 bg-black/20 rounded-full"></div><span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Partially</span></div>
                 </div>
                 <div id='customerCalendar'></div>
+                <div id="slotsPanel" class="hidden mt-6 pt-6 border-t border-gray-100">
+                    <h4 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-1">
+                        Jam Tersedia — <span id="slotsPanelDate" class="text-[#C9A66B]"></span>
+                    </h4>
+                    <p class="text-[9px] text-gray-400 italic mb-3">Klik salah satu rentang jam untuk langsung mengisi Jam Mulai.</p>
+                    <div id="slotsList" class="flex flex-wrap gap-2"></div>
+                    <p id="slotsEmptyMsg" class="hidden text-xs text-gray-400 italic">Maaf, tidak ada slot jam kosong di tanggal ini (jam operasional 08:00 - 17:00).</p>
+                </div>
             </div>
         </div>
     </div>
@@ -256,6 +264,7 @@
 
 <script>
     const packagesData = @json($packages);
+    const oldInput = @json($errors->any() ? old() : []);
     let currentDuration = 0;
     let map2Initialized = false;
     let eventMap2, eventMarker2;
@@ -319,10 +328,12 @@
                 pDate.required = false;
                 pStart.required = false;
                 pEnd.required = false;
-                // Kosongkan valuenya
-                pDate.value = '';
-                pStart.value = '';
-                pEnd.value = '';
+                // Kosongkan valuenya (kecuali lagi restore data lama)
+                if (!oldInput.category) {
+                    pDate.value = '';
+                    pStart.value = '';
+                    pEnd.value = '';
+                }
             }
         });
         const startTimeInput = document.getElementById('start_time');
@@ -549,6 +560,22 @@
             }
         }
 
+        // Restore kategori & paket dari data lama (submit gagal karena bentrok jadwal)
+        if (oldInput.category) {
+            categorySelect.value = oldInput.category;
+            categorySelect.dispatchEvent(new Event('change'));
+
+            setTimeout(() => {
+                if (oldInput.package_id) {
+                    packageSelect.value = oldInput.package_id;
+                    packageSelect.dispatchEvent(new Event('change'));
+                }
+                if (oldInput.prewed_date) document.getElementById('prewed_date').value = oldInput.prewed_date;
+                if (oldInput.prewed_start_time) document.getElementById('prewed_start_time').value = oldInput.prewed_start_time;
+                if (oldInput.prewed_end_time) document.getElementById('prewed_end_time').value = oldInput.prewed_end_time;
+            }, 150);
+        }
+
         setTimeout(function(){ coupleMap.invalidateSize(); eventMap.invalidateSize(); }, 500);
     });
 
@@ -563,6 +590,7 @@
         const modal = document.getElementById('calendarModal');
         modal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
+        document.getElementById('slotsPanel').classList.add('hidden');
 
         if (!calendarInitialized) {
             setTimeout(() => {
@@ -601,15 +629,18 @@
                             return;
                         }
 
-                        const availableEvent = allEvents.find(event => event.startStr === info.dateStr && event.title === 'Partially');
-                        
-                        if (availableEvent) {
-                            alert('TIPS: Tanggal ini sudah terisi sebagian (' + availableEvent.extendedProps.description + ').\n\nPastikan Anda mengatur Jam Mulai acara yang tidak bentrok dengan sesi tersebut ya!');
-                        }
-
                         // INJEK TANGGAL KE INPUT YANG BENAR (Bisa booking_date, bisa prewed_date)
                         document.getElementById(currentTargetInput).value = info.dateStr;
-                        closeCalendarModal();
+
+                        const isPartial = allEvents.some(event => event.startStr === info.dateStr && event.title === 'Partially');
+
+                        if (isPartial) {
+                            // Tanggal sudah ada isinya -> tampilkan list jam yang masih kosong
+                            showAvailableSlots(info.dateStr);
+                        } else {
+                            document.getElementById('slotsPanel').classList.add('hidden');
+                            closeCalendarModal();
+                        }
                     }
                 });
                 customerCalendar.render();
@@ -618,10 +649,53 @@
         }
     }
 
+    function showAvailableSlots(dateStr) {
+        const panel = document.getElementById('slotsPanel');
+        const list = document.getElementById('slotsList');
+        const emptyMsg = document.getElementById('slotsEmptyMsg');
+        const dateLabel = document.getElementById('slotsPanelDate');
+
+        dateLabel.innerText = dateStr;
+        list.innerHTML = '<p class="text-xs text-gray-400 italic">Memuat jam tersedia...</p>';
+        emptyMsg.classList.add('hidden');
+        panel.classList.remove('hidden');
+
+        fetch(`{{ route('customer.booking.available-slots') }}?date=${dateStr}`)
+            .then(res => res.json())
+            .then(data => {
+                list.innerHTML = '';
+
+                if (!data.free || data.free.length === 0) {
+                    emptyMsg.classList.remove('hidden');
+                    return;
+                }
+
+                data.free.forEach(slot => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'px-4 py-2 bg-[#FDFBF7] border border-[#C9A66B] text-gray-800 text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-[#C9A66B] hover:text-white transition-colors';
+                    btn.innerText = `${slot.start} - ${slot.end}`;
+                    btn.addEventListener('click', () => {
+                        const startFieldId = (currentTargetInput === 'prewed_date') ? 'prewed_start_time' : 'start_time';
+                        const startInput = document.getElementById(startFieldId);
+                        startInput.value = slot.start;
+                        startInput.dispatchEvent(new Event('input'));
+                        closeCalendarModal();
+                    });
+                    list.appendChild(btn);
+                });
+            })
+            .catch(() => {
+                list.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+            });
+    }
+
     function closeCalendarModal() {
         const modal = document.getElementById('calendarModal');
         modal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
+        document.getElementById('slotsPanel').classList.add('hidden');
     }
 </script>
 @endsection

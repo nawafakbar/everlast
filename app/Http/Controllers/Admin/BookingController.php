@@ -816,7 +816,9 @@ class BookingController extends Controller
 
     public function markRefunded($id)
     {
-        $booking = \App\Models\Booking::where('status', 'cancelled')->findOrFail($id);
+        $booking = \App\Models\Booking::with(['user', 'package', 'payments'])
+            ->where('status', 'cancelled')
+            ->findOrFail($id);
 
         if ($booking->refund_status !== 'pending' && $booking->refund_status !== 'processing') {
             return back()->with('error', 'Refund untuk booking ini sudah selesai atau tidak berlaku.');
@@ -827,7 +829,36 @@ class BookingController extends Controller
             'refunded_at' => now(),
         ]);
 
-        return back()->with('success', 'Refund berhasil ditandai selesai.');
+        $clientName = $booking->user->name;
+        $totalRefunded = $booking->payments->where('status', 'success')->sum('amount');
+
+        $message = "Halo {$clientName},\n\n"
+            . "Refund untuk booking Anda (Paket: " . ($booking->package->name ?? '-') . ") telah *selesai kami proses* ke rekening berikut:\n"
+            . "Bank: " . ($booking->cancel_bank_name ?? '-') . "\n"
+            . "No. Rek: " . ($booking->cancel_account_number ?? '-') . "\n"
+            . "A/N: " . ($booking->cancel_account_holder ?? '-') . "\n"
+            . "Jumlah: Rp " . number_format($totalRefunded, 0, ',', '.') . "\n\n"
+            . "Mohon ditunggu, bukti transfer akan kami kirimkan menyusul di chat ini ya.\n\n"
+            . "Terima kasih,\nTim Everlast";
+
+        // Format nomor HP client (pola sama kayak rejectPayment)
+        $phone = preg_replace('/\D/', '', $booking->user->phone ?? '');
+
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        } elseif (!str_starts_with($phone, '62')) {
+            $phone = '62' . $phone;
+        }
+
+        if (empty($phone) || strlen($phone) < 10) {
+            return back()->with('success', 'Refund berhasil ditandai selesai, tapi nomor HP client tidak valid — kirim konfirmasi manual ya.');
+        }
+
+        $waLink = "https://wa.me/{$phone}?text=" . urlencode($message);
+
+        return back()
+            ->with('success', 'Refund berhasil ditandai selesai. Anda akan diarahkan ke WhatsApp untuk kirim konfirmasi ke client.')
+            ->with('wa_link', $waLink);
     }
 
     public function confirmCancel(Request $request, $id)

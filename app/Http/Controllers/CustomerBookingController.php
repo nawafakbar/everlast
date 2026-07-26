@@ -114,6 +114,82 @@ class CustomerBookingController extends Controller
         return redirect()->route('customer.checkout', $booking->id);
     }
 
+    // ==========================================
+    // LIST JAM TERSEDIA UNTUK TANGGAL TERTENTU
+    // ==========================================
+    public function availableSlots(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+        ]);
+
+        $date = $request->query('date');
+
+        $workStart = '08:00';
+        $workEnd = '17:00';
+
+        $bookings = Booking::whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])
+            ->where(function ($q) use ($date) {
+                $q->whereDate('booking_date', $date)
+                  ->orWhereDate('prewed_date', $date);
+            })
+            ->get();
+
+        $busy = [];
+
+        foreach ($bookings as $booking) {
+            if ($booking->booking_date && \Carbon\Carbon::parse($booking->booking_date)->format('Y-m-d') === $date) {
+                $busy[] = [
+                    'start' => substr($booking->start_time, 0, 5),
+                    'end' => substr($booking->end_time, 0, 5),
+                ];
+            }
+
+            if ($booking->prewed_date && \Carbon\Carbon::parse($booking->prewed_date)->format('Y-m-d') === $date) {
+                $busy[] = [
+                    'start' => substr($booking->prewed_start_time, 0, 5),
+                    'end' => substr($booking->prewed_end_time, 0, 5),
+                ];
+            }
+        }
+
+        usort($busy, fn ($a, $b) => strcmp($a['start'], $b['start']));
+
+        $mergedBusy = [];
+        foreach ($busy as $slot) {
+            $last = count($mergedBusy) - 1;
+            if ($last >= 0 && $slot['start'] <= $mergedBusy[$last]['end']) {
+                $mergedBusy[$last]['end'] = max($mergedBusy[$last]['end'], $slot['end']);
+            } else {
+                $mergedBusy[] = $slot;
+            }
+        }
+
+        $free = [];
+        $cursor = $workStart;
+
+        foreach ($mergedBusy as $slot) {
+            if ($slot['start'] > $cursor) {
+                $free[] = ['start' => $cursor, 'end' => $slot['start']];
+            }
+            if ($slot['end'] > $cursor) {
+                $cursor = $slot['end'];
+            }
+        }
+
+        if ($cursor < $workEnd) {
+            $free[] = ['start' => $cursor, 'end' => $workEnd];
+        }
+
+        return response()->json([
+            'date' => $date,
+            'busy' => $mergedBusy,
+            'free' => $free,
+            'work_start' => $workStart,
+            'work_end' => $workEnd,
+        ]);
+    }
+
     public function cancelForm($id)
     {
         $booking = \App\Models\Booking::with('payments')
