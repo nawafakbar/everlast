@@ -252,10 +252,10 @@
                             <p class="text-[9px] text-gray-400 italic mt-3">*Sesuai rules, sesi prewedding berlangsung maksimal 6 jam.</p>
                         </div>
                         
-                        <input name="couple_lat" id="couple_lat" value="{{ old('couple_lat', '-6.200000') }}">
-                        <input name="couple_lng" id="couple_lng" value="{{ old('couple_lng', '106.816666') }}">
-                        <input name="event_lat" id="event_lat" value="{{ old('event_lat', '-6.200000') }}">
-                        <input name="event_lng" id="event_lng" value="{{ old('event_lng', '106.816666') }}">
+                        <input type="hidden" name="couple_lat" id="couple_lat" value="{{ old('couple_lat', '-6.200000') }}">
+                        <input type="hidden" name="couple_lng" id="couple_lng" value="{{ old('couple_lng', '106.816666') }}">
+                        <input type="hidden" name="event_lat" id="event_lat" value="{{ old('event_lat', '-6.200000') }}">
+                        <input type="hidden" name="event_lng" id="event_lng" value="{{ old('event_lng', '106.816666') }}">
                     </div>
                 </div>
 
