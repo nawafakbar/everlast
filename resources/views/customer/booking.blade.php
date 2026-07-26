@@ -398,6 +398,11 @@
                         alert('Gagal mengambil lokasi. Pastikan izin lokasi (GPS) sudah diaktifkan di browser Anda.');
                         geoBtn.disabled = false;
                         geoBtn.innerHTML = originalText;
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,        // <-- kasih batas waktu 10 detik
+                        maximumAge: 0
                     }
                 );
             });
