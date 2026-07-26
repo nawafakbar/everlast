@@ -135,7 +135,7 @@
                                 <div id="coupleLocationSuggestions" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
                             </div>
 
-                            <div id="coupleMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
+                            <div id="coupleMap" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                             <p class="text-[9px] text-gray-400 italic">Geser pin (marker) ke lokasi yang tepat.</p>
                         </div>
                     </div>
@@ -179,7 +179,7 @@
                                 <div id="eventLocationSuggestions" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
                             </div>
 
-                            <div id="eventMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
+                            <div id="eventMap" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                         </div>
 
                         <div id="location2_container" class="pt-4 border-t border-gray-100 mt-4">
@@ -200,8 +200,8 @@
 
                             <div id="eventMap2" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                             
-                            <input name="event_lat_2" id="event_lat_2" value="{{ old('event_lat_2', '-6.200000') }}">
-                            <input name="event_lng_2" id="event_lng_2" value="{{ old('event_lng_2', '106.816666') }}">
+                            <input type="hidden" name="event_lat_2" id="event_lat_2" value="{{ old('event_lat_2', '-6.200000') }}">
+                            <input type="hidden" name="event_lng_2" id="event_lng_2" value="{{ old('event_lng_2', '106.816666') }}">
                         </div>
 
                         <div id="location3_container" class="hidden pt-4 border-t border-gray-100 mt-4">
@@ -222,8 +222,8 @@
 
                             <div id="eventMap3" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                             
-                            <input name="event_lat_3" id="event_lat_3" value="{{ old('event_lat_3', '-6.200000') }}">
-                            <input name="event_lng_3" id="event_lng_3" value="{{ old('event_lng_3', '106.816666') }}">
+                            <input type="hidden" name="event_lat_3" id="event_lat_3" value="{{ old('event_lat_3', '-6.200000') }}">
+                            <input type="hidden" name="event_lng_3" id="event_lng_3" value="{{ old('event_lng_3', '106.816666') }}">
                         </div>
 
                         <div id="prewed_container" class="hidden pt-6 border-t border-gray-100 mt-6 bg-[#fcfaf5] -mx-4 px-4 py-4 rounded-sm border border-[#EBE6DD]">
