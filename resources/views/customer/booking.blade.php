@@ -124,6 +124,17 @@
                             <textarea name="couple_address" id="couple_address" rows="3" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lengkap untuk koordinasi tim...">{{ old('couple_address') }}</textarea>
                             
                             <p class="hidden text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Rumah</p>
+
+                            <div class="hidden relative mb-2">
+                                <div class="flex gap-2">
+                                    <input type="text" id="coupleLocationSearch" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
+                                    <button type="button" id="coupleGeoBtn" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
+                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                    </button>
+                                </div>
+                                <div id="coupleLocationSuggestions" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+                            </div>
+
                             <div id="coupleMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                             <p class="hidden text-[9px] text-gray-400 italic">Geser pin (marker) ke lokasi yang tepat.</p>
                         </div>
@@ -157,6 +168,17 @@
                             <textarea name="event_location" id="event_location" rows="2" required class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Nama gedung, hotel, atau detail venue...">{{ old('event_location') }}</textarea>
                             
                             <p class="hidden text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Acara</p>
+
+                            <div class="hidden relative mb-2">
+                                <div class="flex gap-2">
+                                    <input type="text" id="eventLocationSearch" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
+                                    <button type="button" id="eventGeoBtn" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
+                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                    </button>
+                                </div>
+                                <div id="eventLocationSuggestions" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+                            </div>
+
                             <div id="eventMap" class="hidden h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                         </div>
 
@@ -165,21 +187,43 @@
                             <textarea name="event_location_2" id="event_location_2" rows="2" class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lokasi kedua...">{{ old('event_location_2') }}</textarea>
 
                             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Ke-2</p>
+
+                            <div class="relative mb-2">
+                                <div class="flex gap-2">
+                                    <input type="text" id="eventLocationSearch2" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
+                                    <button type="button" id="eventGeoBtn2" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
+                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                    </button>
+                                </div>
+                                <div id="eventLocationSuggestions2" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+                            </div>
+
                             <div id="eventMap2" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                             
-                            <input type="hidden" name="event_lat_2" id="event_lat_2" value="-6.200000">
-                            <input type="hidden" name="event_lng_2" id="event_lng_2" value="106.816666">
+                            <input name="event_lat_2" id="event_lat_2" value="{{ old('event_lat_2', '-6.200000') }}">
+                            <input name="event_lng_2" id="event_lng_2" value="{{ old('event_lng_2', '106.816666') }}">
                         </div>
 
                         <div id="location3_container" class="hidden pt-4 border-t border-gray-100 mt-4">
                             <label for="event_location_3" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Lokasi Acara Ke-3 (Prewedding Eksklusif)</label>
-                            <textarea name="event_location_3" id="event_location_3" rows="2" class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lokasi ketiga..."></textarea>
+                            <textarea name="event_location_3" id="event_location_3" rows="2" class="w-full px-4 py-3 bg-transparent border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black transition-colors text-sm mb-2" placeholder="Alamat lokasi ketiga...">{{ old('event_location_3') }}</textarea>
 
                             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Pin Lokasi Ke-3</p>
+
+                            <div class="relative mb-2">
+                                <div class="flex gap-2">
+                                    <input type="text" id="eventLocationSearch3" placeholder="Cari alamat/tempat..." autocomplete="off" class="flex-1 px-3 py-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black">
+                                    <button type="button" id="eventGeoBtn3" class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-sm text-[10px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-200 whitespace-nowrap">
+                                        <i class="fas fa-location-crosshairs mr-1"></i> Lokasi Saya
+                                    </button>
+                                </div>
+                                <div id="eventLocationSuggestions3" class="hidden absolute z-20 top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg mt-1 max-h-48 overflow-y-auto"></div>
+                            </div>
+
                             <div id="eventMap3" class="h-48 w-full rounded-sm border border-gray-200 mb-1 z-10"></div>
                             
-                            <input type="hidden" name="event_lat_3" id="event_lat_3" value="-6.200000">
-                            <input type="hidden" name="event_lng_3" id="event_lng_3" value="106.816666">
+                            <input name="event_lat_3" id="event_lat_3" value="{{ old('event_lat_3', '-6.200000') }}">
+                            <input name="event_lng_3" id="event_lng_3" value="{{ old('event_lng_3', '106.816666') }}">
                         </div>
 
                         <div id="prewed_container" class="hidden pt-6 border-t border-gray-100 mt-6 bg-[#fcfaf5] -mx-4 px-4 py-4 rounded-sm border border-[#EBE6DD]">
@@ -208,10 +252,10 @@
                             <p class="text-[9px] text-gray-400 italic mt-3">*Sesuai rules, sesi prewedding berlangsung maksimal 6 jam.</p>
                         </div>
                         
-                        <input type="hidden" name="couple_lat" id="couple_lat" value="-6.200000">
-                        <input type="hidden" name="couple_lng" id="couple_lng" value="106.816666">
-                        <input type="hidden" name="event_lat" id="event_lat" value="-6.200000">
-                        <input type="hidden" name="event_lng" id="event_lng" value="106.816666">
+                        <input name="couple_lat" id="couple_lat" value="{{ old('couple_lat', '-6.200000') }}">
+                        <input name="couple_lng" id="couple_lng" value="{{ old('couple_lng', '106.816666') }}">
+                        <input name="event_lat" id="event_lat" value="{{ old('event_lat', '-6.200000') }}">
+                        <input name="event_lng" id="event_lng" value="{{ old('event_lng', '106.816666') }}">
                     </div>
                 </div>
 
@@ -270,6 +314,95 @@
     let eventMap2, eventMarker2;
     let map3Initialized = false;
     let eventMap3, eventMarker3;
+
+    // ==========================================
+    // HELPER: Cari Alamat (Nominatim/OSM) + Gunakan Lokasi Saya (Geolocation)
+    // Reusable buat semua peta (rumah, acara utama, lokasi ke-2, ke-3)
+    // ==========================================
+    function setupLocationTools({ map, marker, latInputId, lngInputId, searchInputId, suggestionsId, geoBtnId }) {
+        const searchInput = document.getElementById(searchInputId);
+        const suggestionsBox = document.getElementById(suggestionsId);
+        const geoBtn = document.getElementById(geoBtnId);
+        let debounceTimer;
+
+        function moveTo(lat, lng, zoom = 16) {
+            const ll = [parseFloat(lat), parseFloat(lng)];
+            marker.setLatLng(ll);
+            map.setView(ll, zoom);
+            document.getElementById(latInputId).value = ll[0];
+            document.getElementById(lngInputId).value = ll[1];
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const q = this.value.trim();
+                if (q.length < 3) {
+                    suggestionsBox.innerHTML = '';
+                    suggestionsBox.classList.add('hidden');
+                    return;
+                }
+                debounceTimer = setTimeout(() => {
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=id&q=${encodeURIComponent(q)}`, {
+                        headers: { 'Accept-Language': 'id' }
+                    })
+                    .then(res => res.json())
+                    .then(results => {
+                        suggestionsBox.innerHTML = '';
+                        if (!results.length) {
+                            suggestionsBox.classList.add('hidden');
+                            return;
+                        }
+                        results.forEach(r => {
+                            const item = document.createElement('div');
+                            item.className = 'px-3 py-2 text-xs text-gray-700 hover:bg-[#FDFBF7] cursor-pointer border-b border-gray-100 last:border-0';
+                            item.innerText = r.display_name;
+                            item.addEventListener('click', () => {
+                                moveTo(r.lat, r.lon);
+                                searchInput.value = r.display_name;
+                                suggestionsBox.innerHTML = '';
+                                suggestionsBox.classList.add('hidden');
+                            });
+                            suggestionsBox.appendChild(item);
+                        });
+                        suggestionsBox.classList.remove('hidden');
+                    })
+                    .catch(() => suggestionsBox.classList.add('hidden'));
+                }, 500);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target !== searchInput && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+        }
+
+        if (geoBtn) {
+            geoBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    alert('Browser Anda tidak mendukung fitur lokasi otomatis.');
+                    return;
+                }
+                const originalText = geoBtn.innerHTML;
+                geoBtn.disabled = true;
+                geoBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Mencari...';
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        moveTo(pos.coords.latitude, pos.coords.longitude, 16);
+                        geoBtn.disabled = false;
+                        geoBtn.innerHTML = originalText;
+                    },
+                    () => {
+                        alert('Gagal mengambil lokasi. Pastikan izin lokasi (GPS) sudah diaktifkan di browser Anda.');
+                        geoBtn.disabled = false;
+                        geoBtn.innerHTML = originalText;
+                    }
+                );
+            });
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         const defaultLat = -6.858333; // Sumedang default
@@ -506,6 +639,22 @@
         eventMap.on('click', e => { eventMarker.setLatLng(e.latlng); document.getElementById('event_lat').value = e.latlng.lat; document.getElementById('event_lng').value = e.latlng.lng; });
         eventMarker.on('dragend', () => { const ll = eventMarker.getLatLng(); document.getElementById('event_lat').value = ll.lat; document.getElementById('event_lng').value = ll.lng; });
 
+        // Aktifkan Cari Alamat & Gunakan Lokasi Saya
+        setupLocationTools({ map: coupleMap, marker: coupleMarker, latInputId: 'couple_lat', lngInputId: 'couple_lng', searchInputId: 'coupleLocationSearch', suggestionsId: 'coupleLocationSuggestions', geoBtnId: 'coupleGeoBtn' });
+        setupLocationTools({ map: eventMap, marker: eventMarker, latInputId: 'event_lat', lngInputId: 'event_lng', searchInputId: 'eventLocationSearch', suggestionsId: 'eventLocationSuggestions', geoBtnId: 'eventGeoBtn' });
+
+        // Restore pin peta dari data lama (kalau submit gagal karena bentrok jadwal)
+        if (oldInput.couple_lat && oldInput.couple_lng) {
+            const llCouple = [parseFloat(oldInput.couple_lat), parseFloat(oldInput.couple_lng)];
+            coupleMarker.setLatLng(llCouple);
+            coupleMap.setView(llCouple, 14);
+        }
+        if (oldInput.event_lat && oldInput.event_lng) {
+            const llEvent = [parseFloat(oldInput.event_lat), parseFloat(oldInput.event_lng)];
+            eventMarker.setLatLng(llEvent);
+            eventMap.setView(llEvent, 14);
+        }
+
         function initMap2() {
             if(!map2Initialized) {
                 setTimeout(() => {
@@ -515,6 +664,14 @@
                     
                     eventMap2.on('click', e => { eventMarker2.setLatLng(e.latlng); document.getElementById('event_lat_2').value = e.latlng.lat; document.getElementById('event_lng_2').value = e.latlng.lng; });
                     eventMarker2.on('dragend', () => { const ll = eventMarker2.getLatLng(); document.getElementById('event_lat_2').value = ll.lat; document.getElementById('event_lng_2').value = ll.lng; });
+
+                    setupLocationTools({ map: eventMap2, marker: eventMarker2, latInputId: 'event_lat_2', lngInputId: 'event_lng_2', searchInputId: 'eventLocationSearch2', suggestionsId: 'eventLocationSuggestions2', geoBtnId: 'eventGeoBtn2' });
+
+                    if (oldInput.event_lat_2 && oldInput.event_lng_2) {
+                        const ll2 = [parseFloat(oldInput.event_lat_2), parseFloat(oldInput.event_lng_2)];
+                        eventMarker2.setLatLng(ll2);
+                        eventMap2.setView(ll2, 14);
+                    }
                     
                     map2Initialized = true;
                 }, 100);
@@ -530,6 +687,14 @@
                     
                     eventMap3.on('click', e => { eventMarker3.setLatLng(e.latlng); document.getElementById('event_lat_3').value = e.latlng.lat; document.getElementById('event_lng_3').value = e.latlng.lng; });
                     eventMarker3.on('dragend', () => { const ll = eventMarker3.getLatLng(); document.getElementById('event_lat_3').value = ll.lat; document.getElementById('event_lng_3').value = ll.lng; });
+
+                    setupLocationTools({ map: eventMap3, marker: eventMarker3, latInputId: 'event_lat_3', lngInputId: 'event_lng_3', searchInputId: 'eventLocationSearch3', suggestionsId: 'eventLocationSuggestions3', geoBtnId: 'eventGeoBtn3' });
+
+                    if (oldInput.event_lat_3 && oldInput.event_lng_3) {
+                        const ll3 = [parseFloat(oldInput.event_lat_3), parseFloat(oldInput.event_lng_3)];
+                        eventMarker3.setLatLng(ll3);
+                        eventMap3.setView(ll3, 14);
+                    }
                     
                     map3Initialized = true;
                 }, 100);
