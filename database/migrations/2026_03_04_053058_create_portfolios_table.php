@@ -10,14 +10,14 @@ return new class extends Migration
     {
         Schema::create('portfolios', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relasi ke Freelancer
-            $table->string('cover_image'); // Link GDrive untuk gambar depan
-            $table->string('category'); // Cth: PHOTOGRAPHY : TYING THE KNOT
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); 
+            $table->string('cover_image'); 
+            $table->string('category'); 
             $table->date('event_date'); 
-            $table->string('title'); // Cth: A HOLY DAY, A ROYAL TOUCH...
-            $table->string('client_name'); // Cth: DAVIN & VANESSA WEDDING BY TONNY
-            $table->string('quote')->nullable(); // Cth: GUIDED BY GRACE...
-            $table->json('gallery_links')->nullable(); // Array Link GDrive untuk detail galeri
+            $table->string('title'); 
+            $table->string('client_name'); 
+            $table->string('quote')->nullable(); 
+            $table->json('gallery_links')->nullable(); 
             $table->timestamps();
         });
     }

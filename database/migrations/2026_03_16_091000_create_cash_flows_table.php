@@ -12,10 +12,10 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->enum('type', ['income', 'expense']);
-            $table->string('category'); // cth: 'booking_payment', 'freelancer_fee', 'operational', 'equipment', dll
+            $table->string('category'); 
             $table->decimal('amount', 15, 2);
             $table->string('description');
-            $table->string('reference_id')->nullable(); // Buat nyimpen ID Booking/Payment kalau otomatis
+            $table->string('reference_id')->nullable(); 
             $table->timestamps();
         });
     }

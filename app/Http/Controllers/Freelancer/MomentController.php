@@ -30,7 +30,7 @@ class MomentController extends Controller
             'title' => 'required|string|max:255',
             'client_name' => 'required|string|max:255',
             'quote' => 'nullable|string|max:255',
-            'gallery_links' => 'nullable|string', // Kita terima dari textarea (tiap baris 1 link)
+            'gallery_links' => 'nullable|string', // dari textarea (tiap baris 1 link)
         ]);
 
         // 1. Convert link untuk Cover Image
@@ -136,11 +136,11 @@ class MomentController extends Controller
     {
         // Cari ID unik dari link Google Drive menggunakan Regex
         if (preg_match('/\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-            // UPDATE: Gunakan endpoint lh3.googleusercontent.com yang diizinkan Google untuk tag <img>
+            
             return 'https://lh3.googleusercontent.com/d/' . $matches[1];
         }
         
-        // Jika format lain (seperti uc?id= yang sudah manual), ubah juga ke lh3
+        
         if (preg_match('/uc\?id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
             return 'https://lh3.googleusercontent.com/d/' . $matches[1];
         }

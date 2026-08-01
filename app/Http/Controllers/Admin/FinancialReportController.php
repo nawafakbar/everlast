@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
-use App\Models\CashFlow; // 👈 TAMBAHKAN INI
+use App\Models\CashFlow;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\FinanceExport;
@@ -52,7 +52,7 @@ class FinancialReportController extends Controller
     {
         [$startDate, $endDate, $preset] = $this->resolveDates($request);
 
-        // === INCOME (dari Payment) ===
+        // income dari payment
         $query = Payment::with(['booking.user', 'booking.package'])->where('status', 'success');
         $query->whereDate('created_at', '>=', $startDate)
               ->whereDate('created_at', '<=', $endDate);
@@ -72,16 +72,16 @@ class FinancialReportController extends Controller
             'preset' => $preset
         ]);
 
-        // === EXPENSES (dari CashFlow) 👇 TAMBAHAN BARU ===
+        // expenses data baru
         $totalExpenses = CashFlow::where('type', 'expense')
             ->whereDate('date', '>=', $startDate)
             ->whereDate('date', '<=', $endDate)
             ->sum('amount');
 
-        // === NET PROFIT/LOSS ===
+        // net profit atau loss
         $netProfit = $totalRevenue - $totalExpenses;
 
-        // === CHART DATA ===
+        // chart data
         $chartQuery = Payment::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
             ->whereHas('booking')
             ->where('status', 'success')
@@ -124,8 +124,8 @@ class FinancialReportController extends Controller
             'totalRevenue', 
             'totalDP', 
             'totalFullPayment', 
-            'totalExpenses',    // 👈 TAMBAHKAN
-            'netProfit',        // 👈 TAMBAHKAN
+            'totalExpenses',    
+            'netProfit',        
             'startDate', 
             'endDate',
             'chartLabels',
@@ -154,13 +154,13 @@ class FinancialReportController extends Controller
             ->orderBy('date')
             ->get();
 
-        $totalExpenses = $expenses->sum('amount'); // 👈 sekalian pakai dari collection yang sama, lebih efisien (1 query, bukan 2)
+        $totalExpenses = $expenses->sum('amount');
 
         $netProfit = $totalRevenue - $totalExpenses;
 
         $pdf = Pdf::loadView('admin.finance.export-template', compact(
             'payments', 
-            'expenses',          // 👈 TAMBAHKAN INI - ini yang sebelumnya hilang
+            'expenses',          
             'totalRevenue', 
             'totalDP', 
             'totalFullPayment', 

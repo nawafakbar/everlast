@@ -3,7 +3,7 @@
 @section('content')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 <style>
-    /* Styling Kustom Kalender (Di-copy dari Admin) */
+    
     .fc-theme-standard .fc-scrollgrid { border-color: #f3f4f6; }
     .fc-theme-standard th { border-color: #f3f4f6; padding: 10px 0; background-color: #f9fafb; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: #6b7280; }
     .fc-theme-standard td { border-color: #f3f4f6; }
@@ -16,29 +16,26 @@
     .fc .fc-button-active { background-color: #374151 !important; border-color: #374151 !important; }
     .fc-toolbar-title { font-family: 'Montserrat', sans-serif; font-size: 1.1rem !important; font-weight: 700; color: #111827; }
 
-    /* Tanggal yang bisa diklik (interaktif) */
+    
     .fc-day:not(.fc-day-past) { cursor: pointer; transition: background-color 0.2s; }
     .fc-day:not(.fc-day-past):hover { background-color: #fdfbf7; }
 
-    /* ==========================================
-       RESPONSIVE FIX KHUSUS MOBILE (Layar kecil)
-       ========================================== */
     @media (max-width: 640px) {
         .fc-toolbar.fc-header-toolbar {
-            flex-direction: column; /* Bikin elemen numpuk ke bawah */
-            gap: 12px; /* Jarak antar elemen */
+            flex-direction: column; 
+            gap: 12px;
         }
         .fc-toolbar-chunk {
             display: flex;
-            justify-content: center; /* Posisikan tombol di tengah */
+            justify-content: center; 
             width: 100%;
         }
         .fc .fc-button-primary {
-            padding: 6px 10px; /* Perkecil ukuran padding tombol */
-            font-size: 9px;    /* Perkecil font tombol */
+            padding: 6px 10px; 
+            font-size: 9px;    
         }
         .fc-toolbar-title {
-            font-size: 1.1rem !important; /* Perkecil font judul bulan */
+            font-size: 1.1rem !important; 
         }
     }
 </style>
@@ -274,7 +271,7 @@
     // SCRIPT CALENDAR
     let customerCalendar;
     let calendarInitialized = false;
-    let currentTargetInput = ''; // Variabel buat nyimpen ID input yang mau diisi
+    let currentTargetInput = ''; 
 
     // Tambahin parameter targetId
     function openCalendarModal(targetId) {
@@ -326,7 +323,6 @@
                             alert('TIPS: Tanggal ini sudah terisi sebagian (' + availableEvent.extendedProps.description + ').\n\nPastikan Anda mengatur Jam Mulai acara yang tidak bentrok dengan sesi tersebut ya!');
                         }
 
-                        // INJEK TANGGAL KE INPUT YANG BENAR (Bisa booking_date, bisa prewed_date)
                         document.getElementById(currentTargetInput).value = info.dateStr;
                         closeCalendarModal();
                     }

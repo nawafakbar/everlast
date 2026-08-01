@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('assignments', function (Blueprint $table) {
-            // Kita kasih default 'wedding' biar data lama nggak error
+            
             $table->string('event_type')->default('wedding')->after('task'); 
         });
     }

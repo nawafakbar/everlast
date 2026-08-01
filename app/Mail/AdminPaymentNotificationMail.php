@@ -23,7 +23,6 @@ class AdminPaymentNotificationMail extends Mailable
 
     public function envelope(): Envelope
     {
-        // Pake emoji dikit biar Admin ngeh kalau ini email duit masuk
         return new Envelope(
             subject: '💰 Pembayaran Diterima: ' . $this->booking->user->name . ' (#EVL-' . $this->booking->id . ')',
         );

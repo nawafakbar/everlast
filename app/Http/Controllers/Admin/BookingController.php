@@ -34,7 +34,7 @@ class BookingController extends Controller
     {
         $request->validate(['ids' => 'required|array']);
 
-        // Aturan Bisnis: CUMA hapus yang statusnya cancelled
+        // Aturan Bisnis: cuma hapus yang statusnya cancelled
         $deletedCount = \App\Models\Booking::whereIn('id', $request->ids)
                             ->where('status', 'cancelled')
                             ->delete();
@@ -60,7 +60,7 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validasi inputan form (UPDATE: Tambah kolom Prewed & Lokasi 3)
+        // 1. Validasi inputan form (update: Tambah kolom Prewed & Lokasi 3)
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'package_id' => 'required|exists:packages,id',
@@ -68,7 +68,7 @@ class BookingController extends Controller
             'couple_address' => 'required|string',
             'event_location' => 'required|string',
             'event_location_2' => 'nullable|string', 
-            'event_location_3' => 'nullable|string', // Untuk All In
+            'event_location_3' => 'nullable|string',
             'booking_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
@@ -86,7 +86,7 @@ class BookingController extends Controller
             'event_lng_3' => 'nullable|numeric',
         ]);
 
-        // 2. CEK DOUBLE BOOKING (BERDASARKAN JAM / OVERLAP WAKTU)
+        // 2. cek double booking (BERDASARKAN JAM / OVERLAP WAKTU)
         // A. Cek Bentrok Acara Utama
         $conflictMain = \App\Models\Booking::whereNotIn('status', ['cancelled'])
             ->where(function($q) use ($request) {
@@ -125,7 +125,7 @@ class BookingController extends Controller
             }
         }
 
-        // 3. LOGIKA GOOGLE CALENDAR (Hanya jalan jika status DP atau Lunas)
+        // 3. logika google caledar (Hanya jalan jika status DP atau Lunas)
         if (in_array($request->status, ['dp_paid', 'paid_in_full'])) {
             try {
                 $customer = \App\Models\User::find($request->user_id);
@@ -152,16 +152,13 @@ class BookingController extends Controller
                 }
 
             } catch (\Exception $e) {
-                // NYALAKAN RADAR ERROR SEMENTARA!
+                // nyalakan error sementara!
                 dd("Error dari Google: " . $e->getMessage()); 
             }
         }
 
         // 4. Simpan ke database MySQL
         $booking = \App\Models\Booking::create($validated);
-
-        // 5. NANTI KITA TARUH KODE KIRIM EMAIL PESANAN BARU DI SINI
-        // \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\NewBookingMail($booking));
 
         return redirect()->route('admin.bookings.index')->with('success', 'Pesanan manual berhasil dibuat!');
     }
@@ -194,7 +191,7 @@ class BookingController extends Controller
     public function update(Request $request, string $id)
     {
         $booking = \App\Models\Booking::findOrFail($id);
-        $oldStatus = $booking->status; // Simpan status lama buat perbandingan nanti
+        $oldStatus = $booking->status;
 
         // 1. Validasi inputan form
         $validated = $request->validate([
@@ -204,7 +201,7 @@ class BookingController extends Controller
             'couple_address' => 'required|string',
             'event_location' => 'required|string',
             'event_location_2' => 'nullable|string', 
-            'event_location_3' => 'nullable|string', // Tambahan All In
+            'event_location_3' => 'nullable|string',
             'booking_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
@@ -222,7 +219,7 @@ class BookingController extends Controller
             'event_lng_3' => 'nullable|numeric',
         ]);
 
-        // 2. CEK BENTROK JADWAL UNTUK EDIT (Lebih kompleks karena harus abaikan ID sendiri)
+        // 2. cek jadwal bentrok untuk edit (Lebih kompleks karena harus abaikan ID sendiri)
         $conflictMain = \App\Models\Booking::where('id', '!=', $booking->id)
             ->whereNotIn('status', ['cancelled'])
             ->where(function($q) use ($request) {
@@ -261,10 +258,8 @@ class BookingController extends Controller
             }
         }
 
-        // 3. LOGIKA GOOGLE CALENDAR
-        // ⚠️ CATATAN BRO: Karena kemarin kita sepakat gak bikin kolom 'prewed_google_calendar_id' 
-                    // buat hemat database, kalau pesanan All In dibatalkan, jadwal Prewed-nya 
-                    // harus dihapus manual oleh Admin langsung di Google Calendar ya!
+        // 3. logika google calendar
+        // jadwal prewedd di paket all in kalau di hapus harus manual
         if ($request->status === 'cancelled') {
             if ($booking->google_calendar_id) {
                 try {
@@ -279,7 +274,7 @@ class BookingController extends Controller
                     $customer = \App\Models\User::find($booking->user_id);
                     $package = \App\Models\Package::find($request->package_id);
 
-                    // A. MAIN EVENT
+                    // main event
                     $event = new \Spatie\GoogleCalendar\Event;
                     $event->name = "Everlast Booking: " . $customer->name . " & " . $request->partner_name;
                     $event->description = "Paket: " . $package->name . "\nLokasi 1: " . $request->event_location;
@@ -289,7 +284,7 @@ class BookingController extends Controller
                     $savedEvent = $event->save();
                     $validated['google_calendar_id'] = $savedEvent->id;
 
-                    // B. PREWEDDING EVENT
+                    // preweeding event
                     if ($request->prewed_date && $request->prewed_start_time && $request->prewed_end_time) {
                         $prewedEvent = new \Spatie\GoogleCalendar\Event;
                         $prewedEvent->name = "[PREWED] Everlast: " . $customer->name . " & " . $request->partner_name;
@@ -306,12 +301,10 @@ class BookingController extends Controller
             }
         }
 
-        // ==========================================
-        // 4. LOGIKA AUTO-CREATE PAYMENT & SINKRONISASI EMAIL (KHUSUS MANUAL EDIT)
-        // ==========================================
+        // 4. logika auto create payment & sinkronisasi email (khusus manual edit)
         $package = \App\Models\Package::find($request->package_id);
         $packagePrice = $package->price ?? 0;
-        $dpAmount = $packagePrice * 0.3; // Hitung 50%
+        $dpAmount = $packagePrice * 0.3; // Hitung 30%
 
         // Cek jika status diubah dari Pending -> DP Paid
         if ($oldStatus === 'pending' && $request->status === 'dp_paid') {
@@ -333,10 +326,10 @@ class BookingController extends Controller
             } else {
                 $existingPayment->update(['status' => 'success']);
                 $dpAmount = $existingPayment->amount; 
-                $paymentToRecord = $existingPayment; // Jadikan variabel
+                $paymentToRecord = $existingPayment;
             }
 
-            // === [INJECTOR 2A] OTOMATIS CATAT PEMASUKAN DP MANUAL ===
+            // [injector 2a] otomatis catat pemasukan DP manual
             \App\Models\CashFlow::firstOrCreate(
                 ['reference_id' => 'payment_' . $paymentToRecord->id],
                 [
@@ -347,7 +340,6 @@ class BookingController extends Controller
                     'description' => 'Pembayaran DP dari ' . $booking->user->name . ' (Manual Admin)'
                 ]
             );
-            // ========================================================
 
             \Illuminate\Support\Facades\Mail::to($booking->user->email)->send(new \App\Mail\PaymentSuccessMail($booking, 'Down Payment (DP)', $dpAmount));
         } 
@@ -436,7 +428,7 @@ class BookingController extends Controller
             return back()->with('error', 'Gagal menghapus! Ubah status booking menjadi Cancelled terlebih dahulu.');
         }
 
-        // === [INJECTOR 4] SAPU BERSIH ARUS KAS TERKAIT PESANAN INI ===
+        // [injector 4] Sapu bersih arus kas terkait pesanan ini
         // 1. Tarik kembali uang masuk
         $payments = \App\Models\Payment::where('booking_id', $booking->id)->get();
         foreach ($payments as $payment) {
@@ -444,34 +436,28 @@ class BookingController extends Controller
         }
 
         // 2. Tarik kembali uang keluar (fee kru)
-        // (Pastikan lo punya model Assignment dan kolom booking_id)
         if (class_exists(\App\Models\Assignment::class)) {
             $assignments = \App\Models\Assignment::where('booking_id', $booking->id)->get();
             foreach ($assignments as $assignment) {
                 \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
             }
         }
-        // ===========================================================
 
         $booking->delete();
 
         return redirect()->route('admin.bookings.index')->with('success', 'Booking berhasil dihapus permanen.');
     }
 
-    // --- FUNGSI TESTING CHECKOUT UNTUK ADMIN ---
+    // fungsi testing checkout untuk admin
     public function checkout(string $id)
     {
-        // Pastikan load relasi 'payments' biar bisa kita hitung
         $booking = \App\Models\Booking::with(['package', 'user', 'payments'])->findOrFail($id);
         
-        // 1. Hitung total uang yang SUDAH MASUK (status = success)
         $totalPaid = $booking->payments->where('status', 'success')->sum('amount');
         $fullPrice = $booking->package->price;
         
-        // 2. Hitung Sisa Tagihan
         $remainingAmount = $fullPrice - $totalPaid;
         
-        // 3. Tentukan Status
         $isFullyPaid = $remainingAmount <= 0;
         $hasPaidDP = $totalPaid > 0 && $totalPaid < $fullPrice;
 
@@ -507,7 +493,7 @@ class BookingController extends Controller
 
         $orderId = 'EVR-' . $booking->id . '-' . time();
 
-        // JIKA TESTING MIDTRANS
+        // jika testing midtrans
         if ($request->payment_method === 'midtrans') {
             \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
             \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
@@ -517,7 +503,7 @@ class BookingController extends Controller
             $params = [
                 'transaction_details' => [
                     'order_id' => $orderId,
-                    'gross_amount' => $amount, // <-- Akan pakai harga dinamis
+                    'gross_amount' => $amount,
                 ],
                 'customer_details' => [
                     'first_name' => $booking->user->name,
@@ -540,7 +526,7 @@ class BookingController extends Controller
             return response()->json(['snap_token' => $snapToken]);
         } 
         
-        // JIKA TESTING MANUAL / QRIS
+        // jika testing manual transfer / qris
         else {
             $request->validate([
                 'proof_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -599,7 +585,7 @@ class BookingController extends Controller
             return back()->with('error', 'Penugasan gagal! Tanggal dan jam untuk sesi ini belum lengkap diisi oleh klien.');
         }
 
-        // CEK BENTROK JADWAL BERDASARKAN JAM (Lebih ringan pakai Collection PHP)
+        // cek bentrok jadwal freelancer dengan assignment lain yang udah ada di database
         $existingAssignments = \App\Models\Assignment::with('booking')
             ->where('user_id', $validated['user_id'])
             ->where('status', '!=', 'rejected')
@@ -615,7 +601,7 @@ class BookingController extends Controller
 
             // Jika di hari yang sama, cek apakah jamnya tabrakan (overlap)
             if ($exDate === $targetDate) {
-                // Rumus Overlap: (MulaiA < SelesaiB) DAN (SelesaiA > MulaiB)
+                // Rumus Overlap: mulai dan selesai
                 if ($exStart < $targetEnd && $exEnd > $targetStart) {
                     $isConflict = true;
                     break; // Langsung stop pencarian kalau udah ketemu 1 bentrok
@@ -661,7 +647,7 @@ class BookingController extends Controller
 
         $isNewFreelancer = false; 
 
-        // Tentukan TANGGAL dan JAM untuk update
+        // Tentukan tanggal dan jam untuk update
         if ($validated['event_type'] === 'all_in_prewedding') {
             $targetDate = $assignment->booking->prewed_date;
             $targetStart = $assignment->booking->prewed_start_time;
@@ -676,7 +662,7 @@ class BookingController extends Controller
             
             $existingAssignments = \App\Models\Assignment::with('booking')
                 ->where('user_id', $validated['user_id'])
-                ->where('id', '!=', $assignment->id) // Abaikan id ini sendiri
+                ->where('id', '!=', $assignment->id)
                 ->where('status', '!=', 'rejected')
                 ->get();
 
@@ -800,7 +786,7 @@ class BookingController extends Controller
         if (str_starts_with($phone, '0')) {
             $phone = '62' . substr($phone, 1);
         } elseif (!str_starts_with($phone, '62')) {
-            $phone = '62' . $phone; // jaga-jaga kalau user simpan tanpa awalan
+            $phone = '62' . $phone;
         }
 
         if (empty($phone) || strlen($phone) < 10) {
@@ -881,7 +867,7 @@ class BookingController extends Controller
 
         foreach ($booking->assignments as $assignment) {
             \App\Models\CashFlow::where('reference_id', 'assignment_' . $assignment->id)->delete();
-            $assignment->delete();   // <- hapus beneran, bukan cuma update status
+            $assignment->delete();  
         }
 
         if ($booking->google_calendar_id) {

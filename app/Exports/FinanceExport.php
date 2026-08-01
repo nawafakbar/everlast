@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Payment;
-use App\Models\CashFlow; // 👈 TAMBAHKAN INI
+use App\Models\CashFlow;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -21,7 +21,7 @@ class FinanceExport implements FromView, ShouldAutoSize
 
     public function view(): View
     {
-        // === INCOME DATA ===
+        // Income Data
         $payments = Payment::with('booking.user')
             ->where('status', 'success')
             ->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
@@ -32,7 +32,7 @@ class FinanceExport implements FromView, ShouldAutoSize
         $totalDP = $payments->where('payment_type', 'dp')->sum('amount');
         $totalFullPayment = $totalRevenue - $totalDP;
 
-        // === EXPENSES DATA 👇 BARU ===
+        // expenses data baru
         $expenses = CashFlow::where('type', 'expense')
             ->whereDate('date', '>=', $this->startDate)
             ->whereDate('date', '<=', $this->endDate)
@@ -41,17 +41,17 @@ class FinanceExport implements FromView, ShouldAutoSize
 
         $totalExpenses = $expenses->sum('amount');
 
-        // === NET PROFIT ===
+        // net profit calculation
         $netProfit = $totalRevenue - $totalExpenses;
 
         return view('admin.finance.export-template', [
             'payments' => $payments,
-            'expenses' => $expenses,           // 👈 TAMBAHKAN
+            'expenses' => $expenses,           
             'totalRevenue' => $totalRevenue,
             'totalDP' => $totalDP,
             'totalFullPayment' => $totalFullPayment,
-            'totalExpenses' => $totalExpenses, // 👈 TAMBAHKAN
-            'netProfit' => $netProfit,         // 👈 TAMBAHKAN
+            'totalExpenses' => $totalExpenses, 
+            'netProfit' => $netProfit,         
             'startDate' => $this->startDate,
             'endDate' => $this->endDate
         ]);

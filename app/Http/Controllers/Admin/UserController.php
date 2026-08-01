@@ -35,7 +35,7 @@ class UserController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // Cuma boleh validasi dan update ROLE
+        // Cuma boleh validasi dan update role
         $request->validate([
             'role' => 'required|in:admin,customer,freelancer',
         ]);

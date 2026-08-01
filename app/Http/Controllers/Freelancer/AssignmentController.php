@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AssignmentController extends Controller
 {
-    // 1. Nampilin daftar tugas si freelancer
+    // 1. Nampilin daftar tugas freelancer
     public function index()
     {
         $assignments = Assignment::with('booking')
             ->where('user_id', Auth::id())
-            // Mengurutkan agar yang berstatus 'pending' (butuh aksi) muncul paling atas
+            // Mengurutkan agar yang berstatus pending muncul paling atas
             ->orderByRaw("FIELD(status, 'pending', 'accepted', 'completed', 'rejected')")
             ->latest()
             ->paginate(10);
@@ -22,7 +22,7 @@ class AssignmentController extends Controller
         return view('freelancer.assignments.index', compact('assignments'));
     }
 
-    // 2. Fungsi buat ngubah status (Terima/Tolak/Selesai)
+    // 2. Fungsi buat ngubah status
     public function updateStatus(Request $request, Assignment $assignment)
     {
         if ($assignment->user_id !== Auth::id()) {
@@ -37,7 +37,7 @@ class AssignmentController extends Controller
             'status' => $validated['status']
         ]);
 
-        // === [INJECTOR 3] OTOMATIS CATAT PENGELUARAN FEE KRU ===
+        // [injector 3] otomatis catat pengeluaran fee kru ketika status assignment diubah menjadi completed
         if ($validated['status'] == 'completed' && $assignment->fee > 0) {
             \App\Models\CashFlow::firstOrCreate(
                 ['reference_id' => 'assignment_' . $assignment->id],
@@ -50,7 +50,6 @@ class AssignmentController extends Controller
                 ]
             );
         }
-        // ======================================================
 
         $message = 'Status penugasan diperbarui!';
         if ($validated['status'] == 'accepted') {

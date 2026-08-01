@@ -174,7 +174,7 @@
     updatePriceUI();
     toggleManualForm();
 
-    // INTERCEPT FORM SUBMIT KHUSUS MIDTRANS
+    // intercept form submit untuk metode Midtrans
     form.addEventListener('submit', function(e) {
         const method = document.querySelector('input[name="payment_method"]:checked').value;
         
@@ -230,7 +230,6 @@
                 alert('Terjadi kesalahan koneksi ke Midtrans.');
             });
         }
-        // Kalau pilih manual, biarkan form jalan normal secara default!
     });
 </script>
 @endsection

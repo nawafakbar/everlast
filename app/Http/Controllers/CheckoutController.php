@@ -72,7 +72,7 @@ class CheckoutController extends Controller
         $amount = $request->payment_type === 'dp' ? ($fullPrice * $minDpPercentage) : $remainingAmount;
         $orderId = 'EVL-' . $booking->id . '-' . time(); // EVL untuk klien
 
-        // JIKA PILIH MIDTRANS
+        // jika pilih midtrans
         if ($request->payment_method === 'midtrans') {
             \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
             \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
@@ -105,7 +105,7 @@ class CheckoutController extends Controller
             return response()->json(['snap_token' => $snapToken]);
         } 
         
-        // JIKA PILIH MANUAL (Transfer Bank / QRIS)
+        // jika pilih manual (Transfer Bank / QRIS)
         else {
             $request->validate([
                 'proof_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -125,13 +125,12 @@ class CheckoutController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            // === TAMBAHAN: KIRIM EMAIL KE ADMIN ===
+            // === kirim email ke admin ===
             // Cari user admin pertama buat dikirimin notif
             $admin = User::where('role', 'admin')->first();
             if ($admin) {
                 Mail::to($admin->email)->send(new AdminManualPaymentMail($booking, $payment));
             }
-            // =======================================
 
             return redirect()->route('customer.pesanan')->with('success', 'Bukti pembayaran berhasil diunggah. Menunggu konfirmasi admin.');
         }
@@ -167,7 +166,7 @@ class CheckoutController extends Controller
             $newStatus = $payment->payment_type === 'dp' ? 'dp_paid' : 'paid_in_full';
             $booking->update(['status' => $newStatus]);
 
-            // === [INJECTOR 1] OTOMATIS CATAT PEMASUKAN MIDTRANS ===
+            // injector 1: otomatis catat pemasukan dari Midtrans ke CashFlow
             \App\Models\CashFlow::firstOrCreate(
                 ['reference_id' => 'payment_' . $payment->id],
                 [
@@ -179,9 +178,7 @@ class CheckoutController extends Controller
                 ]
             );
 
-            // ==========================================
-            // BUNGKUS KIRIM EMAIL PAKE TRY-CATCH BIAR GAK CRASH
-            // ==========================================
+            // kirim emaaail pakai try-catch
             try {
                 $typeString = $payment->payment_type === 'dp' ? 'Down Payment (DP)' : 'Pelunasan';
                 Mail::to($booking->user->email)->send(new PaymentSuccessMail($booking, $typeString, $payment->amount));
@@ -191,13 +188,11 @@ class CheckoutController extends Controller
                     Mail::to($admin->email)->send(new AdminPaymentNotificationMail($booking, $payment));
                 }
             } catch (\Throwable $e) {
-                // Biarin aja kalau gagal kirim email, yang penting script lanjut jalan
+                
                 \Illuminate\Support\Facades\Log::error('Gagal kirim email Midtrans: ' . $e->getMessage());
             }
 
-            // ==========================================
-            // LOGIKA OTOMATISASI GOOGLE CALENDAR
-            // ==========================================
+            // logika otomatisasi google calendar
             if (!$booking->google_calendar_id) {
                 try {
                     // 1. EVENT ACARA UTAMA (WEDDING / SINGLE)
@@ -210,7 +205,7 @@ class CheckoutController extends Controller
                     $savedEvent = $event->save();
                     $booking->update(['google_calendar_id' => $savedEvent->id]);
 
-                    // 2. EVENT PREWEDDING (KHUSUS ALL IN)
+                    // 2. EVENT PREWEDDING (opsional)
                     if ($booking->prewed_date && $booking->prewed_start_time && $booking->prewed_end_time) {
                         $prewedEvent = new Event;
                         $prewedEvent->name = "[PREWED] Everlast: " . $booking->user->name . " & " . $booking->partner_name;
@@ -235,9 +230,6 @@ class CheckoutController extends Controller
             $payment->update(['status' => 'pending']);
         }
 
-        // ==========================================
-        // KODE INI SEKARANG PASTI TEREKSEKUSI!
-        // ==========================================
         return response()->json(['message' => 'Callback sukses.']);
     }
 

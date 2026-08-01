@@ -13,7 +13,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        /* Transisi khusus biar smooth pas width berubah */
         #sidebar { transition: width 0.3s ease, transform 0.3s ease; }
     </style>
 </head>

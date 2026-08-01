@@ -14,9 +14,7 @@ class CalendarController extends Controller
         return view('admin.calendar');
     }
 
-    // ==========================================
-    // 1. KALENDER ADMIN
-    // ==========================================
+    // kalender admin
     public function getEvents()
     {
         $bookings = Booking::with('user')->whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])->get();
@@ -64,9 +62,7 @@ class CalendarController extends Controller
         return response()->json($events);
     }
 
-    // ==========================================
-    // 2. KALENDER KLIEN (CUSTOMER BOOKING)
-    // ==========================================
+    // kalendar klien
     public function getAvailableDates()
     {
         $bookings = Booking::whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])->get();
@@ -114,9 +110,7 @@ class CalendarController extends Controller
         return response()->json($events);
     }
 
-    // ==========================================
-    // FUNGSI PINTAR CEK WAKTU KOSONG (GAP)
-    // ==========================================
+    // fungsi pintar cek waktu kosong (gap) untuk menentukan apakah hari itu full booked atau masih ada slot kosong
     private function checkIfFullBooked($sessions)
     {
         // 1. Urutkan jadwal berdasarkan jam mulai
@@ -124,7 +118,7 @@ class CalendarController extends Controller
             return $a['start_time'] <=> $b['start_time'];
         });
 
-        // 2. Gabungkan jadwal yang beririsan (misal kru 1 kerja jam 8-12, kru 2 kerja jam 10-14, dihitung jadi 8-14)
+        // 2. Gabungkan jadwal yang beririsan
         $mergedSessions = [];
         foreach ($sessions as $s) {
             if (empty($mergedSessions)) {
@@ -145,9 +139,9 @@ class CalendarController extends Controller
 
         // 3. Cek selisih waktu kosong (Gap)
         $isFull = true;
-        $minGapHours = 3; // ASUMSI: Minimal butuh 3 jam kosong untuk bisa terima orderan baru
-        $workStart = "06:00:00"; // Jam operasional mulai
-        $workEnd = "18:00:00"; // Jam operasional tutup
+        $minGapHours = 3; 
+        $workStart = "06:00:00"; 
+        $workEnd = "18:00:00";
         
         $currentStart = $workStart;
 
@@ -155,7 +149,7 @@ class CalendarController extends Controller
         foreach ($mergedSessions as $m) {
             $gap = (strtotime($m['start']) - strtotime($currentStart)) / 3600;
             if ($gap >= $minGapHours) {
-                $isFull = false; // Ketemu waktu kosong yang cukup!
+                $isFull = false;
                 break;
             }
             if ($m['end'] > $currentStart) {

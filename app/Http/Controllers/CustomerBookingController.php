@@ -16,7 +16,6 @@ class CustomerBookingController extends Controller
     {
         $user = auth()->user();
 
-        // LOGIKA WAJIB PROFIL LENGKAP
         // Cek apakah nomor telepon masih kosong (null atau string kosong)
         if (empty($user->phone)) {
             // Lempar balik ke halaman profil dengan pesan error
@@ -59,10 +58,7 @@ class CustomerBookingController extends Controller
             'prewed_end_time' => 'nullable|date_format:H:i|after:prewed_start_time|required_with:prewed_date',
         ]);
 
-        // ==========================================
-        // CEK BENTROK JADWAL 1: TANGGAL UTAMA (WEDDING/SINGLE EVENT)
-        // Cuma booking yang SUDAH CONFIRMED yang dianggap mengunci slot
-        // ==========================================
+        //cek bentrok jadwal
         $mainConflict = Booking::whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])
             ->where(function ($q) use ($request) {
                 $q->where(function ($q2) use ($request) {
@@ -82,9 +78,6 @@ class CustomerBookingController extends Controller
             return back()->withErrors(['start_time' => 'Maaf, jadwal pada tanggal acara utama tersebut sudah terisi. Silakan geser jam atau pilih hari lain.'])->withInput();
         }
 
-        // ==========================================
-        // CEK BENTROK JADWAL 2: TANGGAL PREWEDDING (JIKA ADA)
-        // ==========================================
         if ($request->filled('prewed_date')) {
             $prewedConflict = Booking::whereIn('status', ['dp_paid', 'paid_in_full', 'completed'])
                 ->where(function ($q) use ($request) {
@@ -114,9 +107,7 @@ class CustomerBookingController extends Controller
         return redirect()->route('customer.checkout', $booking->id);
     }
 
-    // ==========================================
-    // LIST JAM TERSEDIA UNTUK TANGGAL TERTENTU
-    // ==========================================
+    // list jam tersedia di hari tertentu (dipakai di form booking)
     public function availableSlots(Request $request)
     {
         $request->validate([

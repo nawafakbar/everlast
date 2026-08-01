@@ -32,7 +32,7 @@ class CancelExpiredBookings extends Command
                     $event = \Spatie\GoogleCalendar\Event::find($booking->google_calendar_id);
                     $event->delete();
                 } catch (\Exception $e) {
-                    // Diamkan saja
+                    // null
                 }
             }
 

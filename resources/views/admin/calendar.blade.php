@@ -17,25 +17,22 @@
     .fc .fc-button-active { background-color: #374151 !important; border-color: #374151 !important; }
     .fc-toolbar-title { font-family: 'Montserrat', sans-serif; font-size: 1.25rem !important; font-weight: 700; color: #111827; }
 
-    /* ==========================================
-       RESPONSIVE FIX KHUSUS MOBILE (Layar kecil)
-       ========================================== */
     @media (max-width: 640px) {
         .fc-toolbar.fc-header-toolbar {
-            flex-direction: column; /* Bikin elemen numpuk ke bawah */
-            gap: 12px; /* Jarak antar elemen */
+            flex-direction: column; 
+            gap: 12px; 
         }
         .fc-toolbar-chunk {
             display: flex;
-            justify-content: center; /* Posisikan tombol di tengah */
+            justify-content: center; 
             width: 100%;
         }
         .fc .fc-button-primary {
-            padding: 6px 10px; /* Perkecil ukuran padding tombol */
-            font-size: 9px;    /* Perkecil font tombol */
+            padding: 6px 10px;
+            font-size: 9px;    
         }
         .fc-toolbar-title {
-            font-size: 1.1rem !important; /* Perkecil font judul bulan */
+            font-size: 1.1rem !important; 
         }
     }
 </style>
@@ -66,9 +63,9 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek'
             },
-            events: '{{ route("admin.calendar.events") }}', // Nembak data JSON dari Controller
+            events: '{{ route("admin.calendar.events") }}', 
             eventDidMount: function(info) {
-                // Kasih Tooltip pas kursor diarahkan ke event-nya
+                
                 if (info.event.extendedProps.description) {
                     info.el.setAttribute('title', info.event.extendedProps.description);
                 }

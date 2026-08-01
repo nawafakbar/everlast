@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Bikin Akun Admin
+        // 1. Create Akun Admin
         User::create([
             'name' => 'Admin Everlast',
             'email' => 'admin@everlast.com',
@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 2. Bikin Akun Freelancer (Dummy)
+        // 2. Create Akun Freelancer (Dummy)
         User::create([
             'name' => 'Budi Freelancer',
             'email' => 'freelancer@everlast.com',
@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 3. Bikin Akun Customer (Dummy)
+        // 3. Create Akun Customer (Dummy)
         User::create([
             'name' => 'Siti Customer',
             'email' => 'customer@everlast.com',

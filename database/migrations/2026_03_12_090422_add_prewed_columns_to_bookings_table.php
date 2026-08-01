@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            // Kita set nullable() karena klien yang pilih paket "Wedding" doang nggak butuh isi ini
+            
             $table->date('prewed_date')->nullable()->after('end_time');
             $table->time('prewed_start_time')->nullable()->after('prewed_date');
             $table->time('prewed_end_time')->nullable()->after('prewed_start_time');

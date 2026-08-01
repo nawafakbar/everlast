@@ -19,24 +19,20 @@ use App\Models\Booking;
 use App\Models\Portfolio;
 use Carbon\Carbon;
 
-// ==========================================
-// 1. PUBLIC ROUTES (Bisa diakses siapa saja)
-// ==========================================
+// public route untuk halaman utama (welcome) dan halaman detail momen
 Route::get('/', function () {
     $today = Carbon::today()->toDateString();
 
-    // 1. Ambil semua pesanan yang tanggal utama ATAU tanggal prewed-nya belum lewat
     $bookings = Booking::with('package', 'user')
         ->where(function($query) use ($today) {
             $query->whereDate('booking_date', '>=', $today)
                   ->orWhereDate('prewed_date', '>=', $today);
         })
-        ->whereIn('status', ['dp_paid', 'paid_in_full', 'completed']) // Opsional: Biar cuma jadwal fix yang tampil
+        ->whereIn('status', ['dp_paid', 'paid_in_full', 'completed']) 
         ->get();
 
     $scheduleList = collect();
 
-    // 2. Pecah dan kloning datanya biar jadwal Prewed & Utama jadi kotak terpisah
     foreach ($bookings as $b) {
         
         // Cek dan masukkan Acara Utama (Main Event)
@@ -46,7 +42,7 @@ Route::get('/', function () {
             $mainEvent->display_start = $b->start_time;
             $mainEvent->display_end = $b->end_time;
             $mainEvent->display_location = $b->event_location ?? 'TBA';
-            $mainEvent->event_label = 'MAIN EVENT'; // Label untuk UI
+            $mainEvent->event_label = 'MAIN EVENT'; 
             
             $scheduleList->push($mainEvent);
         }
@@ -58,13 +54,13 @@ Route::get('/', function () {
             $prewedEvent->display_start = $b->prewed_start_time;
             $prewedEvent->display_end = $b->prewed_end_time;
             $prewedEvent->display_location = $b->event_location_2 ?? ($b->event_location_3 ?? 'TBA');
-            $prewedEvent->event_label = 'PREWEDDING SESSION'; // Label untuk UI
+            $prewedEvent->event_label = 'PREWEDDING SESSION'; 
             
             $scheduleList->push($prewedEvent);
         }
     }
 
-    // 3. Urutkan gabungan jadwal tersebut dari yang terdekat, lalu ambil 4 saja
+    // Urutkan gabungan jadwal tersebut dari yang terdekat, 4 data
     $schedules = $scheduleList->sortBy('display_date')->take(4)->values();
 
     $moments = Portfolio::latest()->take(10)->get();
@@ -72,7 +68,6 @@ Route::get('/', function () {
     return view('welcome', compact('schedules', 'moments'));
 })->name('home');
 
-// TAMBAHAN: Route Halaman Detail Publik (Gallery Feel)
 Route::get('/moment/{id}', function ($id) {
     $moment = \App\Models\Portfolio::findOrFail($id);
     return view('front.moment-detail', compact('moment'));
@@ -87,7 +82,7 @@ Route::get('/portfolio', function () {
 Route::get('/auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
 
-// Webhook Midtrans (Pastikan URL ini masuk pengecualian di VerifyCsrfToken!)
+// Webhook Midtrans
 Route::post('/api/midtrans/callback', [CheckoutController::class, 'callback']);
 
 // Calender Everlast
@@ -95,9 +90,7 @@ Route::get('/calendar', [CalendarController::class, 'index'])->name('admin.calen
 Route::get('/calendar/events', [CalendarController::class, 'getEvents'])->name('admin.calendar.events');
 Route::get('/customer/calendar-events', [CalendarController::class, 'getAvailableDates'])->name('customer.calendar.events');
 
-// ==========================================
-// 2. AUTHENTICATED ROUTES (Semua role masuk ke sini dulu)
-// ==========================================
+// authenticated route untuk semua user yang sudah login (admin, freelancer, customer)
 Route::middleware(['auth', 'verified'])->group(function () {
     
     // REDIRECTION HUB: Mengarahkan user yang login ke dashboard masing-masing
@@ -111,10 +104,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Profile (Bawaan Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/pesanan', function () {
-        // Ambil data booking milik user yang sedang login beserta relasi paketnya
+        
         $bookings = Booking::with('package')
                     ->where('user_id', auth()->id())
-                    ->latest() // Urutkan dari yang terbaru
+                    ->latest() 
                     ->get();
                     
         return view('customer.pesanan', compact('bookings'));
@@ -139,18 +132,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Route list packages
     Route::get('/packages', [CustomerBookingController::class, 'packages'])->name('customer.packages');
-
-    // ROUTE KHUSUS CUSTOMER (Bisa diakses Admin & Freelancer juga)
-    // Jika ada route seperti 'Pesanan Saya', bungkus di sini pakai:
-    // Route::middleware(['role:admin,freelancer,customer'])->group(function() { ... });
 });
 
-// ==========================================
-// 3. FREELANCER AREA (Bisa diakses Admin & Freelancer)
-// ==========================================
+// freelance area
 Route::prefix('freelance')
     ->name('freelancer.')
-    ->middleware(['auth', 'role:freelancer']) // Admin ditambahkan agar bisa akses
+    ->middleware(['auth', 'role:freelancer'])
     ->group(function () {
         
         Route::get('/moments', [MomentController::class, 'index'])->name('moments.index');
@@ -167,9 +154,7 @@ Route::prefix('freelance')
         
 });
 
-// ==========================================
-// 4. ADMIN AREA (Hanya mutlak untuk Admin)
-// ==========================================
+// admin area
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'role:admin'])
@@ -177,7 +162,6 @@ Route::prefix('admin')
         
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
-        // Resource Routes (Otomatis bikin route index, create, store, dll)
         Route::resource('packages', PackageController::class);
         Route::resource('bookings', BookingController::class);
         Route::resource('users', UserController::class);

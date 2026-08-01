@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <title>Invoice #INV-EVL-{{ $booking->id }}</title>
     <style>
-        /* Reset & Base Setup */
+       
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #111827; font-size: 13px; line-height: 1.5; margin: 0; padding: 0; }
         .container { max-width: 800px; margin: 0 auto; padding: 30px; }
         
-        /* Header Section */
+       
         .header-table { width: 100%; border-bottom: 2px solid #C9A66B; padding-bottom: 15px; margin-bottom: 30px; border-collapse: collapse; }
         .header-table td { vertical-align: middle; }
         .logo { font-size: 28px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; color: #111; }
         .tagline { margin: 5px 0 0; color: #C9A66B; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
         .invoice-title { font-size: 24px; color: #111; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; text-align: right; margin: 0; }
         
-        /* Client & Booking Info */
+       
         .info-table { width: 100%; margin-bottom: 40px; border-collapse: collapse; }
         .info-table td { vertical-align: top; width: 50%; }
         .info-title { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: bold; }
@@ -23,13 +23,13 @@
         .info-text { margin: 0 0 3px 0; color: #555; font-size: 12px; }
         .text-right { text-align: right; }
         
-        /* Payment Items Table */
+        
         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .items-table th { border-bottom: 2px solid #111; border-top: 2px solid #111; padding: 12px 5px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #111; background-color: #fdfbf7; }
         .items-table td { padding: 15px 5px; border-bottom: 1px solid #eee; vertical-align: top; }
         .items-table th.text-right, .items-table td.text-right { text-align: right; }
         
-        /* Totals Calculation */
+        
         .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .summary-table td { padding: 8px 5px; }
         .summary-label { text-align: right; width: 75%; font-size: 12px; color: #555; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
@@ -37,12 +37,12 @@
         .total-row td { font-size: 15px; font-weight: bold; border-top: 2px solid #111; padding-top: 15px; color: #111; }
         .balance-row td { font-size: 16px; font-weight: bold; color: #C9A66B; border-bottom: 2px solid #111; padding-bottom: 15px; }
         
-        /* Status Badge */
+        
         .status-badge { display: inline-block; padding: 6px 14px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 10px; border-radius: 2px; }
         .badge-paid { background: #10B981; color: #fff; }
         .badge-partial { background: #111; color: #C9A66B; border: 1px solid #C9A66B; }
         
-        /* Footer */
+        
         .footer { text-align: center; margin-top: 40px; font-size: 10px; color: #888; border-top: 1px solid #eee; padding-top: 20px; line-height: 1.8; }
     </style>
 </head>

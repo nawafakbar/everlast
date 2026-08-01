@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Relasi ke tabel users (pemesan)
-            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade'); // Relasi ke paket
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
             $table->string('partner_name');
             $table->text('couple_address');
             $table->decimal('couple_lat', 10, 8)->nullable();

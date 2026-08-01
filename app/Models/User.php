@@ -15,8 +15,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'google_id', // Tambahkan ini
-        'role',      // Tambahkan ini
+        'google_id',
+        'role',     
         'email_verified_at',
         'phone',
         'avatar',

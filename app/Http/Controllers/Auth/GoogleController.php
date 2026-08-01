@@ -42,8 +42,8 @@ class GoogleController extends Controller
                         'name' => $googleUser->name,
                         'email' => $googleUser->email,
                         'google_id' => $googleUser->id,
-                        'password' => null, // Kosongkan karena login via Google
-                        'email_verified_at' => now(), // Otomatis terverifikasi
+                        'password' => null,
+                        'email_verified_at' => now(),
                     ]);
                     Auth::login($newUser);
                 }
