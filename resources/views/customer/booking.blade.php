@@ -310,10 +310,9 @@
     let map3Initialized = false;
     let eventMap3, eventMarker3;
 
-    // ==========================================
+
     // HELPER: Cari Alamat (Nominatim/OSM) + Gunakan (Geolocation)
-    // Reusable buat semua peta (rumah, acara utama, lokasi ke-2, ke-3)
-    // ==========================================
+    // Reusable buat semua peta (rumah, acara utama, dan semua lokasi)
     function setupLocationTools({ map, marker, latInputId, lngInputId, searchInputId, suggestionsId, geoBtnId }) {
         const searchInput = document.getElementById(searchInputId);
         const suggestionsBox = document.getElementById(suggestionsId);
@@ -396,7 +395,7 @@
                     },
                     {
                         enableHighAccuracy: true,
-                        timeout: 10000,        // <-- kasih batas waktu 10 detik
+                        timeout: 10000,        
                         maximumAge: 0
                     }
                 );
@@ -411,9 +410,8 @@
         const packageSelect = document.getElementById('package_id');
         const categorySelect = document.getElementById('category'); // Tangkap elemen Kategori
         
-        // ==========================================
+        
         // LOGIKA FILTER KATEGORI -> BUKA KUNCI PAKET
-        // ==========================================
         categorySelect.addEventListener('change', function() {
             const selectedCategory = this.value;
 
@@ -498,9 +496,8 @@
                     loc3Container.classList.add('hidden');
                 }
 
-                // ==========================================
+                
                 // 2. LOGIKA DYNAMIC RULES BERDASARKAN PAKET
-                // ==========================================
                 const rulesContainer = document.getElementById('rules_container');
                 const rulesTitle = document.getElementById('rules_title');
                 const rulesContent = document.getElementById('rules_content');
@@ -605,9 +602,8 @@
             }
         }
 
-        // ==========================================
+        
         // AUTO KALKULASI JAM PREWEDDING (ALL IN)
-        // ==========================================
         const pStartInput = document.getElementById('prewed_start_time');
         const pEndInput = document.getElementById('prewed_end_time');
 
@@ -701,9 +697,8 @@
             }
         }
 
-        // ==========================================
+        
         // AUTO-SELECT PAKET DARI HALAMAN PACKAGES
-        // ==========================================
         const urlParams = new URLSearchParams(window.location.search);
         const preselectPackageId = urlParams.get('package_id');
 
@@ -747,7 +742,7 @@
     // SCRIPT CALENDAR
     let customerCalendar;
     let calendarInitialized = false;
-    let currentTargetInput = ''; // Variabel buat nyimpen ID input yang mau diisi
+    let currentTargetInput = ''; 
 
     // Tambahin parameter targetId
     function openCalendarModal(targetId) {
