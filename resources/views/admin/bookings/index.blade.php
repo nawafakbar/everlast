@@ -116,39 +116,43 @@
                             <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
                                 <div class="flex justify-end space-x-3">
 
-                                    <a href="{{ route('admin.bookings.delivery', $booking->id) }}" 
-                                    class="{{ $booking->status === 'completed' ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
-                                    title="{{ $booking->status === 'completed' ? 'Karya Sudah Selesai' : 'Kirim Karya ke Client' }}">
-                                        <i class="fab fa-whatsapp"></i>
-                                    </a>
+                                    @if($booking->status === 'cancelled')
+                                        {{-- Status CANCELLED: cuma tombol Delete yang tampil --}}
+                                        <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Hapus booking ini?');">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    @else
+                                        @if($booking->status !== 'pending')
+                                            {{-- WA & Assign Team cuma tampil kalau BUKAN pending (dan otomatis bukan cancelled, karena udah kena @if di atas) --}}
+                                            <a href="{{ route('admin.bookings.delivery', $booking->id) }}" 
+                                            class="{{ $booking->status === 'completed' ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
+                                            title="{{ $booking->status === 'completed' ? 'Karya Sudah Selesai' : 'Kirim Karya ke Client' }}">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
 
-                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" 
-                                    class="{{ $booking->assignments->isNotEmpty() ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
-                                    title="{{ $booking->assignments->isNotEmpty() ? 'Team Assigned - Edit Team' : 'Assign Team' }}">
-                                        <i class="fas fa-users-cog"></i>
-                                    </a>
-                                    
-                                    <!-- <a href="{{ route('admin.bookings.checkout', $booking->id) }}" class="text-gray-400 hover:text-green-500 transition-colors" title="Test Payment">
-                                        <i class="fas fa-credit-card"></i>
-                                    </a> -->
-                                    @if($booking->cancel_reason && $booking->status !== 'cancelled')
-                                        <span title="Ada Permintaan Pembatalan" class="text-orange-500 animate-pulse">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                        </span>
+                                            <a href="{{ route('admin.bookings.show', $booking->id) }}" 
+                                            class="{{ $booking->assignments->isNotEmpty() ? 'text-green-500 hover:text-green-600' : 'text-gray-400 hover:text-blue-500' }} transition-colors" 
+                                            title="{{ $booking->assignments->isNotEmpty() ? 'Team Assigned - Edit Team' : 'Assign Team' }}">
+                                                <i class="fas fa-users-cog"></i>
+                                            </a>
+                                        @endif
+
+                                        @if($booking->cancel_reason)
+                                            <span title="Ada Permintaan Pembatalan" class="text-orange-500 animate-pulse">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </span>
+                                        @endif
+
+                                        <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Hapus booking ini?');">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete"><i class="fas fa-trash"></i></button>
+                                        </form>
                                     @endif
-                                    @if($booking->status === 'cancelled' && in_array($booking->refund_status, ['pending', 'processing']))
-                                        <span title="Menunggu Refund" class="text-yellow-500">
-                                            <i class="fas fa-hand-holding-usd"></i>
-                                        </span>
-                                    @endif
-                                    <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="text-gray-400 hover:text-black transition-colors" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    
-                                    <form action="{{ route('admin.bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Hapus booking ini?');">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete"><i class="fas fa-trash"></i></button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>
