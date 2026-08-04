@@ -6,7 +6,7 @@
             <h2 class="text-xl font-semibold text-gray-900 tracking-tight">Bookings</h2>
             <p class="text-gray-500 text-xs mt-1">Manage client reservations and event schedules.</p>
         </div>
-        <a href="{{ route('admin.bookings.create') }}" class="bg-black text-white px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-sm hover:bg-gray-800 transition-colors">
+        <a href="{{ route('admin.bookings.create') }}" class="hidden bg-black text-white px-4 py-2 text-xs font-medium uppercase tracking-wider rounded-sm hover:bg-gray-800 transition-colors">
             + Manual Booking
         </a>
     </div>
