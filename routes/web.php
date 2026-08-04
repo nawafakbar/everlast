@@ -151,6 +151,7 @@ Route::prefix('freelance')
         Route::get('/cash-flows', [FreelancerCashFlowController::class, 'index'])->name('cash_flows.index');
         Route::post('/cash-flows', [FreelancerCashFlowController::class, 'store'])->name('cash_flows.store');
         Route::delete('/cash-flows/{cashFlow}', [FreelancerCashFlowController::class, 'destroy'])->name('cash_flows.destroy');
+        Route::get('/calendar-events', [CalendarController::class, 'getFreelancerDates'])->name('calendar.events');
         
 });
 

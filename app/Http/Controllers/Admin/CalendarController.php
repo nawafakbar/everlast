@@ -167,4 +167,43 @@ class CalendarController extends Controller
 
         return $isFull;
     }
+
+    // kalender freelancer
+    public function getFreelancerDates()
+    {
+        $freelancerId = auth()->id();
+
+        $assignments = \App\Models\Assignment::with('booking')
+            ->where('user_id', $freelancerId)
+            ->whereIn('status', ['pending', 'accepted', 'completed'])
+            ->get();
+
+        $events = [];
+
+        foreach ($assignments as $assign) {
+            if (!$assign->booking) continue;
+
+            $isPrewed = $assign->event_type === 'all_in_prewedding';
+
+            $date  = $isPrewed ? $assign->booking->prewed_date       : $assign->booking->booking_date;
+            $start = $isPrewed ? $assign->booking->prewed_start_time : $assign->booking->start_time;
+            $end   = $isPrewed ? $assign->booking->prewed_end_time   : $assign->booking->end_time;
+
+            if (!$date) continue;
+
+            $label = $assign->status === 'pending' ? 'Menunggu Konfirmasi' : 'Booked';
+
+            $events[] = [
+                'title' => $label,
+                'start' => $date,
+                'backgroundColor' => $assign->status === 'pending' ? '#facc15' : '#000000',
+                'borderColor' => $assign->status === 'pending' ? '#facc15' : '#000000',
+                'textColor' => $assign->status === 'pending' ? '#78350f' : '#ffffff',
+                'description' => Carbon::parse($start)->format('H:i') . ' - ' . Carbon::parse($end)->format('H:i') . ' WIB (' . $assign->task . ')',
+                'allDay' => true
+            ];
+        }
+
+        return response()->json($events);
+    }
 }

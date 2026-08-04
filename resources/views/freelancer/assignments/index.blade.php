@@ -264,7 +264,7 @@
                         center: 'title',
                         right: 'today'
                     },
-                    events: '{{ route("customer.calendar.events") }}', 
+                    events: '{{ route("freelancer.calendar.events") }}', 
                     
                     eventDidMount: function(info) {
                         if (info.event.extendedProps.description) {
