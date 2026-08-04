@@ -175,7 +175,7 @@ class CalendarController extends Controller
 
         $assignments = \App\Models\Assignment::with('booking')
             ->where('user_id', $freelancerId)
-            ->whereIn('status', ['pending', 'accepted', 'completed'])
+            ->whereIn('status', ['accepted', 'completed'])
             ->get();
 
         $events = [];
