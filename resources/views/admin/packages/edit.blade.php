@@ -13,6 +13,11 @@
 
     <div class="bg-white border border-gray-200 rounded-sm max-w-2xl">
         <form action="{{ route('admin.packages.update', $package->id) }}" method="POST" enctype="multipart/form-data" class="p-8">
+            @if (session('success'))
+                <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm p-4 rounded-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
             @if ($errors->any())
                 <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-sm">
                     <ul class="list-disc list-inside">
