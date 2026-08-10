@@ -238,6 +238,109 @@
     </div>
 </section>
 
+<!-- testimonials -->
+<section id="testimonials" class="bg-[#FDFBF7] py-24 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
+    <div class="max-w-3xl mx-auto text-center mb-16">
+        <h4 class="text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">What They Say</h4>
+        <h2 class="font-script text-6xl md:text-7xl text-gray-900">Kata Mereka</h2>
+    </div>
+
+    <div class="max-w-3xl mx-auto relative">
+        <div class="overflow-hidden" id="testimonialViewport">
+            <div class="flex transition-transform duration-500 ease-out" id="testimonialTrack">
+                @forelse($reviews as $review)
+                    <div class="w-full flex-shrink-0 px-4 sm:px-14 text-center">
+                        <div class="flex justify-center text-[#C9A66B] text-sm mb-6">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star {{ $i <= $review->rating ? '' : 'text-gray-300' }} mx-0.5"></i>
+                            @endfor
+                        </div>
+                        <p class="font-serif-custom text-gray-600 text-base sm:text-lg italic leading-relaxed mb-8">
+                            &ldquo;{{ $review->comment }}&rdquo;
+                        </p>
+                        <div class="w-8 h-[1px] bg-gray-300 mx-auto mb-4"></div>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-gray-900">{{ $review->user->name }}</p>
+                        @if($review->package)
+                            <p class="text-[10px] text-gray-400 uppercase tracking-wider mt-1">{{ $review->package->category }}</p>
+                        @endif
+                    </div>
+                @empty
+                    <div class="w-full flex-shrink-0 px-4 text-center">
+                        <p class="text-sm text-gray-400 italic">Belum ada ulasan.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        @if($reviews->count() > 1)
+            <button onclick="testimonialPrev()" class="absolute left-0 sm:-left-12 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-gray-300 rounded-full bg-white hover:bg-black hover:text-white hover:border-black transition-colors text-gray-700">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+            <button onclick="testimonialNext()" class="absolute right-0 sm:-right-12 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-gray-300 rounded-full bg-white hover:bg-black hover:text-white hover:border-black transition-colors text-gray-700">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+
+            <div class="flex justify-center gap-2 mt-10" id="testimonialDots"></div>
+        @endif
+    </div>
+</section>
+
+<script>
+    (function() {
+        const track = document.getElementById('testimonialTrack');
+        if (!track) return;
+
+        const slides = track.children.length;
+        let current = 0;
+        let autoTimer;
+
+        const dotsWrap = document.getElementById('testimonialDots');
+        if (dotsWrap && slides > 1) {
+            for (let i = 0; i < slides; i++) {
+                const dot = document.createElement('button');
+                dot.className = 'w-2 h-2 rounded-full transition-colors ' + (i === 0 ? 'bg-black' : 'bg-gray-300');
+                dot.onclick = () => goToTestimonial(i);
+                dotsWrap.appendChild(dot);
+            }
+        }
+
+        function updateDots() {
+            if (!dotsWrap) return;
+            [...dotsWrap.children].forEach((d, i) => {
+                d.className = 'w-2 h-2 rounded-full transition-colors ' + (i === current ? 'bg-black' : 'bg-gray-300');
+            });
+        }
+
+        function render() {
+            track.style.transform = `translateX(-${current * 100}%)`;
+            updateDots();
+        }
+
+        window.testimonialNext = function() {
+            current = (current + 1) % slides;
+            render();
+            resetAutoplay();
+        };
+        window.testimonialPrev = function() {
+            current = (current - 1 + slides) % slides;
+            render();
+            resetAutoplay();
+        };
+        window.goToTestimonial = function(i) {
+            current = i;
+            render();
+            resetAutoplay();
+        };
+
+        function resetAutoplay() {
+            clearInterval(autoTimer);
+            if (slides > 1) autoTimer = setInterval(testimonialNext, 6000);
+        }
+
+        resetAutoplay();
+    })();
+</script>
+
 <!-- popup calendar -->
 <div id="calendarModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeCalendarModal()"></div>

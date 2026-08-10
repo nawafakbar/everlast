@@ -18,6 +18,7 @@ use App\Http\Controllers\CustomerBookingController;
 use App\Http\Controllers\Freelancer\CashFlowController as FreelancerCashFlowController;
 use App\Models\Booking;
 use App\Models\Portfolio;
+use App\Models\Review;
 use Carbon\Carbon;
 
 // public route untuk halaman utama (welcome) dan halaman detail momen
@@ -65,8 +66,14 @@ Route::get('/', function () {
     $schedules = $scheduleList->sortBy('display_date')->take(4)->values();
 
     $moments = Portfolio::latest()->take(10)->get();
+
+    // Ambil ulasan terbaru buat testimonial slider di homepage
+    $reviews = Review::with(['user', 'package'])
+        ->latest()
+        ->take(6)
+        ->get();
     
-    return view('welcome', compact('schedules', 'moments'));
+    return view('welcome', compact('schedules', 'moments', 'reviews'));
 })->name('home');
 
 Route::get('/moment/{id}', function ($id) {
