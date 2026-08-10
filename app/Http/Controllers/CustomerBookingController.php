@@ -28,7 +28,10 @@ class CustomerBookingController extends Controller
 
     public function packages()
     {
-        $packages = Package::all();
+        $packages = \App\Models\Package::withAvg('reviews', 'rating')
+            ->withCount('reviews')
+            ->latest()
+            ->get();
         return view('customer.packages', compact('packages'));
     }
 

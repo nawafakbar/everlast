@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CashFlowController;
 use App\Http\Controllers\Freelancer\MomentController;
 use App\Http\Controllers\Freelancer\AssignmentController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CustomerBookingController;
 use App\Http\Controllers\Freelancer\CashFlowController as FreelancerCashFlowController;
 use App\Models\Booking;
@@ -105,7 +106,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/pesanan', function () {
         
-        $bookings = Booking::with('package')
+        $bookings = Booking::with(['package', 'review'])
                     ->where('user_id', auth()->id())
                     ->latest() 
                     ->get();
@@ -129,6 +130,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/booking/{id}/cancel', [CustomerBookingController::class, 'cancelForm'])->name('customer.bookings.cancel');
     Route::post('/booking/{id}/cancel', [CustomerBookingController::class, 'cancelStore'])->name('customer.bookings.cancel.store');
     Route::get('/booking/available-slots', [CustomerBookingController::class, 'availableSlots'])->name('customer.booking.available-slots');
+
+    // Rute Review Customer
+    Route::get('/booking/{id}/review', [ReviewController::class, 'create'])->name('customer.reviews.create');
+    Route::post('/booking/{id}/review', [ReviewController::class, 'store'])->name('customer.reviews.store');
 
     // Route list packages
     Route::get('/packages', [CustomerBookingController::class, 'packages'])->name('customer.packages');

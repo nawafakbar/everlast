@@ -101,6 +101,30 @@
                         <p class="text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-2 border-b border-gray-100 pb-2">Deskripsi</p>
                         <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ $package->description }}</p>
                     </div>
+
+                    {{-- REVIEWS --}}
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-900 uppercase tracking-wider mb-2 border-b border-gray-100 pb-2">Ulasan</p>
+
+                        @forelse($package->reviews as $review)
+                            <div class="border-b border-gray-100 py-5 last:border-0">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-900">{{ $review->user->name }}</p>
+                                        <p class="text-[9px] text-gray-400 uppercase tracking-wider mt-0.5">{{ $review->created_at->format('d F Y') }}</p>
+                                    </div>
+                                    <div class="flex text-[#C9A66B] text-xs">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star {{ $i <= $review->rating ? '' : 'text-gray-300' }}"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 leading-relaxed">{{ $review->comment }}</p>
+                            </div>
+                        @empty
+                            <p class="text-xs text-gray-400 italic text-center py-8">No reviews yet for this package.</p>
+                        @endforelse
+                    </div>
                 </div>
             </div>
 

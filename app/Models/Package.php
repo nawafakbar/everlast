@@ -17,4 +17,9 @@ class Package extends Model
         'total_locations',
         'thumbnail_path',
     ];
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }
